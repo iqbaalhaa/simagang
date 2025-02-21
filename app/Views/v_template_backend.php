@@ -5,10 +5,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>Admin Dashboard | <?= $judul ?></title>
     <meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
-    <link rel="icon" href="<?= base_url('backend') ?>/assets/img/icon.ico" type="image/x-icon" />
+    <link rel="icon" href="<?= base_url('backend') ?>/assets/img/favicon.png" type="image/x-icon" />
 
     <!-- Fonts and icons -->
     <script src="<?= base_url('backend') ?>/assets/js/plugin/webfont/webfont.min.js"></script>
+
     <script>
         WebFont.load({
             google: {
@@ -37,12 +38,12 @@
         <!--
 			Tip 1: You can change the background color of the main header using: data-background-color="blue | purple | light-blue | green | orange | red"
 		-->
-        <div class="main-header" data-background-color="purple">
+        <div class="main-header" data-background-color="light-blue">
             <!-- Logo Header -->
             <div class="logo-header">
 
-                <a href="index.html" class="logo">
-                    <img src="<?= base_url('backend') ?>/assets/img/logoazzara.svg" alt="navbar brand" class="navbar-brand">
+                <a href="index.html" class="logo" style="font-size: 25px; font-weight:bold; color:white; margin-left: 20px;">
+                    SiMagang
                 </a>
                 <button class="navbar-toggler sidenav-toggler ml-auto" type="button" data-toggle="collapse" data-target="collapse" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon">
@@ -111,38 +112,15 @@
                                 <span>
                                     Hizrian
                                     <span class="user-level">Administrator</span>
-                                    <span class="caret"></span>
                                 </span>
                             </a>
-                            <div class="clearfix"></div>
-
-                            <div class="collapse in" id="collapseExample">
-                                <ul class="nav">
-                                    <li>
-                                        <a href="#profile">
-                                            <span class="link-collapse">My Profile</span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#edit">
-                                            <span class="link-collapse">Edit Profile</span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#settings">
-                                            <span class="link-collapse">Settings</span>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
                         </div>
                     </div>
                     <ul class="nav">
                         <li class="nav-item active">
-                            <a href="index.html">
-                                <i class="fas fa-home"></i>
+                            <a href="<?= base_url('Admin') ?>">
+                                <i class="fas fa-desktop"></i>
                                 <p>Dashboard</p>
-                                <span class="badge badge-count">5</span>
                             </a>
                         </li>
                         <li class="nav-section">
@@ -152,33 +130,37 @@
                             <h4 class="text-section">Components</h4>
                         </li>
                         <li class="nav-item">
+                            <a href="<?= base_url('Admin/PengajuanMahasiswa') ?>">
+                                <i class="fas fa-server"></i>
+                                <p>Pengajuan Mahasiswa</p>
+                                <span class="badge badge-count badge-success">4</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a data-toggle="collapse" href="#charts">
-                                <i class="far fa-chart-bar"></i>
-                                <p>Charts</p>
+                                <i class="fa fa-users"></i>
+                                <p>Users</p>
                                 <span class="caret"></span>
                             </a>
                             <div class="collapse" id="charts">
                                 <ul class="nav nav-collapse">
                                     <li>
-                                        <a href="charts/charts.html">
-                                            <span class="sub-item">Chart Js</span>
+                                        <a href="<?= base_url('Admin/DataAdmin') ?>">
+                                            <span class="sub-item">Admin</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="<?= base_url('Admin/DataDosen') ?>">
+                                            <span class="sub-item">Dosen</span>
                                         </a>
                                     </li>
                                     <li>
                                         <a href="charts/sparkline.html">
-                                            <span class="sub-item">Sparkline</span>
+                                            <span class="sub-item">Mahasiswa</span>
                                         </a>
                                     </li>
                                 </ul>
                             </div>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="widgets.html">
-                                <i class="fas fa-desktop"></i>
-                                <p>Widgets</p>
-                                <span class="badge badge-count badge-success">4</span>
-                            </a>
                         </li>
                     </ul>
                 </div>
@@ -186,44 +168,33 @@
         </div>
         <!-- End Sidebar -->
 
-
-        <?php if ($page) {
-            echo view($page);
-        } ?>
-
-        <!-- Custom template | don't include it in your project! -->
-        <div class="custom-template">
-            <div class="title">Settings</div>
-            <div class="custom-content">
-                <div class="switcher">
-                    <div class="switch-block">
-                        <h4>Topbar</h4>
-                        <div class="btnSwitch">
-                            <button type="button" class="changeMainHeaderColor" data-color="blue"></button>
-                            <button type="button" class="selected changeMainHeaderColor" data-color="purple"></button>
-                            <button type="button" class="changeMainHeaderColor" data-color="light-blue"></button>
-                            <button type="button" class="changeMainHeaderColor" data-color="green"></button>
-                            <button type="button" class="changeMainHeaderColor" data-color="orange"></button>
-                            <button type="button" class="changeMainHeaderColor" data-color="red"></button>
-                        </div>
-                    </div>
-                    <div class="switch-block">
-                        <h4>Background</h4>
-                        <div class="btnSwitch">
-                            <button type="button" class="changeBackgroundColor" data-color="bg2"></button>
-                            <button type="button" class="changeBackgroundColor selected" data-color="bg1"></button>
-                            <button type="button" class="changeBackgroundColor" data-color="bg3"></button>
+        <!-- Tambahkan main-panel untuk wrapper konten -->
+        <div class="main-panel">
+            <div class="content">
+                <div class="page-inner">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="d-flex align-items-center">
+                                        <h4 class="card-title"><?= $judul ?></h4>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Load konten page di sini -->
+                                    <?php if ($page) {
+                                        echo view($page);
+                                    } ?>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="custom-toggle">
-                <i class="flaticon-settings"></i>
-            </div>
         </div>
-        <!-- End Custom template -->
+
     </div>
-    </div>
+
     <!--   Core JS Files   -->
     <script src="<?= base_url('backend') ?>/assets/js/core/jquery.3.2.1.min.js"></script>
     <script src="<?= base_url('backend') ?>/assets/js/core/popper.min.js"></script>
@@ -273,6 +244,29 @@
     <!-- Azzara DEMO methods, don't include it in your project! -->
     <script src="<?= base_url('backend') ?>/assets/js/setting-demo.js"></script>
     <script src="<?= base_url('backend') ?>/assets/js/demo.js"></script>
+
+    <!-- Initialize DataTables -->
+    <script>
+        $(document).ready(function() {
+            $('#add-row').DataTable({
+                "pageLength": 10,
+                "language": {
+                    "search": "Cari:",
+                    "lengthMenu": "Tampilkan _MENU_ data per halaman",
+                    "zeroRecords": "Data tidak ditemukan",
+                    "info": "Menampilkan halaman _PAGE_ dari _PAGES_",
+                    "infoEmpty": "Tidak ada data yang tersedia",
+                    "infoFiltered": "(difilter dari _MAX_ total data)",
+                    "paginate": {
+                        "first": "Pertama",
+                        "last": "Terakhir",
+                        "next": "Selanjutnya",
+                        "previous": "Sebelumnya"
+                    },
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
