@@ -15,7 +15,11 @@
 
             <div class="row">
                 <div class="col-lg-6 order-1 order-lg-2" data-aos="fade-left" data-aos-delay="100">
+<<<<<<< HEAD
                     <img src="<?=base_url('frontend')?>/assets/img/about.jpg" class="img-fluid" alt="">
+=======
+                    <img src="<?= base_url('frontend') ?>/assets/img/about.jpg" class="img-fluid" alt="">
+>>>>>>> 8fecc6158b72adb70b4abba936c3187e67032497
                 </div>
                 <div class="col-lg-6 pt-4 pt-lg-0 order-2 order-lg-1 content">
                     <h3>VISI</h3>
@@ -75,6 +79,9 @@
         </div>
     </section><!-- End Features Section -->
 
+<<<<<<< HEAD
  
 
+=======
+>>>>>>> 8fecc6158b72adb70b4abba936c3187e67032497
 </main><!-- End #main -->
