@@ -15,16 +15,12 @@
 
             <div class="row">
                 <div class="col-lg-6 order-1 order-lg-2" data-aos="fade-left" data-aos-delay="100">
-<<<<<<< HEAD
-                    <img src="<?=base_url('frontend')?>/assets/img/about.jpg" class="img-fluid" alt="">
-=======
                     <img src="<?= base_url('frontend') ?>/assets/img/about.jpg" class="img-fluid" alt="">
->>>>>>> 8fecc6158b72adb70b4abba936c3187e67032497
                 </div>
                 <div class="col-lg-6 pt-4 pt-lg-0 order-2 order-lg-1 content">
                     <h3>VISI</h3>
                     <p class="fst-italic">
-                    Menjadi Program Studi Sistem Informasi Yang Unggul Sebagai Lokomotif Perubahan Sosial Dalam Bidang Teknologi Dengan Semangat Moderasi Islamic Technopreneurship Tahun 2025
+                        Menjadi Program Studi Sistem Informasi Yang Unggul Sebagai Lokomotif Perubahan Sosial Dalam Bidang Teknologi Dengan Semangat Moderasi Islamic Technopreneurship Tahun 2025
                     <h3>MISI</h3>
                     </p>
                     <ul>
@@ -33,7 +29,7 @@
                         <li><i class="bi bi-check-circle"></i> Membangun Tata Kelola dan Kerjasama Layanan Tri Dharma Perguruan Tinggi Secara Regional Dan Global Yang Mutual Benefits Yang Mutual Benefits Berbasis Sistem Informasi Menggunakan Matrik Times Higher Dan Webometriks</li>
                     </ul>
                     <p>"Unggul Sebagai Lokomotif Perubahan Sosial Dalam Bidang Teknologi Dengan Semangat Moderasi Islamic Tehcnopreneurship"
-                        
+
                     </p>
 
                 </div>
@@ -75,13 +71,8 @@
 
     <!-- ======= Why Us Section ======= -->
     <section id="why-us" class="why-us">
-        <div class="container" data-aos="fade-up">       
+        <div class="container" data-aos="fade-up">
         </div>
     </section><!-- End Features Section -->
 
-<<<<<<< HEAD
- 
-
-=======
->>>>>>> 8fecc6158b72adb70b4abba936c3187e67032497
 </main><!-- End #main -->
