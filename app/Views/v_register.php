@@ -1,9 +1,10 @@
+<!-- app/Views/admin/register.php -->
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Login</title>
+    <title>Register Mahasiswa</title>
     <meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
     <link rel="icon" href="<?= base_url('backend') ?>/assets/img/icon.ico" type="image/x-icon" />
 
@@ -34,47 +35,43 @@
         <div class="container container-login animated fadeIn">
             <img src="<?= base_url('backend') ?>/assets/img/logosi.png" alt="LogoSI" style="display: block; margin: 0 auto; width: 100px;">
             <br>
-            <h3 class="text-center"><b>LOGIN</b></h3>
+            <h3 class="text-center">Register Mahasiswa</h3>
             <div class="login-form">
-                <form action="<?= base_url('auth/login') ?>" method="post">
+                <form method="post" action="<?= base_url('Auth/register') ?>">
                     <div class="form-group form-floating-label">
-                        <input id="username" name="username" type="text" class="form-control input-border-bottom" required>
-                        <label for="username" class="placeholder">Username</label>
+                        <input id="fullname" name="fullname" type="text" class="form-control input-border-bottom" required>
+                        <label for="fullname" class="placeholder">Nama Lengkap</label>
                     </div>
                     <div class="form-group form-floating-label">
-                        <input id="password" name="password" type="password" class="form-control input-border-bottom" required>
-                        <label for="password" class="placeholder">Password</label>
-                        <div class="show-password">
-                            <i class="flaticon-interface"></i>
-                        </div>
+                        <input id="email" name="email" type="email" class="form-control input-border-bottom" required>
+                        <label for="email" class="placeholder">Email</label>
                     </div>
-                    <div class="row form-sub m-0">
-                        <a href="#" class="link float-right">Lupa Password ?</a>
+                    <div class="form-group form-floating-label">
+                        <input id="email" name="email" type="email" class="form-control input-border-bottom" required>
+                        <label for="email" class="placeholder">Username</label>
+                    </div>
+                    <div class="form-group form-floating-label">
+                        <input id="passwordsignin" name="passwordsignin" type="password" class="form-control input-border-bottom" required>
+                        <label for="passwordsignin" class="placeholder">Password</label>
+                    </div>
+                    <div class="form-group form-floating-label">
+                        <input id="confirmpassword" name="confirmpassword" type="password" class="form-control input-border-bottom" required>
+                        <label for="confirmpassword" class="placeholder">Konfirmasi Password</label>
                     </div>
                     <div class="form-action mb-3">
-                        <button type="submit" class="btn btn-primary btn-rounded btn-login">LOGIN</button>
+                        <button type="submit" class="btn btn-primary btn-rounded">Register</button>
                     </div>
                     <div class="login-account">
-                        <span class="msg">Apakah kamu mempunyai akun?</span>
-                        <a href="<?= base_url('Auth/register') ?>" id="show-signup" class="link">Register</a>
+                        <span class="msg">Sudah punya akun?</span>
+                        <a href="<?= base_url('Auth') ?>" class="link">Login</a>
                     </div>
                 </form>
             </div>
         </div>
     </div>
     <script src="<?= base_url('backend') ?>/assets/js/core/jquery.3.2.1.min.js"></script>
-    <script src="<?= base_url('backend') ?>/assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
-    <script src="<?= base_url('backend') ?>/assets/js/core/popper.min.js"></script>
     <script src="<?= base_url('backend') ?>/assets/js/core/bootstrap.min.js"></script>
     <script src="<?= base_url('backend') ?>/assets/js/ready.js"></script>
-    <script>
-        $(document).ready(function() {
-            // Debugging
-            $('.btn-login').click(function(e) {
-                console.log('Tombol login ditekan');
-            });
-        });
-    </script>
 </body>
 
 </html>

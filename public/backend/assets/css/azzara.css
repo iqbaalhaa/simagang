@@ -7643,7 +7643,7 @@ div.table-responsive > div.dataTables_wrapper > div.row {
     .login .wrapper.wrapper-login .container-login, .login .wrapper.wrapper-login .container-signup {
       width: 400px;
       background: #ffffff;
-      padding: 60px 25px;
+      padding: 20px 25px;
       border-radius: 5px;
       -webkit-box-shadow: 0 0.75rem 1.5rem rgba(18, 38, 63, 0.03);
       -moz-box-shadow: 0 0.75rem 1.5rem rgba(18, 38, 63, 0.03);

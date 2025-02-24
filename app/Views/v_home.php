@@ -4,7 +4,7 @@
         <h1>Sistem Informasi<br>Pengajuan Magang</h1>
         <h2>Program Studi Sistem Informasi UIN Sulthan Thaha Saifuddin Jambi</h2>
         <a href="<?= base_url('Auth') ?>" class="btn-get-started">Login</a>
-        <a href="<?= base_url('Auth') ?>" class="btn-get-started">Register</a>
+        <a href="<?= base_url('Auth/register') ?>" class="btn-get-started">Register</a>
     </div>
 </section><!-- End Hero -->
 

@@ -11,10 +11,10 @@ class ModelAuth extends Model
     protected $allowedFields = ['username', 'password', 'email', 'role'];
     protected $useTimestamps = true;
 
-    public function checkUser($email, $password)
+    public function checkUser($username, $password)
     {
-        // Cari user berdasarkan email
-        $user = $this->where('email', $email)->first();
+        // Cari user berdasarkan username
+        $user = $this->where('username', $username)->first();
 
         if (!$user) {
             return false;

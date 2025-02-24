@@ -19,50 +19,47 @@ class Auth extends BaseController
     public function index()
     {
         // Redirect jika sudah login
-        if (session()->get('is_logged_in')) {
-            return $this->redirectToDashboard();
-        }
+        // if (session()->get('is_logged_in')) {
+        //     return $this->redirectToDashboard();
+        // }
 
         $data['validation'] = \Config\Services::validation();
 
         if ($this->request->getMethod() === 'post') {
-            return $this->processLogin();
+            return $this->login();
         }
 
         return view('v_login', $data);
     }
 
-    private function processLogin()
+    public function login()
     {
-        $rules = [
-            'email' => 'required|valid_email',
-            'password' => 'required|min_length[8]'
-        ];
+        $username = $this->request->getPost('username');
+        $password = $this->request->getPost('password');
 
-        if (!$this->validate($rules)) {
-            return redirect()->back()
-                ->withInput()
-                ->with('validation', $this->validator);
-        }
-
-        $credentials = [
-            'email' => $this->request->getPost('email'),
-            'password' => $this->request->getPost('password')
-        ];
-
-        $user = $this->modelAuth->checkUser(
-            $credentials['email'],
-            $credentials['password']
-        );
+        $user = $this->modelAuth->checkUser($username, $password);
 
         if ($user) {
-            $this->setUserSession($user);
-            return $this->redirectToDashboard();
-        }
+            session()->set([
+                'username' => $user['username'],
+                'role' => $user['role'],
+                'is_logged_in' => true
+            ]);
 
-        return redirect()->back()
-            ->withInput()
-            ->with('error', 'Email atau password salah');
+            // Pengalihan berdasarkan role
+            switch ($user['role']) {
+                case 'admin':
+                    return redirect()->to('/admin'); // Mengarah ke method index di Admin
+                case 'dosen':
+                    return redirect()->to('/dosen/dashboard'); // Ganti dengan route dashboard dosen
+                case 'mahasiswa':
+                    return redirect()->to('/mahasiswa/dashboard'); // Ganti dengan route dashboard mahasiswa
+                default:
+                    return redirect()->to('/'); // Pengalihan default
+            }
+        } else {
+            return redirect()->back()->with('error', 'Username atau password salah');
+        }
     }
 
     private function setUserSession($user)
@@ -115,5 +112,42 @@ class Auth extends BaseController
     {
         session()->destroy();
         return redirect()->to('/login');
+    }
+
+    public function register()
+    {
+        $data['validation'] = \Config\Services::validation();
+        return view('v_register', $data);
+    }
+
+    public function store()
+    {
+        $validation = \Config\Services::validation();
+        $validation->setRules([
+            'fullname' => 'required|min_length[3]',
+            'email'    => 'required|valid_email|is_unique[user.email]',
+            'passwordsignin' => 'required|min_length[6]',
+            'confirmpassword' => 'required|matches[passwordsignin]',
+            'agree' => 'required'
+        ]);
+
+        if (!$validation->withRequest($this->request)->run()) {
+            return redirect()->back()->withInput()->with('errors', $validation->getErrors());
+        }
+
+        $this->modelAuth->save([
+            'nama'     => $this->request->getPost('fullname'),
+            'email'    => $this->request->getPost('email'),
+            'password' => password_hash($this->request->getPost('passwordsignin'), PASSWORD_DEFAULT),
+            'role'     => 'mahasiswa'
+        ]);
+
+        return redirect()->to('/login')->with('success', 'Registrasi berhasil! Silakan login.');
+    }
+
+    public function authenticate()
+    {
+        // Debugging
+        dd($this->request->getPost());
     }
 }
