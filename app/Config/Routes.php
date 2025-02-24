@@ -10,7 +10,7 @@ $routes->get('Auth/register', 'Auth::register');
 $routes->post('/register', 'Auth::store');
 $routes->get('/Auth', 'Auth');
 $routes->post('Auth/processLogin', 'Auth::processLogin');
-$routes->get('/logout', 'Auth::logout');
+$routes->get('Auth/logout', 'Auth::logout');
 $routes->post('auth/login', 'Auth::login');
 
 
@@ -20,5 +20,5 @@ $routes->get('Admin/DataAdmin', 'Admin::DataAdmin');
 $routes->get('Admin/DataDosen', 'Admin::DataDosen');
 
 $routes->get('/admin', 'Admin::index');
-$routes->get('/dosen/dashboard', 'Dosen::dashboard');
-$routes->get('/mahasiswa/dashboard', 'Mahasiswa::dashboard');
+$routes->get('/dosen', 'Dosen::index');
+$routes->get('/mahasiswa', 'Mahasiswa::index');

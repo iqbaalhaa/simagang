@@ -51,9 +51,9 @@ class Auth extends BaseController
                 case 'admin':
                     return redirect()->to('/admin'); // Mengarah ke method index di Admin
                 case 'dosen':
-                    return redirect()->to('/dosen/dashboard'); // Ganti dengan route dashboard dosen
+                    return redirect()->to('/dosen'); // Ganti dengan route dashboard dosen
                 case 'mahasiswa':
-                    return redirect()->to('/mahasiswa/dashboard'); // Ganti dengan route dashboard mahasiswa
+                    return redirect()->to('/mahasiswa'); // Ganti dengan route dashboard mahasiswa
                 default:
                     return redirect()->to('/'); // Pengalihan default
             }
@@ -111,7 +111,7 @@ class Auth extends BaseController
     public function logout()
     {
         session()->destroy();
-        return redirect()->to('/login');
+        return redirect()->to('Auth');
     }
 
     public function register()
@@ -143,11 +143,5 @@ class Auth extends BaseController
         ]);
 
         return redirect()->to('/login')->with('success', 'Registrasi berhasil! Silakan login.');
-    }
-
-    public function authenticate()
-    {
-        // Debugging
-        dd($this->request->getPost());
     }
 }

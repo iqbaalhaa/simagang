@@ -29,21 +29,21 @@ class ModelAuth extends Model
         switch ($user['role']) {
             case 'admin':
                 $user['admin_data'] = $this->db->table('admin')
-                    ->where('user_id', $user['id'])
+                    ->where('id_user', $user['id_user'])
                     ->get()
                     ->getRowArray();
                 break;
 
             case 'dosen':
                 $user['dosen_data'] = $this->db->table('dosen_pembimbing')
-                    ->where('user_id', $user['id'])
+                    ->where('id_user', $user['id_user'])
                     ->get()
                     ->getRowArray();
                 break;
 
             case 'mahasiswa':
                 $user['mahasiswa_data'] = $this->db->table('mahasiswa')
-                    ->where('user_id', $user['id'])
+                    ->where('id_user', $user['id_user'])
                     ->get()
                     ->getRowArray();
                 break;
