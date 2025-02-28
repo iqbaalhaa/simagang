@@ -127,13 +127,25 @@
                             <span class="sidebar-mini-icon">
                                 <i class="fa fa-ellipsis-h"></i>
                             </span>
-                            <h4 class="text-section">Components</h4>
+                            <h4 class="text-section">Menu</h4>
                         </li>
                         <li class="nav-item">
                             <a href="<?= base_url('Admin/PengajuanMahasiswa') ?>">
                                 <i class="fas fa-server"></i>
                                 <p>Pengajuan Mahasiswa</p>
                                 <span class="badge badge-count badge-success">4</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('Admin/PengajuanMahasiswa') ?>">
+                                <i class="fas fa-building"></i>
+                                <p>Instansi</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('Admin/PengajuanMahasiswa') ?>">
+                                <i class="fas fa-tasks"></i>
+                                <p>Tinjauan Progress</p>
                             </a>
                         </li>
                         <li class="nav-item">
@@ -155,7 +167,7 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="charts/sparkline.html">
+                                        <a href="<?= base_url('Admin/DataMahasiswa') ?>">
                                             <span class="sub-item">Mahasiswa</span>
                                         </a>
                                     </li>
@@ -195,74 +207,75 @@
 
     </div>
 
-    <!--   Core JS Files   -->
-    <script src="<?= base_url('backend') ?>/assets/js/core/jquery.3.2.1.min.js"></script>
-    <script src="<?= base_url('backend') ?>/assets/js/core/popper.min.js"></script>
-    <script src="<?= base_url('backend') ?>/assets/js/core/bootstrap.min.js"></script>
-
-    <!-- jQuery UI -->
-    <script src="<?= base_url('backend') ?>/assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
-    <script src="<?= base_url('backend') ?>/assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
-
-    <!-- jQuery Scrollbar -->
-    <script src="<?= base_url('backend') ?>/assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
-
-    <!-- Moment JS -->
-    <script src="<?= base_url('backend') ?>/assets/js/plugin/moment/moment.min.js"></script>
-
-    <!-- Chart JS -->
-    <script src="<?= base_url('backend') ?>/assets/js/plugin/chart.js/chart.min.js"></script>
-
-    <!-- jQuery Sparkline -->
-    <script src="<?= base_url('backend') ?>/assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js"></script>
-
-    <!-- Chart Circle -->
-    <script src="<?= base_url('backend') ?>/assets/js/plugin/chart-circle/circles.min.js"></script>
-
-    <!-- Datatables -->
-    <script src="<?= base_url('backend') ?>/assets/js/plugin/datatables/datatables.min.js"></script>
-
-    <!-- Bootstrap Notify -->
-    <script src="<?= base_url('backend') ?>/assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
-
-    <!-- Bootstrap Toggle -->
-    <script src="<?= base_url('backend') ?>/assets/js/plugin/bootstrap-toggle/bootstrap-toggle.min.js"></script>
-
-    <!-- jQuery Vector Maps -->
-    <script src="<?= base_url('backend') ?>/assets/js/plugin/jqvmap/jquery.vmap.min.js"></script>
-    <script src="<?= base_url('backend') ?>/assets/js/plugin/jqvmap/maps/jquery.vmap.world.js"></script>
-
-    <!-- Google Maps Plugin -->
-    <script src="<?= base_url('backend') ?>/assets/js/plugin/gmaps/gmaps.js"></script>
-
-    <!-- Sweet Alert -->
-    <script src="<?= base_url('backend') ?>/assets/js/plugin/sweetalert/sweetalert.min.js"></script>
-
-    <!-- Azzara JS -->
-    <script src="<?= base_url('backend') ?>/assets/js/ready.min.js"></script>
-
-    <!-- Initialize DataTables -->
-    <script>
-        $(document).ready(function() {
-            $('#add-row').DataTable({
-                "pageLength": 10,
-                "language": {
-                    "search": "Cari:",
-                    "lengthMenu": "Tampilkan _MENU_ data per halaman",
-                    "zeroRecords": "Data tidak ditemukan",
-                    "info": "Menampilkan halaman _PAGE_ dari _PAGES_",
-                    "infoEmpty": "Tidak ada data yang tersedia",
-                    "infoFiltered": "(difilter dari _MAX_ total data)",
-                    "paginate": {
-                        "first": "Pertama",
-                        "last": "Terakhir",
-                        "next": "Selanjutnya",
-                        "previous": "Sebelumnya"
-                    },
-                }
-            });
-        });
-    </script>
 </body>
+
+<!--   Core JS Files   -->
+<script src="<?= base_url('backend') ?>/assets/js/core/jquery.3.2.1.min.js"></script>
+<script src="<?= base_url('backend') ?>/assets/js/core/popper.min.js"></script>
+<script src="<?= base_url('backend') ?>/assets/js/core/bootstrap.min.js"></script>
+
+<!-- jQuery UI -->
+<script src="<?= base_url('backend') ?>/assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+<script src="<?= base_url('backend') ?>/assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
+
+<!-- jQuery Scrollbar -->
+<script src="<?= base_url('backend') ?>/assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
+<!-- Moment JS -->
+<script src="<?= base_url('backend') ?>/assets/js/plugin/moment/moment.min.js"></script>
+
+<!-- Chart JS -->
+<script src="<?= base_url('backend') ?>/assets/js/plugin/chart.js/chart.min.js"></script>
+
+<!-- jQuery Sparkline -->
+<script src="<?= base_url('backend') ?>/assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js"></script>
+
+<!-- Chart Circle -->
+<script src="<?= base_url('backend') ?>/assets/js/plugin/chart-circle/circles.min.js"></script>
+
+<!-- Datatables -->
+<script src="<?= base_url('backend') ?>/assets/js/plugin/datatables/datatables.min.js"></script>
+
+<!-- Bootstrap Notify -->
+<script src="<?= base_url('backend') ?>/assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
+
+<!-- Bootstrap Toggle -->
+<script src="<?= base_url('backend') ?>/assets/js/plugin/bootstrap-toggle/bootstrap-toggle.min.js"></script>
+
+<!-- jQuery Vector Maps -->
+<script src="<?= base_url('backend') ?>/assets/js/plugin/jqvmap/jquery.vmap.min.js"></script>
+<script src="<?= base_url('backend') ?>/assets/js/plugin/jqvmap/maps/jquery.vmap.world.js"></script>
+
+<!-- Google Maps Plugin -->
+<script src="<?= base_url('backend') ?>/assets/js/plugin/gmaps/gmaps.js"></script>
+
+<!-- Sweet Alert -->
+<script src="<?= base_url('backend') ?>/assets/js/plugin/sweetalert/sweetalert.min.js"></script>
+
+<!-- Azzara JS -->
+<script src="<?= base_url('backend') ?>/assets/js/ready.min.js"></script>
+
+<!-- Initialize DataTables -->
+<script>
+    $(document).ready(function() {
+        $('#add-row').DataTable({
+            "pageLength": 10,
+            "language": {
+                "search": "Cari:",
+                "lengthMenu": "Tampilkan _MENU_ data per halaman",
+                "zeroRecords": "Data tidak ditemukan",
+                "info": "Menampilkan halaman _PAGE_ dari _PAGES_",
+                "infoEmpty": "Tidak ada data yang tersedia",
+                "infoFiltered": "(difilter dari _MAX_ total data)",
+                "paginate": {
+                    "first": "Pertama",
+                    "last": "Terakhir",
+                    "next": "Selanjutnya",
+                    "previous": "Sebelumnya"
+                },
+            }
+        });
+    });
+</script>
 
 </html>

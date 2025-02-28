@@ -38,7 +38,16 @@ class Admin extends BaseController
     {
         $data = [
             'judul' => 'Data Dosen',
-            'page' => 'admin/v_data_Dosen',
+            'page' => 'admin/v_data_dosen',
+        ];
+
+        return view('v_template_backend', $data);
+    }
+    public function DataMahasiswa()
+    {
+        $data = [
+            'judul' => 'Data Mahasiswa',
+            'page' => 'admin/v_data_mahasiswa',
         ];
 
         return view('v_template_backend', $data);

@@ -18,6 +18,7 @@ $routes->get('Admin', 'Admin::index');
 $routes->get('Admin/PengajuanMahasiswa', 'Admin::PengajuanMahasiswa');
 $routes->get('Admin/DataAdmin', 'Admin::DataAdmin');
 $routes->get('Admin/DataDosen', 'Admin::DataDosen');
+$routes->get('Admin/DataMahasiswa', 'Admin::DataMahasiswa');
 
 $routes->get('/admin', 'Admin::index');
 $routes->get('/dosen', 'Dosen::index');
