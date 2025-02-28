@@ -37,18 +37,14 @@
             <br>
             <h3 class="text-center">Register Mahasiswa</h3>
             <div class="login-form">
-                <form method="post" action="<?= base_url('Auth/register') ?>">
+                <form method="post" action="<?= base_url('Auth/store') ?>">
                     <div class="form-group form-floating-label">
-                        <input id="fullname" name="fullname" type="text" class="form-control input-border-bottom" required>
-                        <label for="fullname" class="placeholder">Nama Lengkap</label>
+                        <input id="username" name="username" type="text" class="form-control input-border-bottom" required>
+                        <label for="username" class="placeholder">Username</label>
                     </div>
                     <div class="form-group form-floating-label">
                         <input id="email" name="email" type="email" class="form-control input-border-bottom" required>
                         <label for="email" class="placeholder">Email</label>
-                    </div>
-                    <div class="form-group form-floating-label">
-                        <input id="email" name="email" type="email" class="form-control input-border-bottom" required>
-                        <label for="email" class="placeholder">Username</label>
                     </div>
                     <div class="form-group form-floating-label">
                         <input id="passwordsignin" name="passwordsignin" type="password" class="form-control input-border-bottom" required>

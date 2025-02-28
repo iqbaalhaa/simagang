@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Feb 24, 2025 at 07:07 PM
+-- Generation Time: Feb 28, 2025 at 08:35 AM
 -- Server version: 8.3.0
 -- PHP Version: 8.2.18
 
@@ -45,14 +45,12 @@ CREATE TABLE IF NOT EXISTS `admin` (
 
 DROP TABLE IF EXISTS `dosen_pembimbing`;
 CREATE TABLE IF NOT EXISTS `dosen_pembimbing` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `user_id` int NOT NULL,
-  `nip` varchar(20) NOT NULL,
+  `id_dosen` int NOT NULL AUTO_INCREMENT,
+  `id_user` int NOT NULL,
   `nama` varchar(100) NOT NULL,
   `bidang_keahlian` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `user_id` (`user_id`),
-  UNIQUE KEY `nip` (`nip`)
+  PRIMARY KEY (`id_dosen`),
+  UNIQUE KEY `user_id` (`id_user`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -108,18 +106,21 @@ CREATE TABLE IF NOT EXISTS `user` (
   `email` varchar(100) NOT NULL,
   `role` enum('admin','dosen','mahasiswa') NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_user`),
   UNIQUE KEY `username` (`username`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `user`
 --
 
-INSERT INTO `user` (`id_user`, `username`, `password`, `email`, `role`, `created_at`) VALUES
-(1, 'admin', '$2y$10$osatC57vXNvpvcpcL0Aa6.8mGFwLqwiTeL1RK8mUtZ7QpMEiy3Sza', 'admin@gmail.com', 'admin', '2025-02-24 04:44:15'),
-(2, 'mahasiswa', '$2y$10$/.Avqs3kurPIjskUAbqKCuYTyePKyO83tBSB88tkBM2yvZjwGp4EO', 'mahasiswa@gmail.com', 'mahasiswa', '2025-02-24 18:57:36');
+INSERT INTO `user` (`id_user`, `username`, `password`, `email`, `role`, `created_at`, `updated_at`) VALUES
+(1, 'admin', '$2y$10$osatC57vXNvpvcpcL0Aa6.8mGFwLqwiTeL1RK8mUtZ7QpMEiy3Sza', 'admin@gmail.com', 'admin', '2025-02-24 04:44:15', '2025-02-28 06:48:44'),
+(2, 'mahasiswa', '$2y$10$/.Avqs3kurPIjskUAbqKCuYTyePKyO83tBSB88tkBM2yvZjwGp4EO', 'mahasiswa@gmail.com', 'mahasiswa', '2025-02-24 18:57:36', '2025-02-28 06:48:44'),
+(3, 'dosen', '$2y$10$BCFDyuXYPU3HQnNprJzCp.VSKX8Q/tjejlJyk2lfyUPwOtwLdv7d2', 'dosen@gmail.com', 'dosen', '2025-02-24 19:11:09', '2025-02-28 06:48:44'),
+(13, 'iqbaalhaa', '$2y$10$LAuj85MLKGSn0N8wv1Nh4e0k2Yn3vNsOfWPeWo2eo6K/PqgARJ5Fm', 'iqbalhaanafi@gmail.com', 'mahasiswa', '2025-02-28 01:34:00', '2025-02-28 01:34:00');
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

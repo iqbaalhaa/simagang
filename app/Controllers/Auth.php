@@ -116,32 +116,49 @@ class Auth extends BaseController
 
     public function register()
     {
+        log_message('info', 'Masuk ke metode register');
         $data['validation'] = \Config\Services::validation();
         return view('v_register', $data);
     }
 
     public function store()
     {
+        log_message('info', 'Masuk ke metode store');
+
+        // Tambahkan log untuk memeriksa apakah data POST ada
+        log_message('info', 'Data POST: ' . json_encode($this->request->getPost()));
+
         $validation = \Config\Services::validation();
         $validation->setRules([
-            'fullname' => 'required|min_length[3]',
+            'username' => 'required|min_length[3]|is_unique[user.username]',
             'email'    => 'required|valid_email|is_unique[user.email]',
             'passwordsignin' => 'required|min_length[6]',
             'confirmpassword' => 'required|matches[passwordsignin]',
-            'agree' => 'required'
         ]);
 
         if (!$validation->withRequest($this->request)->run()) {
+            log_message('info', 'Validasi gagal: ' . json_encode($validation->getErrors()));
             return redirect()->back()->withInput()->with('errors', $validation->getErrors());
         }
 
+        // Debugging: Tampilkan data yang akan disimpan
+        log_message('info', 'Data yang akan disimpan: ' . json_encode([
+            'username' => $this->request->getPost('username'),
+            'email'    => $this->request->getPost('email'),
+            'password' => password_hash($this->request->getPost('passwordsignin'), PASSWORD_DEFAULT),
+            'role'     => 'mahasiswa'
+        ]));
+
         $this->modelAuth->save([
-            'nama'     => $this->request->getPost('fullname'),
+            'username' => $this->request->getPost('username'),
             'email'    => $this->request->getPost('email'),
             'password' => password_hash($this->request->getPost('passwordsignin'), PASSWORD_DEFAULT),
             'role'     => 'mahasiswa'
         ]);
 
-        return redirect()->to('/login')->with('success', 'Registrasi berhasil! Silakan login.');
+        log_message('info', 'Data berhasil disimpan');
+
+        // Set flashdata untuk notifikasi sukses
+        return redirect()->to('/Auth')->with('success', 'Registrasi berhasil! Silakan login.');
     }
 }
