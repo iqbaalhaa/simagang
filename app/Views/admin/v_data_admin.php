@@ -1,81 +1,109 @@
-<div class="table-responsive">
-    <table id="add-row" class="display table table-striped table-hover">
-        <thead>
-            <tr>
-                <th>No</th>
-                <th>Nama Ketua</th>
-                <th>Kelompok</th>
-                <th>Instansi</th>
-                <th style="width: 10%">Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>1</td>
-                <td>John Doe</td>
-                <td>Kelompok 1</td>
-                <td>PT. ABC</td>
-                <td>
-                    <div class="form-button-action">
-                        <button type="button" data-toggle="tooltip" title="" class="btn btn-link btn-primary btn-lg" data-original-title="Edit">
-                            <i class="fa fa-edit"></i>
-                        </button>
-                        <button type="button" data-toggle="tooltip" title="" class="btn btn-link btn-danger" data-original-title="Hapus">
-                            <i class="fa fa-times"></i>
-                        </button>
+<div class="page-inner mt--5">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex align-items-center">
+                        <h4 class="card-title">Data Admin</h4>
+                        <a href="<?= base_url('Admin/tambahAdmin') ?>" class="btn btn-primary btn-round ml-auto">
+                            <i class="fas fa-plus"></i> Tambah Admin
+                        </a>
                     </div>
-                </td>
-            </tr>
-            <!-- Tambahkan data lainnya di sini -->
-        </tbody>
-    </table>
+                </div>
+                <div class="card-body">
+                    <?php if(session()->getFlashdata('pesan')): ?>
+                        <div class="alert alert-success">
+                            <?= session()->getFlashdata('pesan') ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <div class="table-responsive">
+                        <table id="add-row" class="display table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th style="width: 10%">No</th>
+                                    <th style="width: 10%">Foto</th>
+                                    <th style="width: 25%">Username</th>
+                                    <th style="width: 40%">Nama</th>
+                                    <th style="width: 15%">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php $no = 1; 
+                                if(is_array($list_admin)): 
+                                    foreach($list_admin as $adm): ?>
+                                    <tr>
+                                        <td><?= $no++ ?></td>
+                                        <td>
+                                            <?php if(!empty($adm['foto'])): ?>
+                                                <img src="<?= base_url('foto/admin/' . $adm['foto']) ?>" 
+                                                     alt="Foto Admin" class="img-thumbnail" 
+                                                     style="max-width: 50px;">
+                                            <?php else: ?>
+                                                <div class="avatar-initial" 
+                                                     style="background: #1572E8; color: white; width: 40px; height: 40px; 
+                                                            display: flex; align-items: center; justify-content: center; 
+                                                            border-radius: 50%;">
+                                                    <?= substr($adm['nama'] ?? 'A', 0, 1) ?>
+                                                </div>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td><?= esc($adm['username'] ?? '') ?></td>
+                                        <td><?= esc($adm['nama'] ?? '') ?></td>
+                                        <td>
+                                            <div class="form-button-action">
+                                                <button type="button" data-toggle="tooltip" title="" 
+                                                        class="btn btn-link btn-primary btn-lg" 
+                                                        data-original-title="Edit"
+                                                        onclick="window.location.href='<?= base_url('Admin/editAdmin/'.$adm['id_admin']) ?>'">
+                                                    <i class="fa fa-edit"></i>
+                                                </button>
+                                                <button type="button" data-toggle="tooltip" title="" 
+                                                        class="btn btn-link btn-danger" 
+                                                        data-original-title="Hapus"
+                                                        onclick="confirmDelete('<?= base_url('Admin/deleteAdmin/'.$adm['id_admin']) ?>')">
+                                                    <i class="fa fa-times"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; 
+                                endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- Datatables -->
-<script src="<?= base_url('backend') ?>/assets/js/plugin/datatables/datatables.min.js"></script>
 <script>
-    $(document).ready(function() {
-        $('#basic-datatables').DataTable({});
-
-        $('#multi-filter-select').DataTable({
-            "pageLength": 5,
-            initComplete: function() {
-                this.api().columns().every(function() {
-                    var column = this;
-                    var select = $('<select class="form-control"><option value=""></option></select>')
-                        .appendTo($(column.footer()).empty())
-                        .on('change', function() {
-                            var val = $.fn.dataTable.util.escapeRegex(
-                                $(this).val()
-                            );
-
-                            column
-                                .search(val ? '^' + val + '$' : '', true, false)
-                                .draw();
-                        });
-
-                    column.data().unique().sort().each(function(d, j) {
-                        select.append('<option value="' + d + '">' + d + '</option>')
-                    });
-                });
+function confirmDelete(deleteUrl) {
+    swal({
+        title: 'Apakah anda yakin?',
+        text: "Data yang dihapus tidak dapat dikembalikan!",
+        type: 'warning',
+        buttons:{
+            confirm: {
+                text : 'Ya, Hapus!',
+                className : 'btn btn-success'
+            },
+            cancel: {
+                visible: true,
+                className: 'btn btn-danger'
             }
-        });
-
-        $('#add-row').DataTable({
-            "pageLength": 5,
-        });
-
-        var action = '<td> <div class="form-button-action"> <button type="button" data-toggle="tooltip" title="" class="btn btn-link btn-primary btn-lg" data-original-title="Edit Task"> <i class="fa fa-edit"></i> </button> <button type="button" data-toggle="tooltip" title="" class="btn btn-link btn-danger" data-original-title="Remove"> <i class="fa fa-times"></i> </button> </div> </td>';
-
-        $('#addRowButton').click(function() {
-            $('#add-row').dataTable().fnAddData([
-                $("#addName").val(),
-                $("#addPosition").val(),
-                $("#addOffice").val(),
-                action
-            ]);
-            $('#addRowModal').modal('hide');
-
-        });
+        }
+    }).then((Delete) => {
+        if (Delete) {
+            window.location.href = deleteUrl;
+        }
     });
+}
+
+$(document).ready(function() {
+    $('#add-row').DataTable({
+        "pageLength": 10,
+    });
+});
 </script>

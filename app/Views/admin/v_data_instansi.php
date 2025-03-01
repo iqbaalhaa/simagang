@@ -4,9 +4,9 @@
             <div class="card">
                 <div class="card-header">
                     <div class="d-flex align-items-center">
-                        <h4 class="card-title">Data Mahasiswa</h4>
-                        <a href="<?= base_url('Admin/tambahMahasiswa') ?>" class="btn btn-primary btn-round ml-auto">
-                            <i class="fas fa-plus"></i> Tambah Mahasiswa
+                        <h4 class="card-title">Data Instansi</h4>
+                        <a href="<?= base_url('Admin/tambahInstansi') ?>" class="btn btn-primary btn-round ml-auto">
+                            <i class="fas fa-plus"></i> Tambah Instansi
                         </a>
                     </div>
                 </div>
@@ -16,56 +16,53 @@
                             <?= session()->getFlashdata('pesan') ?>
                         </div>
                     <?php endif; ?>
+                    
+                    <?php if(session()->getFlashdata('error')): ?>
+                        <div class="alert alert-danger">
+                            <?= session()->getFlashdata('error') ?>
+                        </div>
+                    <?php endif; ?>
 
                     <div class="table-responsive">
                         <table id="add-row" class="display table table-striped table-hover">
                             <thead>
                                 <tr>
                                     <th style="width: 5%">No</th>
-                                    <th style="width: 15%">NIM</th>
-                                    <th style="width: 25%">Nama</th>
-                                    <th style="width: 10%">Angkatan</th>
-                                    <th style="width: 20%">Instansi</th>
-                                    <th style="width: 15%">Foto</th>
-                                    <th style="width: 10%">Aksi</th>
+                                    <th style="width: 30%">Nama Instansi</th>
+                                    <th style="width: 45%">Alamat</th>
+                                    <th style="width: 20%">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php $no = 1; 
-                                if(is_array($mahasiswa)): 
-                                    foreach($mahasiswa as $mhs): ?>
+                                <?php 
+                                $no = 1; 
+                                $instansiData = isset($instansi) ? $instansi : [];
+                                if(is_array($instansiData) && !empty($instansiData)): 
+                                    foreach($instansiData as $ins): ?>
                                 <tr>
                                     <td><?= $no++ ?></td>
-                                    <td><?= $mhs['nim'] ?></td>
-                                    <td><?= $mhs['nama'] ?></td>
-                                    <td><?= $mhs['angkatan'] ?></td>
-                                    <td><?= $mhs['nama_instansi'] ?? '-' ?></td>
-                                    <td>
-                                        <?php if(!empty($mhs['foto'])): ?>
-                                            <img src="<?= base_url('foto/mahasiswa/'.$mhs['foto']) ?>" width="100">
-                                        <?php else: ?>
-                                            <img src="<?= base_url('assets/img/profile.jpg') ?>" width="100">
-                                        <?php endif; ?>
-                                    </td>
+                                    <td><?= $ins['nama_instansi'] ?></td>
+                                    <td><?= $ins['alamat'] ?? '-' ?></td>
                                     <td>
                                         <div class="form-button-action">
-                                            <button type="button" data-toggle="tooltip" title="" 
-                                                    class="btn btn-link btn-primary btn-lg" 
-                                                    data-original-title="Edit"
-                                                    onclick="window.location.href='<?= base_url('Admin/editMahasiswa/'.$mhs['id_mahasiswa']) ?>'">
+                                            <a href="<?= site_url('Admin/editInstansi/'.$ins['id_instansi']) ?>" class="btn btn-link btn-primary btn-lg" data-toggle="tooltip" title="" data-original-title="Edit">
                                                 <i class="fa fa-edit"></i>
-                                            </button>
+                                            </a>
                                             <button type="button" data-toggle="tooltip" title="" 
                                                     class="btn btn-link btn-danger" 
                                                     data-original-title="Hapus"
-                                                    onclick="confirmDelete('<?= base_url('Admin/deleteMahasiswa/'.$mhs['id_mahasiswa']) ?>')">
+                                                    onclick="confirmDelete('<?= site_url('Admin/deleteInstansi/'.$ins['id_instansi']) ?>')">
                                                 <i class="fa fa-times"></i>
                                             </button>
                                         </div>
                                     </td>
                                 </tr>
                                 <?php endforeach; 
-                                endif; ?>
+                                else: ?>
+                                <tr>
+                                    <td colspan="4" class="text-center">Tidak ada data instansi</td>
+                                </tr>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>

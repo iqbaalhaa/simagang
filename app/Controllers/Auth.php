@@ -41,9 +41,10 @@ class Auth extends BaseController
 
         if ($user) {
             session()->set([
+                'id_user' => $user['id_user'],
                 'username' => $user['username'],
                 'role' => $user['role'],
-                'is_logged_in' => true
+                'logged_in' => TRUE
             ]);
 
             // Pengalihan berdasarkan role
