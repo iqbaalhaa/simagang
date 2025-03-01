@@ -1,7 +1,7 @@
 <!-- ======= Hero Section ======= -->
 <section id="hero" class="d-flex justify-content-center align-items-center">
     <div class="container position-relative" data-aos="zoom-in" data-aos-delay="100">
-        <h1>Sistem Informasi<br>Pengajuan Magang</h1>
+        <h1>Sistem Informasi<br> Magang</h1>
         <h2>Program Studi Sistem Informasi UIN Sulthan Thaha Saifuddin Jambi</h2>
         <a href="courses.html" class="btn-get-started">Login</a>
     </div>
