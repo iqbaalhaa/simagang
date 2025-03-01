@@ -3,7 +3,8 @@
     <div class="container position-relative" data-aos="zoom-in" data-aos-delay="100">
         <h1>Sistem Informasi<br> Magang</h1>
         <h2>Program Studi Sistem Informasi UIN Sulthan Thaha Saifuddin Jambi</h2>
-        <a href="courses.html" class="btn-get-started">Login</a>
+        <a href="<?= base_url('Auth') ?>" class="btn-get-started">Login</a>
+        <a href="<?= base_url('Auth/register') ?>" class="btn-get-started">Register</a>
     </div>
 </section><!-- End Hero -->
 

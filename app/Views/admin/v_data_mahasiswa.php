@@ -2,11 +2,11 @@
     <div class="row">
         <div class="col-md-12">
             <div class="card">
-            <div class="card-header">
+                <div class="card-header">
                     <div class="d-flex align-items-center">
-                        <h4 class="card-title">Data Dosen</h4>
-                        <a href="<?= base_url('Admin/tambahDosen') ?>" class="btn btn-primary btn-round ml-auto">
-                            <i class="fas fa-plus"></i> Tambah Dosen
+                        <h4 class="card-title">Data Mahasiswa</h4>
+                        <a href="<?= base_url('Admin/tambahMahasiswa') ?>" class="btn btn-primary btn-round ml-auto">
+                            <i class="fas fa-plus"></i> Tambah Mahasiswa
                         </a>
                     </div>
                 </div>
@@ -21,32 +21,44 @@
                         <table id="add-row" class="display table table-striped table-hover">
                             <thead>
                                 <tr>
-                                    <th style="width: 10%">No</th>
-                                    <th style="width: 35%">NIDN/NIP/NI PPPK</th>
-                                    <th style="width: 40%">Nama</th>
-                                    <th style="width: 15%">Aksi</th>
+                                    <th style="width: 5%">No</th>
+                                    <th style="width: 15%">NIM</th>
+                                    <th style="width: 25%">Nama</th>
+                                    <th style="width: 10%">Angkatan</th>
+                                    <th style="width: 20%">Instansi</th>
+                                    <th style="width: 15%">Foto</th>
+                                    <th style="width: 10%">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php $no = 1; 
-                                if(is_array($dosen)): 
-                                    foreach($dosen as $dsn): ?>
+                                if(is_array($mahasiswa)): 
+                                    foreach($mahasiswa as $mhs): ?>
                                 <tr>
                                     <td><?= $no++ ?></td>
-                                    <td><?= $dsn['nidn'] ?></td>
-                                    <td><?= $dsn['nama'] ?></td>
+                                    <td><?= $mhs['nim'] ?></td>
+                                    <td><?= $mhs['nama'] ?></td>
+                                    <td><?= $mhs['angkatan'] ?></td>
+                                    <td><?= $mhs['nama_instansi'] ?? '-' ?></td>
+                                    <td>
+                                        <?php if(!empty($mhs['foto'])): ?>
+                                            <img src="<?= base_url('foto/mahasiswa/'.$mhs['foto']) ?>" width="100">
+                                        <?php else: ?>
+                                            <img src="<?= base_url('assets/img/profile.jpg') ?>" width="100">
+                                        <?php endif; ?>
+                                    </td>
                                     <td>
                                         <div class="form-button-action">
                                             <button type="button" data-toggle="tooltip" title="" 
                                                     class="btn btn-link btn-primary btn-lg" 
                                                     data-original-title="Edit"
-                                                    onclick="window.location.href='<?= base_url('Admin/editDosen/'.$dsn['id_dosen']) ?>'">
+                                                    onclick="window.location.href='<?= base_url('Admin/editMahasiswa/'.$mhs['id_mahasiswa']) ?>'">
                                                 <i class="fa fa-edit"></i>
                                             </button>
                                             <button type="button" data-toggle="tooltip" title="" 
                                                     class="btn btn-link btn-danger" 
                                                     data-original-title="Hapus"
-                                                    onclick="confirmDelete('<?= base_url('Admin/deleteDosen/'.$dsn['id_dosen']) ?>')">
+                                                    onclick="confirmDelete('<?= base_url('Admin/deleteMahasiswa/'.$mhs['id_mahasiswa']) ?>')">
                                                 <i class="fa fa-times"></i>
                                             </button>
                                         </div>

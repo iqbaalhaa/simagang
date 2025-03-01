@@ -67,44 +67,26 @@
                         <li class="nav-item dropdown hidden-caret">
                             <a class="dropdown-toggle profile-pic" data-toggle="dropdown" href="#" aria-expanded="false">
                                 <div class="avatar-sm">
-                                    <?php if (!empty($admin['foto'])): ?>
-                                        <img src="<?= base_url('foto/admin/' . $admin['foto']) ?>" alt="..." class="avatar-img rounded-circle">
-                                    <?php else: ?>
-                                        <!-- Tampilkan inisial nama jika tidak ada foto -->
-                                        <div class="avatar-initial rounded-circle" style="background: #1572E8; color: white; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-                                            <?= substr($admin['nama'] ?? 'A', 0, 1) ?>
-                                        </div>
-                                    <?php endif; ?>
+                                    <img src="<?= base_url('backend') ?>/assets/img/profile.jpg" alt="..." class="avatar-img rounded-circle">
                                 </div>
                             </a>
                             <ul class="dropdown-menu dropdown-user animated fadeIn">
                                 <li>
                                     <div class="user-box">
-                                        <div class="avatar-lg">
-                                            <?php 
-                                            $adminNama = isset($admin['nama']) ? $admin['nama'] : 'Admin';
-                                            $adminFoto = isset($admin['foto']) ? $admin['foto'] : '';
-                                            ?>
-                                            
-                                            <?php if (!empty($adminFoto)): ?>
-                                                <img src="<?= base_url('foto/admin/' . $adminFoto) ?>" alt="image profile" class="avatar-img rounded">
-                                            <?php else: ?>
-                                                <div class="avatar-initial rounded" style="background: #1572E8; color: white; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2em;">
-                                                    <?= substr($adminNama, 0, 1) ?>
-                                                </div>
-                                            <?php endif; ?>
-                                        </div>
+                                        <div class="avatar-lg"><img src="<?= base_url('backend') ?>/assets/img/profile.jpg" alt="image profile" class="avatar-img rounded"></div>
                                         <div class="u-text">
-                                            <h4><?= $adminNama ?></h4>
-                                            <p class="text-muted">Administrator</p>
-                                            <a href="<?= base_url('Auth/logout') ?>" class="btn btn-rounded btn-danger btn-sm">Logout</a>
+                                            <h4>Hizrian</h4>
+                                            <p class="text-muted">hello@example.com</p><a href="profile.html" class="btn btn-rounded btn-danger btn-sm">View Profile</a>
                                         </div>
                                     </div>
                                 </li>
                                 <li>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="<?= base_url('Admin/Profil') ?>">Profil Saya</a>
+                                    <a class="dropdown-item" href="#">My Profile</a>
                                     <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="#">Account Setting</a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="<?= base_url('Auth/logout') ?>">Logout</a>
                                 </li>
                             </ul>
                         </li>
@@ -123,19 +105,12 @@
                 <div class="sidebar-content">
                     <div class="user">
                         <div class="avatar-sm float-left mr-2">
-                            <?php if (!empty($admin['foto'])): ?>
-                                <img src="<?= base_url('foto/admin/' . $admin['foto']) ?>" alt="..." class="avatar-img rounded-circle">
-                            <?php else: ?>
-                                <!-- Tampilkan inisial nama jika tidak ada foto -->
-                                <div class="avatar-initial rounded-circle" style="background: #1572E8; color: white; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-                                    <?= substr($admin['nama'] ?? 'A', 0, 1) ?>
-                                </div>
-                            <?php endif; ?>
+                            <img src="<?= base_url('backend') ?>/assets/img/profile.jpg" alt="..." class="avatar-img rounded-circle">
                         </div>
                         <div class="info">
                             <a data-toggle="collapse" href="#collapseExample" aria-expanded="true">
                                 <span>
-                                    <?= $admin['nama'] ?? 'Admin' ?>
+                                    Hizrian
                                     <span class="user-level">Administrator</span>
                                 </span>
                             </a>
@@ -152,25 +127,13 @@
                             <span class="sidebar-mini-icon">
                                 <i class="fa fa-ellipsis-h"></i>
                             </span>
-                            <h4 class="text-section">Menu</h4>
+                            <h4 class="text-section">Components</h4>
                         </li>
                         <li class="nav-item">
                             <a href="<?= base_url('Admin/PengajuanMahasiswa') ?>">
                                 <i class="fas fa-server"></i>
                                 <p>Pengajuan Mahasiswa</p>
                                 <span class="badge badge-count badge-success">4</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="<?= base_url('Admin/Instansi') ?>">
-                                <i class="fas fa-building"></i>
-                                <p>Instansi</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="<?= base_url('Admin/PengajuanMahasiswa') ?>">
-                                <i class="fas fa-tasks"></i>
-                                <p>Tinjauan Progress</p>
                             </a>
                         </li>
                         <li class="nav-item">
@@ -192,7 +155,7 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="<?= base_url('Admin/DataMahasiswa') ?>">
+                                        <a href="charts/sparkline.html">
                                             <span class="sub-item">Mahasiswa</span>
                                         </a>
                                     </li>
@@ -232,75 +195,74 @@
 
     </div>
 
-</body>
+    <!--   Core JS Files   -->
+    <script src="<?= base_url('backend') ?>/assets/js/core/jquery.3.2.1.min.js"></script>
+    <script src="<?= base_url('backend') ?>/assets/js/core/popper.min.js"></script>
+    <script src="<?= base_url('backend') ?>/assets/js/core/bootstrap.min.js"></script>
 
-<!--   Core JS Files   -->
-<script src="<?= base_url('backend') ?>/assets/js/core/jquery.3.2.1.min.js"></script>
-<script src="<?= base_url('backend') ?>/assets/js/core/popper.min.js"></script>
-<script src="<?= base_url('backend') ?>/assets/js/core/bootstrap.min.js"></script>
+    <!-- jQuery UI -->
+    <script src="<?= base_url('backend') ?>/assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+    <script src="<?= base_url('backend') ?>/assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
 
-<!-- jQuery UI -->
-<script src="<?= base_url('backend') ?>/assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
-<script src="<?= base_url('backend') ?>/assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
+    <!-- jQuery Scrollbar -->
+    <script src="<?= base_url('backend') ?>/assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
 
-<!-- jQuery Scrollbar -->
-<script src="<?= base_url('backend') ?>/assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+    <!-- Moment JS -->
+    <script src="<?= base_url('backend') ?>/assets/js/plugin/moment/moment.min.js"></script>
 
-<!-- Moment JS -->
-<script src="<?= base_url('backend') ?>/assets/js/plugin/moment/moment.min.js"></script>
+    <!-- Chart JS -->
+    <script src="<?= base_url('backend') ?>/assets/js/plugin/chart.js/chart.min.js"></script>
 
-<!-- Chart JS -->
-<script src="<?= base_url('backend') ?>/assets/js/plugin/chart.js/chart.min.js"></script>
+    <!-- jQuery Sparkline -->
+    <script src="<?= base_url('backend') ?>/assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js"></script>
 
-<!-- jQuery Sparkline -->
-<script src="<?= base_url('backend') ?>/assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js"></script>
+    <!-- Chart Circle -->
+    <script src="<?= base_url('backend') ?>/assets/js/plugin/chart-circle/circles.min.js"></script>
 
-<!-- Chart Circle -->
-<script src="<?= base_url('backend') ?>/assets/js/plugin/chart-circle/circles.min.js"></script>
+    <!-- Datatables -->
+    <script src="<?= base_url('backend') ?>/assets/js/plugin/datatables/datatables.min.js"></script>
 
-<!-- Datatables -->
-<script src="<?= base_url('backend') ?>/assets/js/plugin/datatables/datatables.min.js"></script>
+    <!-- Bootstrap Notify -->
+    <script src="<?= base_url('backend') ?>/assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
 
-<!-- Bootstrap Notify -->
-<script src="<?= base_url('backend') ?>/assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
+    <!-- Bootstrap Toggle -->
+    <script src="<?= base_url('backend') ?>/assets/js/plugin/bootstrap-toggle/bootstrap-toggle.min.js"></script>
 
-<!-- Bootstrap Toggle -->
-<script src="<?= base_url('backend') ?>/assets/js/plugin/bootstrap-toggle/bootstrap-toggle.min.js"></script>
+    <!-- jQuery Vector Maps -->
+    <script src="<?= base_url('backend') ?>/assets/js/plugin/jqvmap/jquery.vmap.min.js"></script>
+    <script src="<?= base_url('backend') ?>/assets/js/plugin/jqvmap/maps/jquery.vmap.world.js"></script>
 
-<!-- jQuery Vector Maps -->
-<script src="<?= base_url('backend') ?>/assets/js/plugin/jqvmap/jquery.vmap.min.js"></script>
-<script src="<?= base_url('backend') ?>/assets/js/plugin/jqvmap/maps/jquery.vmap.world.js"></script>
+    <!-- Google Maps Plugin -->
+    <script src="<?= base_url('backend') ?>/assets/js/plugin/gmaps/gmaps.js"></script>
 
-<!-- Google Maps Plugin -->
-<script src="<?= base_url('backend') ?>/assets/js/plugin/gmaps/gmaps.js"></script>
+    <!-- Sweet Alert -->
+    <script src="<?= base_url('backend') ?>/assets/js/plugin/sweetalert/sweetalert.min.js"></script>
 
-<!-- Sweet Alert -->
-<script src="<?= base_url('backend') ?>/assets/js/plugin/sweetalert/sweetalert.min.js"></script>
+    <!-- Azzara JS -->
+    <script src="<?= base_url('backend') ?>/assets/js/ready.min.js"></script>
 
-<!-- Azzara JS -->
-<script src="<?= base_url('backend') ?>/assets/js/ready.min.js"></script>
-
-<!-- Initialize DataTables -->
-<script>
-    $(document).ready(function() {
-        $('#add-row').DataTable({
-            "pageLength": 10,
-            "language": {
-                "search": "Cari:",
-                "lengthMenu": "Tampilkan _MENU_ data per halaman",
-                "zeroRecords": "Data tidak ditemukan",
-                "info": "Menampilkan halaman _PAGE_ dari _PAGES_",
-                "infoEmpty": "Tidak ada data yang tersedia",
-                "infoFiltered": "(difilter dari _MAX_ total data)",
-                "paginate": {
-                    "first": "Pertama",
-                    "last": "Terakhir",
-                    "next": "Selanjutnya",
-                    "previous": "Sebelumnya"
-                },
-            }
+    <!-- Initialize DataTables -->
+    <script>
+        $(document).ready(function() {
+            $('#add-row').DataTable({
+                "pageLength": 10,
+                "language": {
+                    "search": "Cari:",
+                    "lengthMenu": "Tampilkan _MENU_ data per halaman",
+                    "zeroRecords": "Data tidak ditemukan",
+                    "info": "Menampilkan halaman _PAGE_ dari _PAGES_",
+                    "infoEmpty": "Tidak ada data yang tersedia",
+                    "infoFiltered": "(difilter dari _MAX_ total data)",
+                    "paginate": {
+                        "first": "Pertama",
+                        "last": "Terakhir",
+                        "next": "Selanjutnya",
+                        "previous": "Sebelumnya"
+                    },
+                }
+            });
         });
-    });
-</script>
+    </script>
+</body>
 
 </html>

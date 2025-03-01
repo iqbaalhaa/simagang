@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Controllers\BaseController;
+
 class Home extends BaseController
 {
     public function index(): string
@@ -9,7 +11,6 @@ class Home extends BaseController
         $data = [
             'judul' => 'Home',
             'page' => 'v_home',
-
         ];
 
         return view('v_template_frontend', $data);
