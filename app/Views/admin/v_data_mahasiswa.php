@@ -1,15 +1,9 @@
-<div class="page-inner mt--5">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
+
                     <div class="d-flex align-items-center">
-                        <h4 class="card-title">Data Mahasiswa</h4>
                         <a href="<?= base_url('Admin/tambahMahasiswa') ?>" class="btn btn-primary btn-round ml-auto">
                             <i class="fas fa-plus"></i> Tambah Mahasiswa
                         </a>
                     </div>
-                </div>
                 <div class="card-body">
                     <?php if(session()->getFlashdata('pesan')): ?>
                         <div class="alert alert-success">
@@ -18,7 +12,7 @@
                     <?php endif; ?>
 
                     <div class="table-responsive">
-                        <table id="add-row" class="display table table-striped table-hover">
+                        <table id="add-row" class="display table table-striped table-hover table-bordered">
                             <thead>
                                 <tr>
                                     <th style="width: 5%">No</th>
@@ -49,15 +43,13 @@
                                     </td>
                                     <td>
                                         <div class="form-button-action">
-                                            <button type="button" data-toggle="tooltip" title="" 
+                                            <button type="button" data-toggle="tooltip" title="Edit" 
                                                     class="btn btn-link btn-primary btn-lg" 
-                                                    data-original-title="Edit"
                                                     onclick="window.location.href='<?= base_url('Admin/editMahasiswa/'.$mhs['id_mahasiswa']) ?>'">
                                                 <i class="fa fa-edit"></i>
                                             </button>
-                                            <button type="button" data-toggle="tooltip" title="" 
+                                            <button type="button" data-toggle="tooltip" title="Hapus" 
                                                     class="btn btn-link btn-danger" 
-                                                    data-original-title="Hapus"
                                                     onclick="confirmDelete('<?= base_url('Admin/deleteMahasiswa/'.$mhs['id_mahasiswa']) ?>')">
                                                 <i class="fa fa-times"></i>
                                             </button>
@@ -69,11 +61,6 @@
                             </tbody>
                         </table>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Script untuk konfirmasi hapus -->
 <script>
@@ -81,11 +68,11 @@ function confirmDelete(deleteUrl) {
     swal({
         title: 'Apakah anda yakin?',
         text: "Data yang dihapus tidak dapat dikembalikan!",
-        type: 'warning',
-        buttons:{
+        icon: 'warning',
+        buttons: {
             confirm: {
-                text : 'Ya, Hapus!',
-                className : 'btn btn-success'
+                text: 'Ya, Hapus!',
+                className: 'btn btn-success'
             },
             cancel: {
                 visible: true,

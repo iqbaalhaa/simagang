@@ -1,15 +1,9 @@
-<div class="page-inner mt--5">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-            <div class="card-header">
+
                     <div class="d-flex align-items-center">
-                        <h4 class="card-title">Data Dosen</h4>
                         <a href="<?= base_url('Admin/tambahDosen') ?>" class="btn btn-primary btn-round ml-auto">
                             <i class="fas fa-plus"></i> Tambah Dosen
                         </a>
                     </div>
-                </div>
                 <div class="card-body">
                     <?php if(session()->getFlashdata('pesan')): ?>
                         <div class="alert alert-success">
@@ -18,7 +12,7 @@
                     <?php endif; ?>
 
                     <div class="table-responsive">
-                        <table id="add-row" class="display table table-striped table-hover">
+                        <table id="add-row" class="display table table-striped table-hover table-bordered">
                             <thead>
                                 <tr>
                                     <th style="width: 10%">No</th>
@@ -57,11 +51,7 @@
                             </tbody>
                         </table>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+                
 
 <!-- Script untuk konfirmasi hapus -->
 <script>

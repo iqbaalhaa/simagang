@@ -66,27 +66,44 @@
                     <ul class="navbar-nav topbar-nav ml-md-auto align-items-center">
                         <li class="nav-item dropdown hidden-caret">
                             <a class="dropdown-toggle profile-pic" data-toggle="dropdown" href="#" aria-expanded="false">
-                                <div class="avatar-sm">
-                                    <img src="<?= base_url('backend') ?>/assets/img/profile.jpg" alt="..." class="avatar-img rounded-circle">
+                            <div class="avatar-sm">
+                                    <?php if (!empty($mahasiswa['foto'])): ?>
+                                        <img src="<?= base_url('foto/mahasiswa/' . $mahasiswa['foto']) ?>" alt="..." class="avatar-img rounded-circle">
+                                    <?php else: ?>
+                                        <!-- Tampilkan inisial nama jika tidak ada foto -->
+                                        <div class="avatar-initial rounded-circle" style="background: #1572E8; color: white; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                                            <?= substr($mahasiswa['nama'] ?? 'A', 0, 1) ?>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
                             </a>
                             <ul class="dropdown-menu dropdown-user animated fadeIn">
                                 <li>
                                     <div class="user-box">
-                                        <div class="avatar-lg"><img src="<?= base_url('backend') ?>/assets/img/profile.jpg" alt="image profile" class="avatar-img rounded"></div>
+                                    <div class="avatar-lg">
+                                            <?php 
+                                            $mahasiswaNama = isset($mahasiswa['nama']) ? $mahasiswa['nama'] : 'mahasiswa';
+                                            $mahasiswaFoto = isset($mahasiswa['foto']) ? $mahasiswa['foto'] : '';
+                                            ?>
+                                            
+                                            <?php if (!empty($mahasiswaFoto)): ?>
+                                                <img src="<?= base_url('foto/mahasiswa/' . $mahasiswaFoto) ?>" alt="image profile" class="avatar-img rounded">
+                                            <?php else: ?>
+                                                <div class="avatar-initial rounded" style="background: #1572E8; color: white; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2em;">
+                                                    <?= substr($mahasiswaNama, 0, 1) ?>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
                                         <div class="u-text">
-                                            <h4>Hizrian</h4>
-                                            <p class="text-muted">hello@example.com</p><a href="profile.html" class="btn btn-rounded btn-danger btn-sm">View Profile</a>
+                                        <h4><?= $mahasiswaNama ?></h4>
+                                            <p class="text-muted">Hallo</p><a href="<?= base_url('Auth/logout') ?>" class="btn btn-rounded btn-danger btn-sm">Logout</a>
                                         </div>
                                     </div>
                                 </li>
                                 <li>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#">My Profile</a>
+                                    <a class="dropdown-item" href="<?= base_url('Mahasiswa/Profil') ?>">Profil Saya</a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#">Account Setting</a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="<?= base_url('Auth/logout') ?>">Logout</a>
                                 </li>
                             </ul>
                         </li>
@@ -104,21 +121,28 @@
             <div class="sidebar-wrapper scrollbar-inner">
                 <div class="sidebar-content">
                     <div class="user">
-                        <div class="avatar-sm float-left mr-2">
-                            <img src="<?= base_url('backend') ?>/assets/img/profile.jpg" alt="..." class="avatar-img rounded-circle">
+                    <div class="avatar-sm float-left mr-2">
+                            <?php if (!empty($mahasiswa['foto'])): ?>
+                                <img src="<?= base_url('foto/mahasiswa/' . $mahasiswa['foto']) ?>" alt="..." class="avatar-img rounded-circle">
+                            <?php else: ?>
+                                <!-- Tampilkan inisial nama jika tidak ada foto -->
+                                <div class="avatar-initial rounded-circle" style="background: #1572E8; color: white; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                                    <?= substr($mahasiswa['nama'] ?? 'A', 0, 1) ?>
+                                </div>
+                            <?php endif; ?>
                         </div>
                         <div class="info">
                             <a data-toggle="collapse" href="#collapseExample" aria-expanded="true">
-                                <span>
-                                    Hizrian
-                                    <span class="user-level">Administrator</span>
+                            <span>
+                                    <?= $mahasiswa['nama'] ?? 'Mahasiswa' ?>
+                                    <span class="user-level">Mahasiswa</span>
                                 </span>
                             </a>
                         </div>
                     </div>
                     <ul class="nav">
                         <li class="nav-item active">
-                            <a href="<?= base_url('Admin') ?>">
+                            <a href="<?= base_url('Mahasiswa') ?>">
                                 <i class="fas fa-desktop"></i>
                                 <p>Dashboard</p>
                             </a>
@@ -130,37 +154,42 @@
                             <h4 class="text-section">Components</h4>
                         </li>
                         <li class="nav-item">
-                            <a href="<?= base_url('Admin/PengajuanMahasiswa') ?>">
-                                <i class="fas fa-server"></i>
-                                <p>Pengajuan Mahasiswa</p>
-                                <span class="badge badge-count badge-success">4</span>
+                            <a href="<?= base_url('Mahasiswa/PengajuanMagang') ?>">
+                                <i class="fas fa-briefcase"></i>
+                                <p>Pengajuan Magang</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a data-toggle="collapse" href="#charts">
-                                <i class="fa fa-users"></i>
-                                <p>Users</p>
+                                <i class="fas fa-folder-open"></i>
+                                <p>Laporan dan Project</p>
                                 <span class="caret"></span>
                             </a>
                             <div class="collapse" id="charts">
                                 <ul class="nav nav-collapse">
                                     <li>
-                                        <a href="<?= base_url('Admin/DataAdmin') ?>">
-                                            <span class="sub-item">Admin</span>
+                                        <a href="<?= base_url('Mahasiswa/DataAdmin') ?>">
+                                            <span class="sub-item">Upload Laporan</span>
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="<?= base_url('Admin/DataDosen') ?>">
-                                            <span class="sub-item">Dosen</span>
+                                        <a href="<?= base_url('Mahasiswa/DataAdmin') ?>">
+                                            <span class="sub-item">Upload Project</span>
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="charts/sparkline.html">
-                                            <span class="sub-item">Mahasiswa</span>
+                                        <a href="<?= base_url('Mahasiswa/DataAdmin') ?>">
+                                            <span class="sub-item">E-Sertifikat</span>
                                         </a>
                                     </li>
                                 </ul>
                             </div>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('Mahasiswa/PengajuanMagang') ?>">
+                                <i class="fas fa-file-download"></i>
+                                <p>Download Dokumen</p>
+                            </a>
                         </li>
                     </ul>
                 </div>

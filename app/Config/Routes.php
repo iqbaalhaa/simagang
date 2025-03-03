@@ -13,7 +13,7 @@ $routes->post('Auth/processLogin', 'Auth::processLogin');
 $routes->get('Auth/logout', 'Auth::logout');
 $routes->post('auth/login', 'Auth::login');
 
-
+//Admin Route
 $routes->get('Admin', 'Admin::index');
 $routes->get('Admin/PengajuanMahasiswa', 'Admin::PengajuanMahasiswa');
 $routes->get('Admin/DataAdmin', 'Admin::DataAdmin');
@@ -34,6 +34,12 @@ $routes->get('Admin/tambahDosen', 'Admin::tambahDosen');
 $routes->post('Admin/simpanDosen', 'Admin::simpanDosen');
 $routes->get('Admin/tambahMahasiswa', 'Admin::tambahMahasiswa');
 $routes->post('Admin/simpanMahasiswa', 'Admin::simpanMahasiswa');
+
+//Mahasiswa Route
+$routes->get('Mahasiswa', 'Mahasiswa::index');
+$routes->get('Mahasiswa/Profil', 'Mahasiswa::Profil');
+$routes->post('Mahasiswa/updateProfil', 'Mahasiswa::updateProfil');
+$routes->get('Mahasiswa/PengajuanMagang', 'Mahasiswa::PengajuanMagang');
 
 $routes->get('/admin', 'Admin::index');
 $routes->get('/dosen', 'Dosen::index');
