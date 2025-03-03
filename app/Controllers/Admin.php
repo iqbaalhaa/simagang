@@ -22,11 +22,13 @@ class Admin extends BaseController
     {
         $modelAdmin = new \App\Models\ModelAdmin();
         $adminData = $modelAdmin->getAdminByUserId(session()->get('id_user'));
+        $modelMahasiswa = new \App\Models\ModelMahasiswa();
         
         $data = [
-            'judul' => 'Pengajuan Mahasiswa',
-            'page' => 'admin/v_pengajuan_mahasiswa',
-            'admin' => $adminData
+            'judul'     => 'Data Pengajuan Magang',
+            'page'      => 'admin/v_pengajuan_mahasiswa',
+            'pengajuan' => $modelMahasiswa->getAllPengajuan(),
+            'admin'     => $adminData,
         ];
 
         return view('v_template_backend', $data);
@@ -612,5 +614,85 @@ class Admin extends BaseController
             session()->setFlashdata('error', 'Gagal menghapus instansi. ' . $e->getMessage());
             return redirect()->to('Admin/Instansi');
         }
+    }
+
+    public function getDetailPengajuan($id)
+    {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setStatusCode(404);
+        }
+
+        $modelMahasiswa = new \App\Models\ModelMahasiswa();
+        
+        try {
+            // Ambil data pengajuan
+            $pengajuan = $modelMahasiswa->getPengajuanById($id);
+            if (!$pengajuan) {
+                throw new \Exception('Data pengajuan tidak ditemukan');
+            }
+
+            // Ambil data anggota kelompok
+            $anggota = $modelMahasiswa->getAnggotaKelompokDetail($id);
+
+            return $this->response->setJSON([
+                'status' => true,
+                'pengajuan' => $pengajuan,
+                'anggota' => $anggota
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status' => false,
+                'message' => $e->getMessage()
+            ])->setStatusCode(500);
+        }
+    }
+
+    public function updateStatusPengajuan()
+    {
+        $id = $this->request->getPost('id');
+        $status = $this->request->getPost('status');
+        
+        $modelMahasiswa = new \App\Models\ModelMahasiswa();
+        
+        try {
+            $modelMahasiswa->updateStatusPengajuan($id, $status);
+            session()->setFlashdata('pesan', 'Status pengajuan berhasil diupdate');
+        } catch (\Exception $e) {
+            session()->setFlashdata('error', 'Gagal mengupdate status pengajuan');
+        }
+        
+        return redirect()->to('Admin/PengajuanMahasiswa');
+    }
+
+    public function deletePengajuan()
+    {
+        $id = $this->request->getPost('id');
+        $modelMahasiswa = new \App\Models\ModelMahasiswa();
+
+        try {
+            // Mulai transaksi
+            $db = \Config\Database::connect();
+            $db->transStart();
+
+            // Hapus anggota kelompok terlebih dahulu
+            $modelMahasiswa->deleteAnggotaKelompok($id);
+            
+            // Hapus pengajuan
+            $modelMahasiswa->deletePengajuan($id);
+
+            $db->transComplete();
+
+            if ($db->transStatus() === false) {
+                throw new \Exception('Gagal menghapus pengajuan magang');
+            }
+
+            session()->setFlashdata('pesan', 'Pengajuan magang berhasil dihapus');
+            
+        } catch (\Exception $e) {
+            session()->setFlashdata('error', 'Gagal menghapus pengajuan magang. Silakan coba lagi.');
+            log_message('error', 'Error saat menghapus pengajuan magang: ' . $e->getMessage());
+        }
+
+        return redirect()->to('Admin/PengajuanMahasiswa');
     }
 }

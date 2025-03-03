@@ -199,10 +199,135 @@ class Mahasiswa extends BaseController
 
     public function PengajuanMagang()
     {
+        $modelMahasiswa = new \App\Models\ModelMahasiswa();
+        $mahasiswaData = $modelMahasiswa->getMahasiswaByUserId(session()->get('id_user'));
+
+        // Ambil data kelompok magang jika ada
+        $kelompokMagang = $modelMahasiswa->getKelompokMagang($mahasiswaData['id_mahasiswa']);
+        
+        // Ambil data instansi
+        $instansi = $modelMahasiswa->getAllInstansi();
+        
+        // Ambil data mahasiswa yang tersedia untuk anggota
+        $mahasiswa_tersedia = $modelMahasiswa->getMahasiswaTersedia();
+
         $data = [
             'judul' => 'Pengajuan Magang',
             'page' => 'mahasiswa/v_pengajuan_magang',
+            'mahasiswa' => $mahasiswaData,
+            'kelompok' => $kelompokMagang,
+            'instansi' => $instansi,
+            'mahasiswa_tersedia' => $mahasiswa_tersedia
         ];
         return view('v_template_backend_mhs', $data);
+    }
+
+    public function tambahPengajuanMagang()
+    {
+        $modelMahasiswa = new \App\Models\ModelMahasiswa();
+        $mahasiswaData = $modelMahasiswa->getMahasiswaByUserId(session()->get('id_user'));
+
+        // Validasi input
+        $validation = \Config\Services::validation();
+        $validation->setRules([
+            'nama_kelompok' => 'required',
+            'instansi_id' => 'required|numeric',
+            'anggota.*' => 'permit_empty|numeric' // Untuk anggota kelompok
+        ]);
+
+        if (!$validation->withRequest($this->request)->run()) {
+            session()->setFlashdata('error', $validation->listErrors());
+            return redirect()->to('Mahasiswa/PengajuanMagang');
+        }
+
+        // Siapkan data pengajuan
+        $data = [
+            'nama_kelompok' => $this->request->getPost('nama_kelompok'),
+            'ketua_id' => $mahasiswaData['id_mahasiswa'], // Pembuat adalah ketua
+            'instansi_id' => $this->request->getPost('instansi_id'),
+            'status' => 'pending',
+            'created_at' => date('Y-m-d H:i:s')
+        ];
+
+        try {
+            // Mulai transaksi
+            $db = \Config\Database::connect();
+            $db->transStart();
+
+            // Insert data pengajuan
+            $pengajuan_id = $modelMahasiswa->insertPengajuanMagang($data);
+
+            // Insert anggota kelompok
+            $anggota = $this->request->getPost('anggota');
+            if (!empty($anggota)) {
+                foreach ($anggota as $mahasiswa_id) {
+                    $modelMahasiswa->insertAnggotaKelompok([
+                        'pengajuan_id' => $pengajuan_id,
+                        'mahasiswa_id' => $mahasiswa_id
+                    ]);
+                }
+            }
+
+            $db->transComplete();
+
+            if ($db->transStatus() === false) {
+                throw new \Exception('Gagal menyimpan pengajuan magang');
+            }
+
+            session()->setFlashdata('pesan', 'Pengajuan magang berhasil ditambahkan');
+            return redirect()->to('Mahasiswa/PengajuanMagang');
+
+        } catch (\Exception $e) {
+            log_message('error', 'Error saat menambah pengajuan magang: ' . $e->getMessage());
+            session()->setFlashdata('error', 'Gagal menambah pengajuan magang. Silakan coba lagi.');
+            return redirect()->to('Mahasiswa/PengajuanMagang');
+        }
+    }
+
+    public function hapusPengajuanMagang()
+    {
+        $modelMahasiswa = new \App\Models\ModelMahasiswa();
+        $id = $this->request->getPost('id');
+        
+        // Ambil data pengajuan
+        $pengajuan = $modelMahasiswa->getPengajuanById($id);
+        
+        // Cek apakah user yang login adalah ketua kelompok
+        if (!$pengajuan || $pengajuan['ketua_id'] != $modelMahasiswa->getMahasiswaByUserId(session()->get('id_user'))['id_mahasiswa']) {
+            session()->setFlashdata('error', 'Anda tidak memiliki akses untuk menghapus pengajuan ini.');
+            return redirect()->to('Mahasiswa/PengajuanMagang');
+        }
+        
+        // Cek status pengajuan
+        if ($pengajuan['status'] != 'pending') {
+            session()->setFlashdata('error', 'Hanya pengajuan dengan status pending yang dapat dihapus.');
+            return redirect()->to('Mahasiswa/PengajuanMagang');
+        }
+
+        try {
+            // Mulai transaksi
+            $db = \Config\Database::connect();
+            $db->transStart();
+
+            // Hapus anggota kelompok terlebih dahulu
+            $modelMahasiswa->deleteAnggotaKelompok($id);
+            
+            // Hapus pengajuan
+            $modelMahasiswa->deletePengajuan($id);
+
+            $db->transComplete();
+
+            if ($db->transStatus() === false) {
+                throw new \Exception('Gagal menghapus pengajuan magang');
+            }
+
+            session()->setFlashdata('pesan', 'Pengajuan magang berhasil dihapus');
+            
+        } catch (\Exception $e) {
+            log_message('error', 'Error saat menghapus pengajuan magang: ' . $e->getMessage());
+            session()->setFlashdata('error', 'Gagal menghapus pengajuan magang. Silakan coba lagi.');
+        }
+
+        return redirect()->to('Mahasiswa/PengajuanMagang');
     }
 }

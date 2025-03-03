@@ -34,12 +34,19 @@ $routes->get('Admin/tambahDosen', 'Admin::tambahDosen');
 $routes->post('Admin/simpanDosen', 'Admin::simpanDosen');
 $routes->get('Admin/tambahMahasiswa', 'Admin::tambahMahasiswa');
 $routes->post('Admin/simpanMahasiswa', 'Admin::simpanMahasiswa');
+$routes->get('Admin/getDetailPengajuan/(:num)', 'Admin::getDetailPengajuan/$1');
+$routes->post('Admin/updateStatusPengajuan', 'Admin::updateStatusPengajuan');
+$routes->post('Admin/deletePengajuan', 'Admin::deletePengajuan');
+
 
 //Mahasiswa Route
 $routes->get('Mahasiswa', 'Mahasiswa::index');
 $routes->get('Mahasiswa/Profil', 'Mahasiswa::Profil');
 $routes->post('Mahasiswa/updateProfil', 'Mahasiswa::updateProfil');
 $routes->get('Mahasiswa/PengajuanMagang', 'Mahasiswa::PengajuanMagang');
+$routes->post('Mahasiswa/tambahPengajuanMagang', 'Mahasiswa::tambahPengajuanMagang');
+$routes->post('Mahasiswa/hapusPengajuanMagang', 'Mahasiswa::hapusPengajuanMagang');
+
 
 $routes->get('/admin', 'Admin::index');
 $routes->get('/dosen', 'Dosen::index');
