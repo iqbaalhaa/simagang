@@ -43,7 +43,7 @@ class Mahasiswa extends BaseController
             $data = [
                 'id_user' => $id_user,
                 'nama' => $session->get('username') ?? '',
-                'nim' => '', // Tambahkan field yang diperlukan
+                'nim' => null, // Biarkan NIM null dulu
                 'angkatan' => '',
                 'instansi' => '',
                 'foto' => ''
@@ -51,7 +51,7 @@ class Mahasiswa extends BaseController
             
             try {
                 log_message('info', 'Data yang akan diinsert: ' . json_encode($data));
-                $id_mahasiswa = $modelMahasiswa->insert($data); // Simpan ID yang baru dibuat
+                $id_mahasiswa = $modelMahasiswa->insert($data);
                 
                 if (!$id_mahasiswa) {
                     throw new \Exception('Gagal membuat data mahasiswa baru');
@@ -64,11 +64,14 @@ class Mahasiswa extends BaseController
                     throw new \Exception('Gagal mengambil data mahasiswa setelah insert');
                 }
                 
+                // Set flash message untuk mengingatkan user mengisi data
+                session()->setFlashdata('warning', 'Silakan lengkapi data profil Anda termasuk NIM untuk dapat menggunakan semua fitur.');
+                
                 log_message('info', 'Berhasil membuat data mahasiswa baru dengan ID: ' . $id_mahasiswa);
             } catch (\Exception $e) {
                 log_message('error', 'Error saat insert mahasiswa: ' . $e->getMessage());
                 session()->setFlashdata('error', 'Gagal membuat data mahasiswa. Silakan coba lagi.');
-                return redirect()->to(base_url('Auth'));
+                return redirect()->to('Mahasiswa/Profil');
             }
         }
         
@@ -100,6 +103,12 @@ class Mahasiswa extends BaseController
         $mahasiswaData = $modelMahasiswa->getMahasiswaByUserId($id_user);
         if (empty($mahasiswaData)) {
             session()->setFlashdata('error', 'Data mahasiswa tidak ditemukan.');
+            return redirect()->to('Mahasiswa/Profil');
+        }
+
+        // Tambahkan validasi NIM
+        if (empty($this->request->getPost('nim'))) {
+            session()->setFlashdata('error', 'NIM wajib diisi untuk dapat menggunakan sistem.');
             return redirect()->to('Mahasiswa/Profil');
         }
 
