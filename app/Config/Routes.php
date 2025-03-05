@@ -1,10 +1,22 @@
 <?php
 
+namespace Config;
+
 use CodeIgniter\Router\RouteCollection;
 
 /**
  * @var RouteCollection $routes
  */
+$routes->setDefaultNamespace('App\Controllers');
+$routes->setDefaultController('Home');
+$routes->setDefaultMethod('index');
+$routes->setTranslateURIDashes(false);
+$routes->set404Override();
+$routes->setAutoRoute(true);
+
+
+
+
 $routes->get('/', 'Home::index');
 $routes->get('Auth/register', 'Auth::register');
 $routes->post('/Auth/store', 'Auth::store');
@@ -48,6 +60,18 @@ $routes->post('Mahasiswa/tambahPengajuanMagang', 'Mahasiswa::tambahPengajuanMaga
 $routes->post('Mahasiswa/hapusPengajuanMagang', 'Mahasiswa::hapusPengajuanMagang');
 
 
+// Dosen Route
+$routes->get('Dosen', 'Dosen::index');
+$routes->get('Dosen/Profil', 'Dosen::Profil');
+$routes->post('Dosen/updateProfil', 'Dosen::updateProfil');
+$routes->get('Dosen/bimbingan', 'Dosen::bimbingan');
+$routes->post('Dosen/TambahBimbingan', 'Dosen::TambahBimbingan');
+$routes->get('Dosen/getBimbingan/(:num)', 'Dosen::getBimbingan/$1');
+$routes->post('Dosen/updateBimbingan', 'Dosen::updateBimbingan');
+$routes->get('/Dosen/deleteBimbingan/(:num)', 'Dosen::deleteBimbingan/$1');
+
+
 $routes->get('/admin', 'Admin::index');
 $routes->get('/dosen', 'Dosen::index');
 $routes->get('/mahasiswa', 'Mahasiswa::index');
+

@@ -3,7 +3,7 @@
 
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Admin Dashboard | <?= $judul ?></title>
+    <title><?= $title ?? 'Dashboard Dosen' ?></title>
     <meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
     <link rel="icon" href="<?= base_url('backend') ?>/assets/img/favicon.png" type="image/x-icon" />
 
@@ -67,26 +67,44 @@
                         <li class="nav-item dropdown hidden-caret">
                             <a class="dropdown-toggle profile-pic" data-toggle="dropdown" href="#" aria-expanded="false">
                                 <div class="avatar-sm">
-                                    <img src="<?= base_url('backend') ?>/assets/img/profile.jpg" alt="..." class="avatar-img rounded-circle">
+                                    <?php if (!empty($dosen['foto'])): ?>
+                                        <img src="<?= base_url('foto/dosen/' . $dosen['foto']) ?>" alt="..." class="avatar-img rounded-circle">
+                                    <?php else: ?>
+                                        <!-- Tampilkan inisial nama jika tidak ada foto -->
+                                        <div class="avatar-initial rounded-circle" style="background: #1572E8; color: white; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                                            <?= substr($dosen['nama'] ?? 'D', 0, 1) ?>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
                             </a>
                             <ul class="dropdown-menu dropdown-user animated fadeIn">
                                 <li>
                                     <div class="user-box">
-                                        <div class="avatar-lg"><img src="<?= base_url('backend') ?>/assets/img/profile.jpg" alt="image profile" class="avatar-img rounded"></div>
+                                        <div class="avatar-lg">
+                                            <?php 
+                                            $dosenNama = isset($dosen['nama']) ? $dosen['nama'] : 'Dosen';
+                                            $dosenFoto = isset($dosen['foto']) ? $dosen['foto'] : '';
+                                            ?>
+                                            
+                                            <?php if (!empty($dosenFoto)): ?>
+                                                <img src="<?= base_url('foto/dosen/' . $dosenFoto) ?>" alt="image profile" class="avatar-img rounded">
+                                            <?php else: ?>
+                                                <div class="avatar-initial rounded" style="background: #1572E8; color: white; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2em;">
+                                                    <?= substr($dosenNama, 0, 1) ?>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
                                         <div class="u-text">
-                                            <h4>Hizrian</h4>
-                                            <p class="text-muted">hello@example.com</p><a href="profile.html" class="btn btn-rounded btn-danger btn-sm">View Profile</a>
+                                            <h4><?= $dosenNama ?></h4>
+                                            <p class="text-muted">NIDN: <?= $dosen['nidn'] ?? '-' ?></p>
+                                            <a href="<?= base_url('Auth/logout') ?>" class="btn btn-rounded btn-danger btn-sm">Logout</a>
                                         </div>
                                     </div>
                                 </li>
                                 <li>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#">My Profile</a>
+                                    <a class="dropdown-item" href="<?= base_url('Dosen/Profil') ?>">Profil Saya</a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#">Account Setting</a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="<?= base_url('Auth/logout') ?>">Logout</a>
                                 </li>
                             </ul>
                         </li>
@@ -105,20 +123,26 @@
                 <div class="sidebar-content">
                     <div class="user">
                         <div class="avatar-sm float-left mr-2">
-                            <img src="<?= base_url('backend') ?>/assets/img/profile.jpg" alt="..." class="avatar-img rounded-circle">
+                            <?php if (!empty($dosen['foto'])): ?>
+                                <img src="<?= base_url('foto/dosen/' . $dosen['foto']) ?>" alt="..." class="avatar-img rounded-circle">
+                            <?php else: ?>
+                                <div class="avatar-initial rounded-circle" style="background: #1572E8; color: white; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                                    <?= substr($dosen['nama'] ?? 'D', 0, 1) ?>
+                                </div>
+                            <?php endif; ?>
                         </div>
                         <div class="info">
                             <a data-toggle="collapse" href="#collapseExample" aria-expanded="true">
                                 <span>
-                                    Hizrian
-                                    <span class="user-level">Administrator</span>
+                                    <?= $dosen['nama'] ?? 'Dosen' ?>
+                                    <span class="user-level">Dosen Pembimbing</span>
                                 </span>
                             </a>
                         </div>
                     </div>
                     <ul class="nav">
                         <li class="nav-item active">
-                            <a href="<?= base_url('Admin') ?>">
+                            <a href="<?= base_url('Dosen') ?>">
                                 <i class="fas fa-desktop"></i>
                                 <p>Dashboard</p>
                             </a>
@@ -128,13 +152,6 @@
                                 <i class="fa fa-ellipsis-h"></i>
                             </span>
                             <h4 class="text-section">Components</h4>
-                        </li>
-                        <li class="nav-item">
-                            <a href="<?= base_url('Admin/PengajuanMahasiswa') ?>">
-                                <i class="fas fa-server"></i>
-                                <p>Pengajuan Mahasiswa</p>
-                                <span class="badge badge-count badge-success">4</span>
-                            </a>
                         </li>
                         <li class="nav-item">
                             <a data-toggle="collapse" href="#charts">
@@ -161,6 +178,12 @@
                                     </li>
                                 </ul>
                             </div>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('dosen/bimbingan') ?>">
+                                <i class="fas fa-comments"></i>
+                                <p>Bimbingan Mahasiswa</p>
+                            </a>
                         </li>
                     </ul>
                 </div>
