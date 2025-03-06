@@ -223,12 +223,18 @@ class ModelAdmin extends Model
     {
         try {
             $db = \Config\Database::connect();
-            $result = $db->table('mahasiswa')
-                        ->select('mahasiswa.*, user.username, user.email, instansi.nama_instansi')
-                        ->join('user', 'user.id_user = mahasiswa.id_user')
-                        ->join('instansi', 'instansi.id_instansi = mahasiswa.id_instansi', 'left')
-                        ->get()
-                        ->getResultArray();
+            
+            // Perbaiki query sesuai struktur tabel yang ada
+            $builder = $db->table('mahasiswa m')
+                ->select('m.*, u.username, u.email as user_email')
+                ->join('user u', 'u.id_user = m.id_user', 'left')
+                ->where('m.nim IS NOT NULL')
+                ->where('m.nim !=', '');
+
+            // Debug query
+            log_message('info', 'Query getAllMahasiswa: ' . $builder->getCompiledSelect());
+            
+            $result = $builder->get()->getResultArray();
             
             return $result;
         } catch (\Exception $e) {

@@ -9,11 +9,88 @@ class Admin extends BaseController
         $modelAdmin = new \App\Models\ModelAdmin();
         $adminData = $modelAdmin->getAdminByUserId(session()->get('id_user'));
         
+        // Ambil data untuk dashboard
+        $db = \Config\Database::connect();
+        
+        // Hitung total data
         $data = [
             'judul' => 'Dashboard Admin',
             'page' => 'admin/v_dashboard',
-            'admin' => $adminData
+            'admin' => $adminData,
+            'total_mahasiswa' => $db->table('mahasiswa')->countAllResults(),
+            'total_instansi' => $db->table('instansi')->countAllResults(),
+            'total_dosen' => $db->table('dosen_pembimbing')->countAllResults(),
         ];
+
+        // Cek struktur tabel pengajuan_magang
+        try {
+            // Ambil pengajuan aktif
+            $data['total_pengajuan_aktif'] = $db->table('pengajuan')
+                                               ->where('status', 'Menunggu')
+                                               ->countAllResults();
+
+            // Ambil pengajuan terbaru
+            $data['pengajuan_terbaru'] = $db->table('pengajuan')
+                                           ->select('pengajuan.*, mahasiswa.nama as nama_mahasiswa')
+                                           ->join('mahasiswa', 'mahasiswa.nim = pengajuan.nim')
+                                           ->orderBy('tgl_pengajuan', 'DESC')
+                                           ->limit(5)
+                                           ->get()
+                                           ->getResultArray();
+
+            // Data untuk pie chart status pengajuan
+            $data['status_pengajuan'] = [
+                'Menunggu' => $db->table('pengajuan')->where('status', 'Menunggu')->countAllResults(),
+                'Diterima' => $db->table('pengajuan')->where('status', 'Diterima')->countAllResults(),
+                'Ditolak' => $db->table('pengajuan')->where('status', 'Ditolak')->countAllResults()
+            ];
+
+            // Data untuk grafik statistik 6 bulan terakhir
+            $bulan = [];
+            $pengajuan = [];
+            $diterima = [];
+            $ditolak = [];
+
+            for ($i = 5; $i >= 0; $i--) {
+                $bulan_ini = date('Y-m', strtotime("-$i month"));
+                $bulan[] = date('M', strtotime("-$i month"));
+
+                $pengajuan[] = $db->table('pengajuan')
+                                 ->where('DATE_FORMAT(tgl_pengajuan, "%Y-%m")', $bulan_ini)
+                                 ->countAllResults();
+
+                $diterima[] = $db->table('pengajuan')
+                                ->where('DATE_FORMAT(tgl_pengajuan, "%Y-%m")', $bulan_ini)
+                                ->where('status', 'Diterima')
+                                ->countAllResults();
+
+                $ditolak[] = $db->table('pengajuan')
+                               ->where('DATE_FORMAT(tgl_pengajuan, "%Y-%m")', $bulan_ini)
+                               ->where('status', 'Ditolak')
+                               ->countAllResults();
+            }
+
+            $data['statistik'] = [
+                'labels' => $bulan,
+                'pengajuan' => $pengajuan,
+                'diterima' => $diterima,
+                'ditolak' => $ditolak
+            ];
+
+        } catch (\Exception $e) {
+            log_message('error', 'Error saat mengambil data pengajuan: ' . $e->getMessage());
+            
+            // Set nilai default jika terjadi error
+            $data['total_pengajuan_aktif'] = 0;
+            $data['pengajuan_terbaru'] = [];
+            $data['status_pengajuan'] = ['Menunggu' => 0, 'Diterima' => 0, 'Ditolak' => 0];
+            $data['statistik'] = [
+                'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                'pengajuan' => [0, 0, 0, 0, 0, 0],
+                'diterima' => [0, 0, 0, 0, 0, 0],
+                'ditolak' => [0, 0, 0, 0, 0, 0]
+            ];
+        }
 
         return view('v_template_backend', $data);
     }
@@ -85,6 +162,9 @@ class Admin extends BaseController
         try {
             $adminData = $modelAdmin->getAdminByUserId(session()->get('id_user'));
             $mahasiswaData = $modelAdmin->getAllMahasiswa();
+            
+            // Debug
+            log_message('info', 'Data mahasiswa: ' . json_encode($mahasiswaData));
             
             $data = [
                 'judul' => 'Data Mahasiswa',

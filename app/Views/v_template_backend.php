@@ -180,7 +180,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a data-toggle="collapse" href="#">
+                            <a data-toggle="collapse" href="#charts">
                                 <i class="fa fa-users"></i>
                                 <p>Users</p>
                                 <span class="caret"></span>
