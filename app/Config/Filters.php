@@ -70,7 +70,13 @@ class Filters extends BaseFilters
      */
     public array $globals = [
         'before' => [
-            'auth' => ['except' => ['Auth/*', 'Auth']]
+            'auth' => ['except' => [
+                'Auth/*', 
+                'Auth',
+                '/',      // Tambahkan ini untuk mengizinkan akses ke home
+                'Home',   // Tambahkan ini jika menggunakan controller Home
+                'Home/*'  // Tambahkan ini untuk semua method di controller Home
+            ]]
         ],
         'after' => []
     ];
@@ -100,6 +106,13 @@ class Filters extends BaseFilters
      * @var array<string, array<string, list<string>>>
      */
     public array $filters = [
-        'auth' => ['before' => ['Admin/*', 'Admin']],
+        'auth' => ['before' => [
+            'Admin/*', 
+            'Admin',
+            'Mahasiswa/*',
+            'Mahasiswa',
+            'Dosen/*',
+            'Dosen'
+        ]],
     ];
 }
