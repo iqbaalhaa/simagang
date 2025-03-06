@@ -49,6 +49,11 @@ $routes->post('Admin/simpanMahasiswa', 'Admin::simpanMahasiswa');
 $routes->get('Admin/getDetailPengajuan/(:num)', 'Admin::getDetailPengajuan/$1');
 $routes->post('Admin/updateStatusPengajuan', 'Admin::updateStatusPengajuan');
 $routes->post('Admin/deletePengajuan', 'Admin::deletePengajuan');
+$routes->get('Admin/Dokumen', 'Admin::Dokumen');
+$routes->post('Admin/tambahDokumen', 'Admin::tambahDokumen');
+$routes->get('Admin/hapusDokumen/(:num)', 'Admin::hapusDokumen/$1');        
+
+
 
 
 //Mahasiswa Route
@@ -58,6 +63,8 @@ $routes->post('Mahasiswa/updateProfil', 'Mahasiswa::updateProfil');
 $routes->get('Mahasiswa/PengajuanMagang', 'Mahasiswa::PengajuanMagang');
 $routes->post('Mahasiswa/tambahPengajuanMagang', 'Mahasiswa::tambahPengajuanMagang');
 $routes->post('Mahasiswa/hapusPengajuanMagang', 'Mahasiswa::hapusPengajuanMagang');
+$routes->get('Mahasiswa/DownloadDokumen', 'Mahasiswa::DownloadDokumen');
+$routes->get('Mahasiswa/downloadFile/(:num)', 'Mahasiswa::downloadFile/$1');
 
 
 // Dosen Route

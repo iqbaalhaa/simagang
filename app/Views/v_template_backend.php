@@ -174,13 +174,13 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="<?= base_url('Admin/PengajuanMahasiswa') ?>">
+                            <a href="<?= base_url('Admin/Dokumen') ?>">
                                 <i class="fas fa-file-upload"></i>
                                 <p>Dokumen</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a data-toggle="collapse" href="#charts">
+                            <a data-toggle="collapse" href="#">
                                 <i class="fa fa-users"></i>
                                 <p>Users</p>
                                 <span class="caret"></span>

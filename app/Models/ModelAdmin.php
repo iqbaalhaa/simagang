@@ -370,4 +370,57 @@ class ModelAdmin extends Model
             throw $e;
         }
     }
+
+    // Tambahkan method-method untuk dokumen
+    public function getAllDokumen()
+    {
+        try {
+            $db = \Config\Database::connect();
+            return $db->table('dokumen')
+                     ->orderBy('tgl_upload', 'DESC')
+                     ->get()
+                     ->getResultArray();
+        } catch (\Exception $e) {
+            log_message('error', 'Error di getAllDokumen: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function tambahDokumen($data)
+    {
+        try {
+            $db = \Config\Database::connect();
+            return $db->table('dokumen')->insert($data);
+        } catch (\Exception $e) {
+            log_message('error', 'Error di tambahDokumen: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function hapusDokumen($id)
+    {
+        try {
+            $db = \Config\Database::connect();
+            return $db->table('dokumen')
+                     ->where('id_dokumen', $id)
+                     ->delete();
+        } catch (\Exception $e) {
+            log_message('error', 'Error di hapusDokumen: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function getDokumenById($id)
+    {
+        try {
+            $db = \Config\Database::connect();
+            return $db->table('dokumen')
+                     ->where('id_dokumen', $id)
+                     ->get()
+                     ->getRowArray();
+        } catch (\Exception $e) {
+            log_message('error', 'Error di getDokumenById: ' . $e->getMessage());
+            return null;
+        }
+    }
 }

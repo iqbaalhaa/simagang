@@ -339,4 +339,56 @@ class Mahasiswa extends BaseController
 
         return redirect()->to('Mahasiswa/PengajuanMagang');
     }
+
+    public function DownloadDokumen()
+    {
+        $modelAdmin = new \App\Models\ModelAdmin();
+        $modelMahasiswa = new \App\Models\ModelMahasiswa();
+        
+        try {
+            // Ambil data mahasiswa yang login
+            $mahasiswaData = $modelMahasiswa->getMahasiswaByUserId(session()->get('id_user'));
+            // Ambil semua dokumen yang aktif
+            $dokumenData = $modelAdmin->getAllDokumen();
+            
+            $data = [
+                'judul' => 'Download Dokumen',
+                'page' => 'mahasiswa/v_download_dokumen',
+                'mahasiswa' => $mahasiswaData,
+                'dokumen' => $dokumenData
+            ];
+
+            return view('v_template_backend_mhs', $data);
+        } catch (\Exception $e) {
+            log_message('error', 'Error di DownloadDokumen: ' . $e->getMessage());
+            session()->setFlashdata('error', 'Terjadi kesalahan saat memuat data');
+            return redirect()->back();
+        }
+    }
+
+    public function downloadFile($id)
+    {
+        try {
+            $modelAdmin = new \App\Models\ModelAdmin();
+            $dokumen = $modelAdmin->getDokumenById($id);
+            
+            if (!$dokumen) {
+                throw new \Exception('Dokumen tidak ditemukan');
+            }
+
+            $path = 'uploads/dokumen/' . $dokumen['file_dokumen'];
+            
+            if (!file_exists($path)) {
+                throw new \Exception('File tidak ditemukan');
+            }
+
+            return $this->response->download($path, null)
+                ->setFileName($dokumen['nama_dokumen'] . '_' . date('Ymd') . '.' . pathinfo($dokumen['file_dokumen'], PATHINFO_EXTENSION));
+                
+        } catch (\Exception $e) {
+            log_message('error', 'Error di downloadFile: ' . $e->getMessage());
+            session()->setFlashdata('error', 'Gagal mengunduh file');
+            return redirect()->back();
+        }
+    }
 }

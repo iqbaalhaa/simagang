@@ -695,4 +695,100 @@ class Admin extends BaseController
 
         return redirect()->to('Admin/PengajuanMahasiswa');
     }
+
+    public function Dokumen()
+    {
+        $modelAdmin = new \App\Models\ModelAdmin();
+        
+        try {
+            $adminData = $modelAdmin->getAdminByUserId(session()->get('id_user'));
+            $dokumenData = $modelAdmin->getAllDokumen();
+            
+            $data = [
+                'judul' => 'Kelola Dokumen',
+                'page' => 'admin/v_dokumen',
+                'admin' => $adminData,
+                'dokumen' => $dokumenData
+            ];
+
+            return view('v_template_backend', $data);
+        } catch (\Exception $e) {
+            log_message('error', 'Error di Dokumen: ' . $e->getMessage());
+            session()->setFlashdata('error', 'Terjadi kesalahan saat memuat data');
+            return redirect()->back();
+        }
+    }
+
+    public function tambahDokumen()
+    {
+        try {
+            $file = $this->request->getFile('file_dokumen');
+            $fileName = $file->getRandomName();
+
+            $data = [
+                'nama_dokumen' => $this->request->getPost('nama_dokumen'),
+                'file_dokumen' => $fileName,
+                'keterangan' => $this->request->getPost('keterangan'),
+                'status' => $this->request->getPost('status'),
+                'tgl_upload' => date('Y-m-d H:i:s')
+            ];
+
+            $modelAdmin = new \App\Models\ModelAdmin();
+
+            // Upload file
+            if ($file->isValid() && !$file->hasMoved()) {
+                $file->move('uploads/dokumen', $fileName);
+            } else {
+                throw new \Exception('Gagal mengupload file');
+            }
+
+            // Simpan ke database
+            if (!$modelAdmin->tambahDokumen($data)) {
+                throw new \Exception('Gagal menyimpan data dokumen');
+            }
+
+            session()->setFlashdata('pesan', 'Dokumen berhasil ditambahkan');
+            return redirect()->to('Admin/Dokumen');
+
+        } catch (\Exception $e) {
+            log_message('error', 'Error di tambahDokumen: ' . $e->getMessage());
+            session()->setFlashdata('error', 'Gagal menambahkan dokumen. ' . $e->getMessage());
+            return redirect()->back();
+        }
+    }
+
+    public function hapusDokumen($id)
+    {
+        try {
+            $modelAdmin = new \App\Models\ModelAdmin();
+            
+            // Ambil info file sebelum dihapus
+            $db = \Config\Database::connect();
+            $dokumen = $db->table('dokumen')->where('id_dokumen', $id)->get()->getRowArray();
+            
+            if ($dokumen) {
+                // Hapus file fisik
+                $filePath = 'uploads/dokumen/' . $dokumen['file_dokumen'];
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+                
+                // Hapus record dari database
+                if (!$modelAdmin->hapusDokumen($id)) {
+                    throw new \Exception('Gagal menghapus data dokumen');
+                }
+                
+                session()->setFlashdata('pesan', 'Dokumen berhasil dihapus');
+            } else {
+                session()->setFlashdata('error', 'Dokumen tidak ditemukan');
+            }
+            
+            return redirect()->to('Admin/Dokumen');
+
+        } catch (\Exception $e) {
+            log_message('error', 'Error di hapusDokumen: ' . $e->getMessage());
+            session()->setFlashdata('error', 'Gagal menghapus dokumen. ' . $e->getMessage());
+            return redirect()->to('Admin/Dokumen');
+        }
+    }
 }
