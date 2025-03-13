@@ -249,4 +249,74 @@ class ModelMahasiswa extends Model
             ->get()
             ->getResultArray();
     }
+
+    public function getTotalBimbingan($id_mahasiswa)
+    {
+        try {
+            return $this->db->table('bimbingan')
+                        ->where('id_mahasiswa', $id_mahasiswa)
+                        ->countAllResults();
+        } catch (\Exception $e) {
+            log_message('error', 'Error di getTotalBimbingan: ' . $e->getMessage());
+            return 0;
+        }
+    }
+
+    public function getBimbinganSelesai($id_mahasiswa)
+    {
+        try {
+            return $this->db->table('bimbingan')
+                        ->where('id_mahasiswa', $id_mahasiswa)
+                        ->where('status', 'selesai')
+                        ->countAllResults();
+        } catch (\Exception $e) {
+            log_message('error', 'Error di getBimbinganSelesai: ' . $e->getMessage());
+            return 0;
+        }
+    }
+
+    public function getBimbinganPending($id_mahasiswa)
+    {
+        try {
+            return $this->db->table('bimbingan')
+                        ->where('id_mahasiswa', $id_mahasiswa)
+                        ->where('status', 'pending')
+                        ->countAllResults();
+        } catch (\Exception $e) {
+            log_message('error', 'Error di getBimbinganPending: ' . $e->getMessage());
+            return 0;
+        }
+    }
+
+    public function getDosenPembimbing($id_mahasiswa)
+    {
+        try {
+            $result = $this->db->table('bimbingan b')
+                        ->select('d.nama as nama_dosen')
+                        ->join('dosen_pembimbing d', 'd.id_dosen = b.id_dosen')
+                        ->where('b.id_mahasiswa', $id_mahasiswa)
+                        ->get()
+                        ->getRowArray();
+            
+            return $result ? $result['nama_dosen'] : '-';
+        } catch (\Exception $e) {
+            log_message('error', 'Error di getDosenPembimbing: ' . $e->getMessage());
+            return '-';
+        }
+    }
+
+    public function getRiwayatBimbingan($id_mahasiswa, $limit = 5)
+    {
+        try {
+            return $this->db->table('bimbingan')
+                        ->where('id_mahasiswa', $id_mahasiswa)
+                        ->orderBy('tanggal', 'DESC')
+                        ->limit($limit)
+                        ->get()
+                        ->getResultArray();
+        } catch (\Exception $e) {
+            log_message('error', 'Error di getRiwayatBimbingan: ' . $e->getMessage());
+            return [];
+        }
+    }
 } 

@@ -6,17 +6,39 @@ use App\Models\ModelMahasiswa;
 
 class Mahasiswa extends BaseController
 {
-    public function index(): string
-    {
-        $modelMahasiswa = new \App\Models\ModelMahasiswa();
-        $mahasiswaData = $modelMahasiswa->getMahasiswaByUserId(session()->get('id_user'));
+    protected $ModelMahasiswa;
 
+    public function __construct()
+    {
+        // Inisialisasi model
+        $this->ModelMahasiswa = new ModelMahasiswa();
+        
+        // Cek session login
+        if (!session()->get('logged_in')) {
+            return redirect()->to(base_url('auth'));
+        }
+        
+        // Cek role
+        if (session()->get('level') !== 'mahasiswa') {
+            return redirect()->to(base_url('auth'));
+        }
+    }
+
+    public function index()
+    {
+        $id_mahasiswa = $this->ModelMahasiswa->getMahasiswaByUserId(session()->get('id_user'))['id_mahasiswa'];
+        
         $data = [
             'judul' => 'Dashboard Mahasiswa',
-            'page' => 'Mahasiswa/v_dashboard',
-            'mahasiswa' => $mahasiswaData
+            'mahasiswa' => $this->ModelMahasiswa->getMahasiswaByUserId(session()->get('id_user')),
+            'total_bimbingan' => $this->ModelMahasiswa->getTotalBimbingan($id_mahasiswa),
+            'bimbingan_selesai' => $this->ModelMahasiswa->getBimbinganSelesai($id_mahasiswa),
+            'bimbingan_pending' => $this->ModelMahasiswa->getBimbinganPending($id_mahasiswa),
+            'nama_dosen' => $this->ModelMahasiswa->getDosenPembimbing($id_mahasiswa),
+            'riwayat_bimbingan' => $this->ModelMahasiswa->getRiwayatBimbingan($id_mahasiswa, 5), // Ambil 5 data terakhir
+            'page' => 'mahasiswa/v_dashboard'
         ];
-
+        
         return view('v_template_backend_mhs', $data);
     }
 
