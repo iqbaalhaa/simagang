@@ -188,7 +188,7 @@
                             </div>
                         </li>
                         <li class="nav-item">
-                            <a href="<?= base_url('Mahasiswa/PengajuanMagang') ?>">
+                            <a href="<?= base_url('Mahasiswa/DownloadDokumen') ?>">
                                 <i class="fas fa-file-download"></i>
                                 <p>Download Dokumen</p>
                             </a>

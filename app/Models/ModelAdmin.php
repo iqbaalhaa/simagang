@@ -223,12 +223,18 @@ class ModelAdmin extends Model
     {
         try {
             $db = \Config\Database::connect();
-            $result = $db->table('mahasiswa')
-                        ->select('mahasiswa.*, user.username, user.email, instansi.nama_instansi')
-                        ->join('user', 'user.id_user = mahasiswa.id_user')
-                        ->join('instansi', 'instansi.id_instansi = mahasiswa.id_instansi', 'left')
-                        ->get()
-                        ->getResultArray();
+            
+            // Perbaiki query sesuai struktur tabel yang ada
+            $builder = $db->table('mahasiswa m')
+                ->select('m.*, u.username, u.email as user_email')
+                ->join('user u', 'u.id_user = m.id_user', 'left')
+                ->where('m.nim IS NOT NULL')
+                ->where('m.nim !=', '');
+
+            // Debug query
+            log_message('info', 'Query getAllMahasiswa: ' . $builder->getCompiledSelect());
+            
+            $result = $builder->get()->getResultArray();
             
             return $result;
         } catch (\Exception $e) {
@@ -368,6 +374,59 @@ class ModelAdmin extends Model
         } catch (\Exception $e) {
             log_message('error', 'Error di deleteInstansi: ' . $e->getMessage());
             throw $e;
+        }
+    }
+
+    // Tambahkan method-method untuk dokumen
+    public function getAllDokumen()
+    {
+        try {
+            $db = \Config\Database::connect();
+            return $db->table('dokumen')
+                     ->orderBy('tgl_upload', 'DESC')
+                     ->get()
+                     ->getResultArray();
+        } catch (\Exception $e) {
+            log_message('error', 'Error di getAllDokumen: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function tambahDokumen($data)
+    {
+        try {
+            $db = \Config\Database::connect();
+            return $db->table('dokumen')->insert($data);
+        } catch (\Exception $e) {
+            log_message('error', 'Error di tambahDokumen: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function hapusDokumen($id)
+    {
+        try {
+            $db = \Config\Database::connect();
+            return $db->table('dokumen')
+                     ->where('id_dokumen', $id)
+                     ->delete();
+        } catch (\Exception $e) {
+            log_message('error', 'Error di hapusDokumen: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function getDokumenById($id)
+    {
+        try {
+            $db = \Config\Database::connect();
+            return $db->table('dokumen')
+                     ->where('id_dokumen', $id)
+                     ->get()
+                     ->getRowArray();
+        } catch (\Exception $e) {
+            log_message('error', 'Error di getDokumenById: ' . $e->getMessage());
+            return null;
         }
     }
 }

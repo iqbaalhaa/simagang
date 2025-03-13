@@ -9,11 +9,88 @@ class Admin extends BaseController
         $modelAdmin = new \App\Models\ModelAdmin();
         $adminData = $modelAdmin->getAdminByUserId(session()->get('id_user'));
         
+        // Ambil data untuk dashboard
+        $db = \Config\Database::connect();
+        
+        // Hitung total data
         $data = [
             'judul' => 'Dashboard Admin',
             'page' => 'admin/v_dashboard',
-            'admin' => $adminData
+            'admin' => $adminData,
+            'total_mahasiswa' => $db->table('mahasiswa')->countAllResults(),
+            'total_instansi' => $db->table('instansi')->countAllResults(),
+            'total_dosen' => $db->table('dosen_pembimbing')->countAllResults(),
         ];
+
+        // Cek struktur tabel pengajuan_magang
+        try {
+            // Ambil pengajuan aktif
+            $data['total_pengajuan_aktif'] = $db->table('pengajuan')
+                                               ->where('status', 'Menunggu')
+                                               ->countAllResults();
+
+            // Ambil pengajuan terbaru
+            $data['pengajuan_terbaru'] = $db->table('pengajuan')
+                                           ->select('pengajuan.*, mahasiswa.nama as nama_mahasiswa')
+                                           ->join('mahasiswa', 'mahasiswa.nim = pengajuan.nim')
+                                           ->orderBy('tgl_pengajuan', 'DESC')
+                                           ->limit(5)
+                                           ->get()
+                                           ->getResultArray();
+
+            // Data untuk pie chart status pengajuan
+            $data['status_pengajuan'] = [
+                'Menunggu' => $db->table('pengajuan')->where('status', 'Menunggu')->countAllResults(),
+                'Diterima' => $db->table('pengajuan')->where('status', 'Diterima')->countAllResults(),
+                'Ditolak' => $db->table('pengajuan')->where('status', 'Ditolak')->countAllResults()
+            ];
+
+            // Data untuk grafik statistik 6 bulan terakhir
+            $bulan = [];
+            $pengajuan = [];
+            $diterima = [];
+            $ditolak = [];
+
+            for ($i = 5; $i >= 0; $i--) {
+                $bulan_ini = date('Y-m', strtotime("-$i month"));
+                $bulan[] = date('M', strtotime("-$i month"));
+
+                $pengajuan[] = $db->table('pengajuan')
+                                 ->where('DATE_FORMAT(tgl_pengajuan, "%Y-%m")', $bulan_ini)
+                                 ->countAllResults();
+
+                $diterima[] = $db->table('pengajuan')
+                                ->where('DATE_FORMAT(tgl_pengajuan, "%Y-%m")', $bulan_ini)
+                                ->where('status', 'Diterima')
+                                ->countAllResults();
+
+                $ditolak[] = $db->table('pengajuan')
+                               ->where('DATE_FORMAT(tgl_pengajuan, "%Y-%m")', $bulan_ini)
+                               ->where('status', 'Ditolak')
+                               ->countAllResults();
+            }
+
+            $data['statistik'] = [
+                'labels' => $bulan,
+                'pengajuan' => $pengajuan,
+                'diterima' => $diterima,
+                'ditolak' => $ditolak
+            ];
+
+        } catch (\Exception $e) {
+            log_message('error', 'Error saat mengambil data pengajuan: ' . $e->getMessage());
+            
+            // Set nilai default jika terjadi error
+            $data['total_pengajuan_aktif'] = 0;
+            $data['pengajuan_terbaru'] = [];
+            $data['status_pengajuan'] = ['Menunggu' => 0, 'Diterima' => 0, 'Ditolak' => 0];
+            $data['statistik'] = [
+                'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                'pengajuan' => [0, 0, 0, 0, 0, 0],
+                'diterima' => [0, 0, 0, 0, 0, 0],
+                'ditolak' => [0, 0, 0, 0, 0, 0]
+            ];
+        }
 
         return view('v_template_backend', $data);
     }
@@ -85,6 +162,9 @@ class Admin extends BaseController
         try {
             $adminData = $modelAdmin->getAdminByUserId(session()->get('id_user'));
             $mahasiswaData = $modelAdmin->getAllMahasiswa();
+            
+            // Debug
+            log_message('info', 'Data mahasiswa: ' . json_encode($mahasiswaData));
             
             $data = [
                 'judul' => 'Data Mahasiswa',
@@ -694,5 +774,101 @@ class Admin extends BaseController
         }
 
         return redirect()->to('Admin/PengajuanMahasiswa');
+    }
+
+    public function Dokumen()
+    {
+        $modelAdmin = new \App\Models\ModelAdmin();
+        
+        try {
+            $adminData = $modelAdmin->getAdminByUserId(session()->get('id_user'));
+            $dokumenData = $modelAdmin->getAllDokumen();
+            
+            $data = [
+                'judul' => 'Kelola Dokumen',
+                'page' => 'admin/v_dokumen',
+                'admin' => $adminData,
+                'dokumen' => $dokumenData
+            ];
+
+            return view('v_template_backend', $data);
+        } catch (\Exception $e) {
+            log_message('error', 'Error di Dokumen: ' . $e->getMessage());
+            session()->setFlashdata('error', 'Terjadi kesalahan saat memuat data');
+            return redirect()->back();
+        }
+    }
+
+    public function tambahDokumen()
+    {
+        try {
+            $file = $this->request->getFile('file_dokumen');
+            $fileName = $file->getRandomName();
+
+            $data = [
+                'nama_dokumen' => $this->request->getPost('nama_dokumen'),
+                'file_dokumen' => $fileName,
+                'keterangan' => $this->request->getPost('keterangan'),
+                'status' => $this->request->getPost('status'),
+                'tgl_upload' => date('Y-m-d H:i:s')
+            ];
+
+            $modelAdmin = new \App\Models\ModelAdmin();
+
+            // Upload file
+            if ($file->isValid() && !$file->hasMoved()) {
+                $file->move('uploads/dokumen', $fileName);
+            } else {
+                throw new \Exception('Gagal mengupload file');
+            }
+
+            // Simpan ke database
+            if (!$modelAdmin->tambahDokumen($data)) {
+                throw new \Exception('Gagal menyimpan data dokumen');
+            }
+
+            session()->setFlashdata('pesan', 'Dokumen berhasil ditambahkan');
+            return redirect()->to('Admin/Dokumen');
+
+        } catch (\Exception $e) {
+            log_message('error', 'Error di tambahDokumen: ' . $e->getMessage());
+            session()->setFlashdata('error', 'Gagal menambahkan dokumen. ' . $e->getMessage());
+            return redirect()->back();
+        }
+    }
+
+    public function hapusDokumen($id)
+    {
+        try {
+            $modelAdmin = new \App\Models\ModelAdmin();
+            
+            // Ambil info file sebelum dihapus
+            $db = \Config\Database::connect();
+            $dokumen = $db->table('dokumen')->where('id_dokumen', $id)->get()->getRowArray();
+            
+            if ($dokumen) {
+                // Hapus file fisik
+                $filePath = 'uploads/dokumen/' . $dokumen['file_dokumen'];
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+                
+                // Hapus record dari database
+                if (!$modelAdmin->hapusDokumen($id)) {
+                    throw new \Exception('Gagal menghapus data dokumen');
+                }
+                
+                session()->setFlashdata('pesan', 'Dokumen berhasil dihapus');
+            } else {
+                session()->setFlashdata('error', 'Dokumen tidak ditemukan');
+            }
+            
+            return redirect()->to('Admin/Dokumen');
+
+        } catch (\Exception $e) {
+            log_message('error', 'Error di hapusDokumen: ' . $e->getMessage());
+            session()->setFlashdata('error', 'Gagal menghapus dokumen. ' . $e->getMessage());
+            return redirect()->to('Admin/Dokumen');
+        }
     }
 }
