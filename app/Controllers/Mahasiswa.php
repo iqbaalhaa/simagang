@@ -453,4 +453,118 @@ class Mahasiswa extends BaseController
             return redirect()->back();
         }
     }
+
+    public function Absensi()
+    {
+        $modelMahasiswa = new \App\Models\ModelMahasiswa();
+        $mahasiswaData = $modelMahasiswa->getMahasiswaByUserId(session()->get('id_user'));
+
+        $data = [
+            'judul' => 'Absensi Magang',
+            'page' => 'mahasiswa/v_absensi',
+            'mahasiswa' => $mahasiswaData,
+            'absensi' => $modelMahasiswa->getAbsensiMahasiswa($mahasiswaData['id_mahasiswa'])
+        ];
+
+        return view('v_template_backend_mhs', $data);
+    }
+
+    public function tambahAbsensi()
+    {
+        $modelMahasiswa = new \App\Models\ModelMahasiswa();
+        $mahasiswaData = $modelMahasiswa->getMahasiswaByUserId(session()->get('id_user'));
+
+        // Validasi input
+        $validation = \Config\Services::validation();
+        $rules = [
+            'status' => 'required|in_list[hadir,izin,sakit]',
+            'kegiatan' => 'required'
+        ];
+
+        // Tambahkan validasi file hanya jika status izin atau sakit
+        if ($this->request->getPost('status') == 'izin' || $this->request->getPost('status') == 'sakit') {
+            $rules['bukti_kehadiran'] = 'uploaded[bukti_kehadiran]|mime_in[bukti_kehadiran,image/jpg,image/jpeg,image/png]|max_size[bukti_kehadiran,2048]';
+        } else {
+            // Untuk status hadir, file bukti opsional
+            $rules['bukti_kehadiran'] = 'permit_empty|mime_in[bukti_kehadiran,image/jpg,image/jpeg,image/png]|max_size[bukti_kehadiran,2048]';
+        }
+
+        $validation->setRules($rules, [
+            'status' => [
+                'required' => 'Status kehadiran wajib dipilih',
+                'in_list' => 'Status kehadiran tidak valid'
+            ],
+            'kegiatan' => [
+                'required' => 'Kegiatan wajib diisi'
+            ],
+            'bukti_kehadiran' => [
+                'uploaded' => 'Bukti kehadiran wajib diupload untuk izin/sakit',
+                'mime_in' => 'File harus berupa gambar (JPG/PNG)',
+                'max_size' => 'Ukuran file maksimal 2MB'
+            ]
+        ]);
+
+        if (!$validation->withRequest($this->request)->run()) {
+            session()->setFlashdata('error', $validation->listErrors());
+            return redirect()->to('Mahasiswa/Absensi');
+        }
+
+        // Handle upload bukti kehadiran
+        $bukti = '';
+        $fileBukti = $this->request->getFile('bukti_kehadiran');
+        if ($fileBukti && $fileBukti->isValid() && !$fileBukti->hasMoved()) {
+            $bukti = $fileBukti->getRandomName();
+            try {
+                // Buat direktori jika belum ada
+                if (!is_dir('uploads/absensi')) {
+                    mkdir('uploads/absensi', 0777, true);
+                }
+                $fileBukti->move('uploads/absensi', $bukti);
+            } catch (\Exception $e) {
+                session()->setFlashdata('error', 'Gagal mengupload bukti kehadiran');
+                return redirect()->to('Mahasiswa/Absensi');
+            }
+        }
+
+        $data = [
+            'id_mahasiswa' => $mahasiswaData['id_mahasiswa'],
+            'tanggal' => date('Y-m-d'),
+            'jam_masuk' => date('H:i:s'),
+            'kegiatan' => $this->request->getPost('kegiatan'),
+            'status' => $this->request->getPost('status'),
+            'bukti_kehadiran' => $bukti,
+            'created_at' => date('Y-m-d H:i:s')
+        ];
+
+        try {
+            $modelMahasiswa->insertAbsensi($data);
+            session()->setFlashdata('pesan', 'Absensi berhasil ditambahkan');
+        } catch (\Exception $e) {
+            session()->setFlashdata('error', 'Gagal menambahkan absensi');
+            if (!empty($bukti) && file_exists('uploads/absensi/' . $bukti)) {
+                unlink('uploads/absensi/' . $bukti);
+            }
+        }
+
+        return redirect()->to('Mahasiswa/Absensi');
+    }
+
+    public function absenPulang($id)
+    {
+        $modelMahasiswa = new \App\Models\ModelMahasiswa();
+        
+        try {
+            $data = [
+                'jam_pulang' => date('H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
+            ];
+
+            $modelMahasiswa->updateAbsensi($id, $data);
+            session()->setFlashdata('pesan', 'Absen pulang berhasil');
+        } catch (\Exception $e) {
+            session()->setFlashdata('error', 'Gagal melakukan absen pulang');
+        }
+
+        return redirect()->to('Mahasiswa/Absensi');
+    }
 }

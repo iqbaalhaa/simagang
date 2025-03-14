@@ -22,6 +22,9 @@ class ModelMahasiswa extends Model
         'surat_permohonan'  // Tambahkan field baru ini
     ];
 
+    // Tambahkan property untuk tabel absensi
+    protected $tableAbsensi = 'absensi';
+
     public function getMahasiswaByUserId($userId)
     {
         try {
@@ -252,13 +255,12 @@ class ModelMahasiswa extends Model
             ->getResultArray();
     }
 
-    public function getAnggotaKelompokDetail($pengajuan_id)
+    public function getAnggotaKelompokDetail($id_pengajuan)
     {
         return $this->db->table('anggota_kelompok ak')
-            ->select('m.nim, m.nama, (pm.ketua_id = m.id_mahasiswa) as is_ketua')
+            ->select('m.id_mahasiswa, m.nim, m.nama')
             ->join('mahasiswa m', 'm.id_mahasiswa = ak.mahasiswa_id')
-            ->join('pengajuan_magang pm', 'pm.id = ak.pengajuan_id')
-            ->where('ak.pengajuan_id', $pengajuan_id)
+            ->where('ak.pengajuan_id', $id_pengajuan)
             ->get()
             ->getResultArray();
     }
@@ -349,5 +351,38 @@ class ModelMahasiswa extends Model
         return $this->db->table($this->tablePengajuan)
                     ->where('id', $pengajuan_id)
                     ->update(['surat_permohonan' => $filename]);
+    }
+
+    public function getAbsensiMahasiswa($id_mahasiswa)
+    {
+        return $this->db->table('absensi')
+            ->where('id_mahasiswa', $id_mahasiswa)
+            ->orderBy('tanggal', 'DESC')
+            ->orderBy('jam_masuk', 'DESC')
+            ->get()
+            ->getResultArray();
+    }
+
+    public function insertAbsensi($data)
+    {
+        return $this->db->table($this->tableAbsensi)->insert($data);
+    }
+
+    public function updateAbsensi($id, $data)
+    {
+        return $this->db->table($this->tableAbsensi)
+                    ->where('id_absensi', $id)
+                    ->update($data);
+    }
+
+    public function getAllKelompokMagang()
+    {
+        return $this->db->table('pengajuan_magang pm')
+            ->select('pm.*, i.nama_instansi, m.nama as nama_ketua')
+            ->join('instansi i', 'i.id_instansi = pm.instansi_id')
+            ->join('mahasiswa m', 'm.id_mahasiswa = pm.ketua_id')
+            ->where('pm.status', 'disetujui')
+            ->get()
+            ->getResultArray();
     }
 } 

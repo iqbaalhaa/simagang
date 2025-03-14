@@ -170,18 +170,18 @@
                             <div class="collapse" id="charts">
                                 <ul class="nav nav-collapse">
                                     <li>
-                                        <a href="<?= base_url('Mahasiswa/DataAdmin') ?>">
-                                            <span class="sub-item">Upload Laporan</span>
+                                        <a href="<?= base_url('Mahasiswa/LogBook') ?>">
+                                            <span class="sub-item">Logbook</span>
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="<?= base_url('Mahasiswa/DataAdmin') ?>">
-                                            <span class="sub-item">Upload Project</span>
+                                        <a href="<?= base_url('Mahasiswa/Absensi') ?>">
+                                            <span class="sub-item">Absensi</span>
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="<?= base_url('Mahasiswa/DataAdmin') ?>">
-                                            <span class="sub-item">E-Sertifikat</span>
+                                        <a href="<?= base_url('Mahasiswa/LoA') ?>">
+                                            <span class="sub-item">LoA Journal</span>
                                         </a>
                                     </li>
                                 </ul>
