@@ -23,6 +23,7 @@
                         <th>Ketua</th>
                         <th>Instansi</th>
                         <th>Status</th>
+                        <th>Surat Permohonan</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -39,9 +40,19 @@
                             </span>
                         </td>
                         <td>
+                            <?php if (!empty($k['surat_permohonan'])) : ?>
+                                <a href="<?= base_url('uploads/surat_permohonan/' . $k['surat_permohonan']) ?>"
+                                    class="btn btn-info btn-sm" target="_blank">
+                                    <i class="fas fa-file"></i> Lihat
+                                </a>
+                            <?php else : ?>
+                                <span class="badge badge-secondary">Belum Upload</span>
+                            <?php endif; ?>
+                        </td>
+                        <td>
                             <div class="form-button-action">
                                 <button type="button" class="btn btn-info btn-sm" 
-                                        onclick="lihatDetail(<?= $k['id'] ?>, '<?= $k['nama_kelompok'] ?>', '<?= $k['nama_instansi'] ?>', '<?= $k['status'] ?>')">
+                                        onclick="lihatDetail(<?= $k['id'] ?>, '<?= $k['nama_kelompok'] ?>', '<?= $k['nama_instansi'] ?>', '<?= $k['status'] ?>', '<?= $k['surat_permohonan'] ?>')">
                                     <i class="fa fa-eye"></i>
                                 </button>
                                 
@@ -71,7 +82,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="<?= base_url('Mahasiswa/tambahPengajuanMagang') ?>" method="POST">
+            <form action="<?= base_url('Mahasiswa/tambahPengajuanMagang') ?>" method="POST" enctype="multipart/form-data">
                 <div class="modal-body">
                     <div class="form-group">
                         <label>Nama Kelompok</label>
@@ -93,7 +104,15 @@
                                 <option value="<?= $m['id_mahasiswa'] ?>"><?= $m['nim'] . ' - ' . $m['nama'] ?></option>
                             <?php endforeach; ?>
                         </select>
-                        <small class="form-text text-muted">Pilih maksimal 3 anggota</small>
+                        <small class="form-text text-muted">Pilih maksimal 5 anggota</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Surat Permohonan Magang</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="surat_permohonan" name="surat_permohonan" accept=".pdf" required>
+                            <label class="custom-file-label" for="surat_permohonan">Pilih file</label>
+                        </div>
+                        <small class="form-text text-muted">Upload file dalam format PDF (Maks. 2MB)</small>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -128,6 +147,10 @@
                     <tr>
                         <th>Status</th>
                         <td id="detail-status"></td>
+                    </tr>
+                    <tr>
+                        <th>Surat Permohonan</th>
+                        <td id="detail-surat-permohonan"></td>
                     </tr>
                 </table>
             </div>
@@ -211,10 +234,18 @@
         });
     });
 
-    function lihatDetail(id, namaKelompok, instansi, status) {
+    function lihatDetail(id, namaKelompok, instansi, status, suratPermohonan) {
         $('#detail-nama-kelompok').text(namaKelompok);
         $('#detail-instansi').text(instansi);
         $('#detail-status').text(status);
+        if(suratPermohonan) {
+            $('#detail-surat-permohonan').html(
+                '<a href="' + '<?= base_url('uploads/surat_permohonan/') ?>' + suratPermohonan + 
+                '" class="btn btn-info btn-sm" target="_blank"><i class="fas fa-file"></i> Lihat Surat</a>'
+            );
+        } else {
+            $('#detail-surat-permohonan').html('<span class="badge badge-secondary">Belum Upload</span>');
+        }
         $('#detailModal').modal('show');
     }
 
@@ -223,4 +254,10 @@
         $('#delete-nama-kelompok').text(namaKelompok);
         $('#deleteModal').modal('show');
     }
+
+    // Script untuk menampilkan nama file yang dipilih
+    $('.custom-file-input').on('change', function() {
+        let fileName = $(this).val().split('\\').pop();
+        $(this).next('.custom-file-label').addClass("selected").html(fileName);
+    });
 </script>

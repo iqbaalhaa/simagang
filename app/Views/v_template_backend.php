@@ -168,10 +168,30 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="<?= base_url('Admin/PengajuanMahasiswa') ?>">
-                                <i class="fas fa-tasks"></i>
-                                <p>Tinjauan Progress</p>
+                            <a data-toggle="collapse" href="#charts">
+                                <i class="fas fa-folder-open"></i>
+                                <p>Laporan dan Project</p>
+                                <span class="caret"></span>
                             </a>
+                            <div class="collapse" id="charts">
+                                <ul class="nav nav-collapse">
+                                    <li>
+                                        <a href="<?= base_url('Admin/LogBook') ?>">
+                                            <span class="sub-item">Logbook</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="<?= base_url('Admin/Absensi') ?>">
+                                            <span class="sub-item">Absensi</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="<?= base_url('Admin/LoA') ?>">
+                                            <span class="sub-item">LoA Journal</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         </li>
                         <li class="nav-item">
                             <a href="<?= base_url('Admin/Dokumen') ?>">

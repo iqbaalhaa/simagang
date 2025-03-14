@@ -735,10 +735,46 @@ class Admin extends BaseController
         $modelMahasiswa = new \App\Models\ModelMahasiswa();
         
         try {
-            $modelMahasiswa->updateStatusPengajuan($id, $status);
+            $data = ['status' => $status];
+
+            // Jika status disetujui, proses upload surat pengantar
+            if ($status === 'disetujui') {
+                $fileSurat = $this->request->getFile('surat_pengantar');
+                
+                if ($fileSurat->isValid() && !$fileSurat->hasMoved()) {
+                    // Validasi tipe file
+                    if ($fileSurat->getClientMimeType() !== 'application/pdf') {
+                        throw new \Exception('File harus dalam format PDF');
+                    }
+                    
+                    // Validasi ukuran file (2MB)
+                    if ($fileSurat->getSize() > 2097152) {
+                        throw new \Exception('Ukuran file maksimal 2MB');
+                    }
+                    
+                    // Generate nama unik untuk file
+                    $namaSurat = $fileSurat->getRandomName();
+                    
+                    // Buat direktori jika belum ada
+                    if (!is_dir('uploads/surat_pengantar')) {
+                        mkdir('uploads/surat_pengantar', 0777, true);
+                    }
+                    
+                    // Pindahkan file
+                    $fileSurat->move('uploads/surat_pengantar', $namaSurat);
+                    
+                    // Tambahkan nama file ke data yang akan diupdate
+                    $data['surat_pengantar'] = $namaSurat;
+                } else {
+                    throw new \Exception('Surat pengantar wajib diupload');
+                }
+            }
+
+            $modelMahasiswa->updateStatusPengajuan($id, $data);
             session()->setFlashdata('pesan', 'Status pengajuan berhasil diupdate');
+            
         } catch (\Exception $e) {
-            session()->setFlashdata('error', 'Gagal mengupdate status pengajuan');
+            session()->setFlashdata('error', 'Gagal mengupdate status pengajuan: ' . $e->getMessage());
         }
         
         return redirect()->to('Admin/PengajuanMahasiswa');
@@ -869,6 +905,70 @@ class Admin extends BaseController
             log_message('error', 'Error di hapusDokumen: ' . $e->getMessage());
             session()->setFlashdata('error', 'Gagal menghapus dokumen. ' . $e->getMessage());
             return redirect()->to('Admin/Dokumen');
+        }
+    }
+
+    public function Absensi()
+    {
+        $modelAdmin = new \App\Models\ModelAdmin();
+        $modelMahasiswa = new \App\Models\ModelMahasiswa();
+        
+        try {
+            $adminData = $modelAdmin->getAdminByUserId(session()->get('id_user'));
+            
+            // Debug: tampilkan query yang dijalankan
+            $kelompokMagang = $modelMahasiswa->getAllKelompokMagang();
+            log_message('info', 'Data kelompok magang: ' . json_encode($kelompokMagang));
+            
+            $data = [
+                'judul' => 'Data Absensi Mahasiswa',
+                'page' => 'admin/v_absensi',
+                'admin' => $adminData,
+                'kelompok' => $kelompokMagang
+            ];
+
+            return view('v_template_backend', $data);
+        } catch (\Exception $e) {
+            log_message('error', 'Error di Absensi: ' . $e->getMessage());
+            session()->setFlashdata('error', 'Terjadi kesalahan saat memuat data: ' . $e->getMessage());
+            return redirect()->back();
+        }
+    }
+
+    public function getAbsensiKelompok($id_pengajuan)
+    {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setStatusCode(404);
+        }
+
+        $modelMahasiswa = new \App\Models\ModelMahasiswa();
+        
+        try {
+            // Debug: log ID pengajuan
+            log_message('info', 'Mengambil absensi untuk pengajuan ID: ' . $id_pengajuan);
+            
+            // Ambil data anggota kelompok dan absensinya
+            $anggotaKelompok = $modelMahasiswa->getAnggotaKelompokDetail($id_pengajuan);
+            log_message('info', 'Data anggota kelompok: ' . json_encode($anggotaKelompok));
+            
+            $dataAbsensi = [];
+            
+            foreach ($anggotaKelompok as $anggota) {
+                $absensi = $modelMahasiswa->getAbsensiMahasiswa($anggota['id_mahasiswa']);
+                $dataAbsensi[$anggota['id_mahasiswa']] = $absensi;
+            }
+
+            return $this->response->setJSON([
+                'status' => true,
+                'anggota' => $anggotaKelompok,
+                'absensi' => $dataAbsensi
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Error di getAbsensiKelompok: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'status' => false,
+                'message' => $e->getMessage()
+            ])->setStatusCode(500);
         }
     }
 }

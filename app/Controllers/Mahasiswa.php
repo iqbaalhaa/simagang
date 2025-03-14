@@ -6,17 +6,39 @@ use App\Models\ModelMahasiswa;
 
 class Mahasiswa extends BaseController
 {
-    public function index(): string
-    {
-        $modelMahasiswa = new \App\Models\ModelMahasiswa();
-        $mahasiswaData = $modelMahasiswa->getMahasiswaByUserId(session()->get('id_user'));
+    protected $ModelMahasiswa;
 
+    public function __construct()
+    {
+        // Inisialisasi model
+        $this->ModelMahasiswa = new ModelMahasiswa();
+        
+        // Cek session login
+        if (!session()->get('logged_in')) {
+            return redirect()->to(base_url('auth'));
+        }
+        
+        // Cek role
+        if (session()->get('level') !== 'mahasiswa') {
+            return redirect()->to(base_url('auth'));
+        }
+    }
+
+    public function index()
+    {
+        $id_mahasiswa = $this->ModelMahasiswa->getMahasiswaByUserId(session()->get('id_user'))['id_mahasiswa'];
+        
         $data = [
             'judul' => 'Dashboard Mahasiswa',
-            'page' => 'Mahasiswa/v_dashboard',
-            'mahasiswa' => $mahasiswaData
+            'mahasiswa' => $this->ModelMahasiswa->getMahasiswaByUserId(session()->get('id_user')),
+            'total_bimbingan' => $this->ModelMahasiswa->getTotalBimbingan($id_mahasiswa),
+            'bimbingan_selesai' => $this->ModelMahasiswa->getBimbinganSelesai($id_mahasiswa),
+            'bimbingan_pending' => $this->ModelMahasiswa->getBimbinganPending($id_mahasiswa),
+            'nama_dosen' => $this->ModelMahasiswa->getDosenPembimbing($id_mahasiswa),
+            'riwayat_bimbingan' => $this->ModelMahasiswa->getRiwayatBimbingan($id_mahasiswa, 5), // Ambil 5 data terakhir
+            'page' => 'mahasiswa/v_dashboard'
         ];
-
+        
         return view('v_template_backend_mhs', $data);
     }
 
@@ -241,7 +263,15 @@ class Mahasiswa extends BaseController
         $validation->setRules([
             'nama_kelompok' => 'required',
             'instansi_id' => 'required|numeric',
-            'anggota.*' => 'permit_empty|numeric' // Untuk anggota kelompok
+            'anggota.*' => 'permit_empty|numeric',
+            'surat_permohonan' => [
+                'rules' => 'uploaded[surat_permohonan]|mime_in[surat_permohonan,application/pdf]|max_size[surat_permohonan,2048]',
+                'errors' => [
+                    'uploaded' => 'Surat permohonan wajib diupload',
+                    'mime_in' => 'File harus berformat PDF',
+                    'max_size' => 'Ukuran file maksimal 2MB'
+                ]
+            ]
         ]);
 
         if (!$validation->withRequest($this->request)->run()) {
@@ -249,13 +279,36 @@ class Mahasiswa extends BaseController
             return redirect()->to('Mahasiswa/PengajuanMagang');
         }
 
+        // Handle upload surat permohonan
+        $fileSurat = $this->request->getFile('surat_permohonan');
+        $namaSurat = '';
+        
+        if ($fileSurat->isValid() && !$fileSurat->hasMoved()) {
+            // Generate nama unik untuk file
+            $namaSurat = $fileSurat->getRandomName();
+            
+            // Buat direktori jika belum ada
+            if (!is_dir('uploads/surat_permohonan')) {
+                mkdir('uploads/surat_permohonan', 0777, true);
+            }
+            
+            // Pindahkan file
+            try {
+                $fileSurat->move('uploads/surat_permohonan', $namaSurat);
+            } catch (\Exception $e) {
+                session()->setFlashdata('error', 'Gagal mengupload surat permohonan');
+                return redirect()->to('Mahasiswa/PengajuanMagang');
+            }
+        }
+
         // Siapkan data pengajuan
         $data = [
             'nama_kelompok' => $this->request->getPost('nama_kelompok'),
-            'ketua_id' => $mahasiswaData['id_mahasiswa'], // Pembuat adalah ketua
+            'ketua_id' => $mahasiswaData['id_mahasiswa'],
             'instansi_id' => $this->request->getPost('instansi_id'),
             'status' => 'pending',
-            'created_at' => date('Y-m-d H:i:s')
+            'created_at' => date('Y-m-d H:i:s'),
+            'surat_permohonan' => $namaSurat
         ];
 
         try {
@@ -280,6 +333,10 @@ class Mahasiswa extends BaseController
             $db->transComplete();
 
             if ($db->transStatus() === false) {
+                // Jika transaksi gagal, hapus file yang sudah diupload
+                if (file_exists('uploads/surat_permohonan/' . $namaSurat)) {
+                    unlink('uploads/surat_permohonan/' . $namaSurat);
+                }
                 throw new \Exception('Gagal menyimpan pengajuan magang');
             }
 
@@ -287,6 +344,11 @@ class Mahasiswa extends BaseController
             return redirect()->to('Mahasiswa/PengajuanMagang');
 
         } catch (\Exception $e) {
+            // Jika terjadi error, hapus file yang sudah diupload
+            if (file_exists('uploads/surat_permohonan/' . $namaSurat)) {
+                unlink('uploads/surat_permohonan/' . $namaSurat);
+            }
+            
             log_message('error', 'Error saat menambah pengajuan magang: ' . $e->getMessage());
             session()->setFlashdata('error', 'Gagal menambah pengajuan magang. Silakan coba lagi.');
             return redirect()->to('Mahasiswa/PengajuanMagang');
@@ -390,5 +452,119 @@ class Mahasiswa extends BaseController
             session()->setFlashdata('error', 'Gagal mengunduh file');
             return redirect()->back();
         }
+    }
+
+    public function Absensi()
+    {
+        $modelMahasiswa = new \App\Models\ModelMahasiswa();
+        $mahasiswaData = $modelMahasiswa->getMahasiswaByUserId(session()->get('id_user'));
+
+        $data = [
+            'judul' => 'Absensi Magang',
+            'page' => 'mahasiswa/v_absensi',
+            'mahasiswa' => $mahasiswaData,
+            'absensi' => $modelMahasiswa->getAbsensiMahasiswa($mahasiswaData['id_mahasiswa'])
+        ];
+
+        return view('v_template_backend_mhs', $data);
+    }
+
+    public function tambahAbsensi()
+    {
+        $modelMahasiswa = new \App\Models\ModelMahasiswa();
+        $mahasiswaData = $modelMahasiswa->getMahasiswaByUserId(session()->get('id_user'));
+
+        // Validasi input
+        $validation = \Config\Services::validation();
+        $rules = [
+            'status' => 'required|in_list[hadir,izin,sakit]',
+            'kegiatan' => 'required'
+        ];
+
+        // Tambahkan validasi file hanya jika status izin atau sakit
+        if ($this->request->getPost('status') == 'izin' || $this->request->getPost('status') == 'sakit') {
+            $rules['bukti_kehadiran'] = 'uploaded[bukti_kehadiran]|mime_in[bukti_kehadiran,image/jpg,image/jpeg,image/png]|max_size[bukti_kehadiran,2048]';
+        } else {
+            // Untuk status hadir, file bukti opsional
+            $rules['bukti_kehadiran'] = 'permit_empty|mime_in[bukti_kehadiran,image/jpg,image/jpeg,image/png]|max_size[bukti_kehadiran,2048]';
+        }
+
+        $validation->setRules($rules, [
+            'status' => [
+                'required' => 'Status kehadiran wajib dipilih',
+                'in_list' => 'Status kehadiran tidak valid'
+            ],
+            'kegiatan' => [
+                'required' => 'Kegiatan wajib diisi'
+            ],
+            'bukti_kehadiran' => [
+                'uploaded' => 'Bukti kehadiran wajib diupload untuk izin/sakit',
+                'mime_in' => 'File harus berupa gambar (JPG/PNG)',
+                'max_size' => 'Ukuran file maksimal 2MB'
+            ]
+        ]);
+
+        if (!$validation->withRequest($this->request)->run()) {
+            session()->setFlashdata('error', $validation->listErrors());
+            return redirect()->to('Mahasiswa/Absensi');
+        }
+
+        // Handle upload bukti kehadiran
+        $bukti = '';
+        $fileBukti = $this->request->getFile('bukti_kehadiran');
+        if ($fileBukti && $fileBukti->isValid() && !$fileBukti->hasMoved()) {
+            $bukti = $fileBukti->getRandomName();
+            try {
+                // Buat direktori jika belum ada
+                if (!is_dir('uploads/absensi')) {
+                    mkdir('uploads/absensi', 0777, true);
+                }
+                $fileBukti->move('uploads/absensi', $bukti);
+            } catch (\Exception $e) {
+                session()->setFlashdata('error', 'Gagal mengupload bukti kehadiran');
+                return redirect()->to('Mahasiswa/Absensi');
+            }
+        }
+
+        $data = [
+            'id_mahasiswa' => $mahasiswaData['id_mahasiswa'],
+            'tanggal' => date('Y-m-d'),
+            'jam_masuk' => date('H:i:s'),
+            'kegiatan' => $this->request->getPost('kegiatan'),
+            'status' => $this->request->getPost('status'),
+            'bukti_kehadiran' => $bukti,
+            'created_at' => date('Y-m-d H:i:s')
+        ];
+
+        try {
+            $modelMahasiswa->insertAbsensi($data);
+            session()->setFlashdata('pesan', 'Absensi berhasil ditambahkan');
+        } catch (\Exception $e) {
+            session()->setFlashdata('error', 'Gagal menambahkan absensi');
+            if (!empty($bukti) && file_exists('uploads/absensi/' . $bukti)) {
+                unlink('uploads/absensi/' . $bukti);
+            }
+        }
+
+        return redirect()->to('Mahasiswa/Absensi');
+    }
+
+    public function absenPulang($id)
+    {
+        $modelMahasiswa = new \App\Models\ModelMahasiswa();
+        
+        try {
+            $data = [
+                'jam_pulang' => date('H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
+            ];
+
+            $modelMahasiswa->updateAbsensi($id, $data);
+            session()->setFlashdata('pesan', 'Absen pulang berhasil');
+        } catch (\Exception $e) {
+            session()->setFlashdata('error', 'Gagal melakukan absen pulang');
+        }
+
+        return redirect()->to('Mahasiswa/Absensi');
     }
 }

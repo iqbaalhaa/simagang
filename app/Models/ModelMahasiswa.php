@@ -11,6 +11,19 @@ class ModelMahasiswa extends Model
     protected $allowedFields = ['id_user', 'nim', 'nama', 'angkatan', 'instansi', 'foto', 'instansi_id'];
     protected $tablePengajuan = 'pengajuan_magang';
     protected $tableAnggota = 'anggota_kelompok';
+    
+    // Tambahkan property untuk field yang diizinkan di tabel pengajuan_magang
+    protected $allowedFieldsPengajuan = [
+        'nama_kelompok',
+        'ketua_id',
+        'instansi_id',
+        'status',
+        'created_at',
+        'surat_permohonan'  // Tambahkan field baru ini
+    ];
+
+    // Tambahkan property untuk tabel absensi
+    protected $tableAbsensi = 'absensi';
 
     public function getMahasiswaByUserId($userId)
     {
@@ -123,7 +136,7 @@ class ModelMahasiswa extends Model
     {
         try {
             $builder = $this->db->table($this->tablePengajuan . ' pm')
-                ->select('pm.*, i.nama_instansi, m.nama as nama_ketua')
+                ->select('pm.*, pm.surat_permohonan, i.nama_instansi, m.nama as nama_ketua')
                 ->join('instansi i', 'i.id_instansi = pm.instansi_id')
                 ->join('mahasiswa m', 'm.id_mahasiswa = pm.ketua_id');
 
@@ -146,7 +159,10 @@ class ModelMahasiswa extends Model
 
     public function insertPengajuanMagang($data)
     {
-        $this->db->table($this->tablePengajuan)->insert($data);
+        // Filter data sesuai dengan field yang diizinkan
+        $filteredData = array_intersect_key($data, array_flip($this->allowedFieldsPengajuan));
+        
+        $this->db->table($this->tablePengajuan)->insert($filteredData);
         return $this->db->insertID();
     }
 
@@ -221,11 +237,11 @@ class ModelMahasiswa extends Model
             ->getRowArray();
     }
 
-    public function updateStatusPengajuan($id, $status)
+    public function updateStatusPengajuan($id, $data)
     {
         return $this->db->table($this->tablePengajuan)
             ->where('id', $id)
-            ->update(['status' => $status]);
+            ->update($data);
     }
 
     public function getAllPengajuan()
@@ -239,13 +255,133 @@ class ModelMahasiswa extends Model
             ->getResultArray();
     }
 
-    public function getAnggotaKelompokDetail($pengajuan_id)
+    public function getAnggotaKelompokDetail($id_pengajuan)
     {
         return $this->db->table('anggota_kelompok ak')
-            ->select('m.nim, m.nama, (pm.ketua_id = m.id_mahasiswa) as is_ketua')
+            ->select('m.id_mahasiswa, m.nim, m.nama')
             ->join('mahasiswa m', 'm.id_mahasiswa = ak.mahasiswa_id')
-            ->join('pengajuan_magang pm', 'pm.id = ak.pengajuan_id')
-            ->where('ak.pengajuan_id', $pengajuan_id)
+            ->where('ak.pengajuan_id', $id_pengajuan)
+            ->get()
+            ->getResultArray();
+    }
+
+    public function getTotalBimbingan($id_mahasiswa)
+    {
+        try {
+            return $this->db->table('bimbingan')
+                        ->where('id_mahasiswa', $id_mahasiswa)
+                        ->countAllResults();
+        } catch (\Exception $e) {
+            log_message('error', 'Error di getTotalBimbingan: ' . $e->getMessage());
+            return 0;
+        }
+    }
+
+    public function getBimbinganSelesai($id_mahasiswa)
+    {
+        try {
+            return $this->db->table('bimbingan')
+                        ->where('id_mahasiswa', $id_mahasiswa)
+                        ->where('status', 'selesai')
+                        ->countAllResults();
+        } catch (\Exception $e) {
+            log_message('error', 'Error di getBimbinganSelesai: ' . $e->getMessage());
+            return 0;
+        }
+    }
+
+    public function getBimbinganPending($id_mahasiswa)
+    {
+        try {
+            return $this->db->table('bimbingan')
+                        ->where('id_mahasiswa', $id_mahasiswa)
+                        ->where('status', 'pending')
+                        ->countAllResults();
+        } catch (\Exception $e) {
+            log_message('error', 'Error di getBimbinganPending: ' . $e->getMessage());
+            return 0;
+        }
+    }
+
+    public function getDosenPembimbing($id_mahasiswa)
+    {
+        try {
+            $result = $this->db->table('bimbingan b')
+                        ->select('d.nama as nama_dosen')
+                        ->join('dosen_pembimbing d', 'd.id_dosen = b.id_dosen')
+                        ->where('b.id_mahasiswa', $id_mahasiswa)
+                        ->get()
+                        ->getRowArray();
+            
+            return $result ? $result['nama_dosen'] : '-';
+        } catch (\Exception $e) {
+            log_message('error', 'Error di getDosenPembimbing: ' . $e->getMessage());
+            return '-';
+        }
+    }
+
+    public function getRiwayatBimbingan($id_mahasiswa, $limit = 5)
+    {
+        try {
+            return $this->db->table('bimbingan')
+                        ->where('id_mahasiswa', $id_mahasiswa)
+                        ->orderBy('tanggal', 'DESC')
+                        ->limit($limit)
+                        ->get()
+                        ->getResultArray();
+        } catch (\Exception $e) {
+            log_message('error', 'Error di getRiwayatBimbingan: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    // Tambahkan method untuk mengambil surat permohonan
+    public function getSuratPermohonan($pengajuan_id)
+    {
+        return $this->db->table($this->tablePengajuan)
+                    ->select('surat_permohonan')
+                    ->where('id', $pengajuan_id)
+                    ->get()
+                    ->getRowArray();
+    }
+
+    // Tambahkan method untuk update surat permohonan
+    public function updateSuratPermohonan($pengajuan_id, $filename)
+    {
+        return $this->db->table($this->tablePengajuan)
+                    ->where('id', $pengajuan_id)
+                    ->update(['surat_permohonan' => $filename]);
+    }
+
+    public function getAbsensiMahasiswa($id_mahasiswa)
+    {
+        return $this->db->table('absensi')
+            ->where('id_mahasiswa', $id_mahasiswa)
+            ->orderBy('tanggal', 'DESC')
+            ->orderBy('jam_masuk', 'DESC')
+            ->get()
+            ->getResultArray();
+    }
+
+    public function insertAbsensi($data)
+    {
+        return $this->db->table($this->tableAbsensi)->insert($data);
+    }
+
+    public function updateAbsensi($id, $data)
+    {
+        return $this->db->table($this->tableAbsensi)
+                    ->where('id_absensi', $id)
+                    ->update($data);
+    }
+
+    public function getAllKelompokMagang()
+    {
+        return $this->db->table('pengajuan_magang pm')
+            ->select('pm.*, i.nama_instansi, m.nama as nama_ketua')
+            ->join('instansi i', 'i.id_instansi = pm.instansi_id')
+            ->join('mahasiswa m', 'm.id_mahasiswa = pm.ketua_id')
+            ->where('pm.status', 'disetujui')
             ->get()
             ->getResultArray();
     }

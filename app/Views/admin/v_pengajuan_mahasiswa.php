@@ -17,6 +17,8 @@
                         <th>NIM Ketua</th>
                         <th>Nama Kelompok</th>
                         <th>Instansi</th>
+                        <th>Surat Permohonan</th>
+                        <th>Surat Pengantar</th>
                         <th>Status</th>
                         <th style="width: 10%">Aksi</th>
                     </tr>
@@ -29,6 +31,26 @@
                         <td><?= $p['nim_ketua'] ?></td>
                         <td><?= $p['nama_kelompok'] ?></td>
                         <td><?= $p['nama_instansi'] ?></td>
+                        <td>
+                            <?php if (!empty($p['surat_permohonan'])) : ?>
+                                <a href="<?= base_url('uploads/surat_permohonan/' . $p['surat_permohonan']) ?>"
+                                    class="btn btn-info btn-sm" target="_blank">
+                                    <i class="fas fa-file"></i> Lihat
+                                </a>
+                            <?php else : ?>
+                                <span class="badge badge-secondary">Belum Upload</span>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php if (!empty($p['surat_pengantar'])) : ?>
+                                <a href="<?= base_url('uploads/surat_pengantar/' . $p['surat_pengantar']) ?>"
+                                    class="btn btn-info btn-sm" target="_blank">
+                                    <i class="fas fa-file"></i> Lihat
+                                </a>
+                            <?php else : ?>
+                                <span class="badge badge-secondary">Belum Upload</span>
+                            <?php endif; ?>
+                        </td>
                         <td>
                             <span class="badge badge-<?= $p['status'] == 'pending' ? 'warning' : ($p['status'] == 'disetujui' ? 'success' : 'danger') ?>">
                                 <?= ucfirst($p['status']) ?>
@@ -122,12 +144,24 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="<?= base_url('Admin/updateStatusPengajuan') ?>" method="POST">
+            <form action="<?= base_url('Admin/updateStatusPengajuan') ?>" method="POST" enctype="multipart/form-data">
                 <?= csrf_field() ?>
                 <div class="modal-body">
                     <input type="hidden" name="id" id="status-pengajuan-id">
                     <input type="hidden" name="status" id="status-value">
                     <p>Apakah Anda yakin ingin <span id="status-action"></span> pengajuan magang ini?</p>
+                    
+                    <!-- Form upload surat pengantar -->
+                    <div id="surat-pengantar-form" style="display: none;">
+                        <div class="form-group">
+                            <label>Upload Surat Pengantar</label>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="surat_pengantar" name="surat_pengantar" accept=".pdf" required>
+                                <label class="custom-file-label" for="surat_pengantar">Pilih file PDF</label>
+                            </div>
+                            <small class="form-text text-muted">Upload file dalam format PDF (Maks. 2MB)</small>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
@@ -208,6 +242,16 @@ function updateStatus(id, status) {
     $('#status-pengajuan-id').val(id);
     $('#status-value').val(status);
     $('#status-action').text(status === 'disetujui' ? 'menyetujui' : 'menolak');
+    
+    // Tampilkan form upload surat pengantar hanya jika status disetujui
+    if (status === 'disetujui') {
+        $('#surat-pengantar-form').show();
+        $('#surat_pengantar').prop('required', true);
+    } else {
+        $('#surat-pengantar-form').hide();
+        $('#surat_pengantar').prop('required', false);
+    }
+    
     $('#statusModal').modal('show');
 }
 
@@ -216,4 +260,10 @@ function confirmDelete(id, namaKelompok) {
     $('#delete-nama-kelompok').text(namaKelompok);
     $('#deleteModal').modal('show');
 }
+
+// Script untuk menampilkan nama file yang dipilih
+$('.custom-file-input').on('change', function() {
+    let fileName = $(this).val().split('\\').pop();
+    $(this).next('.custom-file-label').addClass("selected").html(fileName);
+});
 </script>

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Mar 05, 2025 at 07:16 PM
+-- Generation Time: Mar 14, 2025 at 07:25 AM
 -- Server version: 8.3.0
 -- PHP Version: 8.2.18
 
@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS `anggota_kelompok` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_anggota` (`pengajuan_id`,`mahasiswa_id`),
   KEY `mahasiswa_id` (`mahasiswa_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `anggota_kelompok`
@@ -68,7 +68,28 @@ CREATE TABLE IF NOT EXISTS `anggota_kelompok` (
 
 INSERT INTO `anggota_kelompok` (`id`, `pengajuan_id`, `mahasiswa_id`, `created_at`) VALUES
 (10, 5, 2, '2025-03-03 21:13:18'),
-(9, 5, 1, '2025-03-03 21:13:18');
+(9, 5, 1, '2025-03-03 21:13:18'),
+(12, 8, 4, '2025-03-14 14:22:49');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `bimbingan`
+--
+
+DROP TABLE IF EXISTS `bimbingan`;
+CREATE TABLE IF NOT EXISTS `bimbingan` (
+  `id_bimbingan` int NOT NULL AUTO_INCREMENT,
+  `id_dosen` int NOT NULL,
+  `id_mahasiswa` int NOT NULL,
+  `tanggal` date NOT NULL,
+  `catatan` text,
+  `status` enum('pending','selesai') DEFAULT 'pending',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_bimbingan`),
+  KEY `id_dosen` (`id_dosen`),
+  KEY `id_mahasiswa` (`id_mahasiswa`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -85,14 +106,15 @@ CREATE TABLE IF NOT EXISTS `dosen_pembimbing` (
   `foto` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id_dosen`),
   UNIQUE KEY `user_id` (`id_user`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `dosen_pembimbing`
 --
 
 INSERT INTO `dosen_pembimbing` (`id_dosen`, `id_user`, `nama`, `nidn`, `foto`) VALUES
-(1, 17, 'albet, S.Kom', 12414141, NULL);
+(1, 17, 'albet, S.Kom', 12414141, NULL),
+(2, 3, 'dosen pembimbing', 1221112, '1741202380_f6fe32f605bab4e490a2.jpg');
 
 -- --------------------------------------------------------
 
@@ -150,10 +172,26 @@ CREATE TABLE IF NOT EXISTS `mahasiswa` (
 INSERT INTO `mahasiswa` (`id_mahasiswa`, `id_user`, `nim`, `nama`, `angkatan`, `instansi`, `foto`, `instansi_id`) VALUES
 (1, 19, '01020202', 'Andi Lubis', '2020', 'Bank 9 Jambi', '1740803406_e4f3fcff4573215862c2.jpg', NULL),
 (2, 21, '00120001', 'Ayek Muhammadd', '2021', '-', '1740975744_ab08f5a0e39ffb4d159d.jpg', NULL),
-(3, 1, '', 'admin', '0000', '', '', NULL),
 (4, 23, '123123', 'jawo baru', '2022', 'Bank 9 Jambi', '1741078759_e292dae1cdd0379c0afd.jpeg', NULL),
-(5, 22, '70121011', 'lubis batak', '2023', 'institut pertanian bogor', '1741079518_ceacaa4e153bc5d42a9d.png', NULL),
-(6, 3, NULL, 'dosen', '0000', '', '', NULL);
+(5, 22, '70121011', 'lubis batak', '2023', 'institut pertanian bogor', '1741079518_ceacaa4e153bc5d42a9d.png', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `migrations`
+--
+
+DROP TABLE IF EXISTS `migrations`;
+CREATE TABLE IF NOT EXISTS `migrations` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `version` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `class` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `group` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `namespace` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `time` int NOT NULL,
+  `batch` int UNSIGNED NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -168,20 +206,21 @@ CREATE TABLE IF NOT EXISTS `pengajuan_magang` (
   `ketua_id` int NOT NULL,
   `instansi_id` int NOT NULL,
   `status` enum('pending','disetujui','ditolak') DEFAULT 'pending',
+  `surat_permohonan` varchar(255) DEFAULT NULL,
+  `surat_pengantar` varchar(255) DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `ketua_id` (`ketua_id`),
   KEY `instansi_id` (`instansi_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `pengajuan_magang`
 --
 
-INSERT INTO `pengajuan_magang` (`id`, `nama_kelompok`, `ketua_id`, `instansi_id`, `status`, `created_at`, `updated_at`) VALUES
-(5, 'Kelompok 1', 2, 2, 'disetujui', '2025-03-03 14:13:18', '2025-03-03 21:13:49'),
-(6, 'jeruk', 5, 4, 'disetujui', '2025-03-04 09:13:11', '2025-03-04 16:15:53');
+INSERT INTO `pengajuan_magang` (`id`, `nama_kelompok`, `ketua_id`, `instansi_id`, `status`, `surat_permohonan`, `surat_pengantar`, `created_at`, `updated_at`) VALUES
+(8, 'Kelompok 1', 4, 6, 'disetujui', '1741936969_bb3c4c9eebf2a76c915e.pdf', '1741937025_6782ffab2fe75b43c44c.pdf', '2025-03-14 07:22:49', '2025-03-14 14:23:45');
 
 -- --------------------------------------------------------
 
