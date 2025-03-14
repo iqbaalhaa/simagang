@@ -263,7 +263,15 @@ class Mahasiswa extends BaseController
         $validation->setRules([
             'nama_kelompok' => 'required',
             'instansi_id' => 'required|numeric',
-            'anggota.*' => 'permit_empty|numeric' // Untuk anggota kelompok
+            'anggota.*' => 'permit_empty|numeric',
+            'surat_permohonan' => [
+                'rules' => 'uploaded[surat_permohonan]|mime_in[surat_permohonan,application/pdf]|max_size[surat_permohonan,2048]',
+                'errors' => [
+                    'uploaded' => 'Surat permohonan wajib diupload',
+                    'mime_in' => 'File harus berformat PDF',
+                    'max_size' => 'Ukuran file maksimal 2MB'
+                ]
+            ]
         ]);
 
         if (!$validation->withRequest($this->request)->run()) {
@@ -271,13 +279,36 @@ class Mahasiswa extends BaseController
             return redirect()->to('Mahasiswa/PengajuanMagang');
         }
 
+        // Handle upload surat permohonan
+        $fileSurat = $this->request->getFile('surat_permohonan');
+        $namaSurat = '';
+        
+        if ($fileSurat->isValid() && !$fileSurat->hasMoved()) {
+            // Generate nama unik untuk file
+            $namaSurat = $fileSurat->getRandomName();
+            
+            // Buat direktori jika belum ada
+            if (!is_dir('uploads/surat_permohonan')) {
+                mkdir('uploads/surat_permohonan', 0777, true);
+            }
+            
+            // Pindahkan file
+            try {
+                $fileSurat->move('uploads/surat_permohonan', $namaSurat);
+            } catch (\Exception $e) {
+                session()->setFlashdata('error', 'Gagal mengupload surat permohonan');
+                return redirect()->to('Mahasiswa/PengajuanMagang');
+            }
+        }
+
         // Siapkan data pengajuan
         $data = [
             'nama_kelompok' => $this->request->getPost('nama_kelompok'),
-            'ketua_id' => $mahasiswaData['id_mahasiswa'], // Pembuat adalah ketua
+            'ketua_id' => $mahasiswaData['id_mahasiswa'],
             'instansi_id' => $this->request->getPost('instansi_id'),
             'status' => 'pending',
-            'created_at' => date('Y-m-d H:i:s')
+            'created_at' => date('Y-m-d H:i:s'),
+            'surat_permohonan' => $namaSurat
         ];
 
         try {
@@ -302,6 +333,10 @@ class Mahasiswa extends BaseController
             $db->transComplete();
 
             if ($db->transStatus() === false) {
+                // Jika transaksi gagal, hapus file yang sudah diupload
+                if (file_exists('uploads/surat_permohonan/' . $namaSurat)) {
+                    unlink('uploads/surat_permohonan/' . $namaSurat);
+                }
                 throw new \Exception('Gagal menyimpan pengajuan magang');
             }
 
@@ -309,6 +344,11 @@ class Mahasiswa extends BaseController
             return redirect()->to('Mahasiswa/PengajuanMagang');
 
         } catch (\Exception $e) {
+            // Jika terjadi error, hapus file yang sudah diupload
+            if (file_exists('uploads/surat_permohonan/' . $namaSurat)) {
+                unlink('uploads/surat_permohonan/' . $namaSurat);
+            }
+            
             log_message('error', 'Error saat menambah pengajuan magang: ' . $e->getMessage());
             session()->setFlashdata('error', 'Gagal menambah pengajuan magang. Silakan coba lagi.');
             return redirect()->to('Mahasiswa/PengajuanMagang');

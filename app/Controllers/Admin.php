@@ -735,10 +735,46 @@ class Admin extends BaseController
         $modelMahasiswa = new \App\Models\ModelMahasiswa();
         
         try {
-            $modelMahasiswa->updateStatusPengajuan($id, $status);
+            $data = ['status' => $status];
+
+            // Jika status disetujui, proses upload surat pengantar
+            if ($status === 'disetujui') {
+                $fileSurat = $this->request->getFile('surat_pengantar');
+                
+                if ($fileSurat->isValid() && !$fileSurat->hasMoved()) {
+                    // Validasi tipe file
+                    if ($fileSurat->getClientMimeType() !== 'application/pdf') {
+                        throw new \Exception('File harus dalam format PDF');
+                    }
+                    
+                    // Validasi ukuran file (2MB)
+                    if ($fileSurat->getSize() > 2097152) {
+                        throw new \Exception('Ukuran file maksimal 2MB');
+                    }
+                    
+                    // Generate nama unik untuk file
+                    $namaSurat = $fileSurat->getRandomName();
+                    
+                    // Buat direktori jika belum ada
+                    if (!is_dir('uploads/surat_pengantar')) {
+                        mkdir('uploads/surat_pengantar', 0777, true);
+                    }
+                    
+                    // Pindahkan file
+                    $fileSurat->move('uploads/surat_pengantar', $namaSurat);
+                    
+                    // Tambahkan nama file ke data yang akan diupdate
+                    $data['surat_pengantar'] = $namaSurat;
+                } else {
+                    throw new \Exception('Surat pengantar wajib diupload');
+                }
+            }
+
+            $modelMahasiswa->updateStatusPengajuan($id, $data);
             session()->setFlashdata('pesan', 'Status pengajuan berhasil diupdate');
+            
         } catch (\Exception $e) {
-            session()->setFlashdata('error', 'Gagal mengupdate status pengajuan');
+            session()->setFlashdata('error', 'Gagal mengupdate status pengajuan: ' . $e->getMessage());
         }
         
         return redirect()->to('Admin/PengajuanMahasiswa');
