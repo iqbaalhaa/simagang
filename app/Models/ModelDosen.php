@@ -88,11 +88,11 @@ class ModelDosen extends Model
         }
     }
 
-    public function getDosenWithUser($id)
+    public function getDosenWithUser($id_dosen)
     {
         return $this->select('dosen_pembimbing.*, user.username, user.email as user_email')
                     ->join('user', 'user.id_user = dosen_pembimbing.id_user')
-                    ->where('dosen_pembimbing.id_dosen', $id)
+                    ->where('dosen_pembimbing.id_dosen', $id_dosen)
                     ->first();
     }
 

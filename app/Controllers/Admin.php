@@ -143,7 +143,7 @@ class Admin extends BaseController
         $modelDosen = new \App\Models\ModelDosen();
         
         $adminData = $modelAdmin->getAdminByUserId(session()->get('id_user'));
-        $dosenData = $modelDosen->getDosenWithUser();
+        $dosenData = $modelDosen->getDosenWithUser('id_dosen');
         
         $data = [
             'judul' => 'Data Dosen',

@@ -9,10 +9,10 @@ class UserSeeder extends Seeder
     public function run()
     {
         $data = [
-            'username'     => 'dosen',
-            'password' => password_hash('dosen', PASSWORD_DEFAULT), // Hash password
-            'email'    => 'dosen@gmail.com', // Ganti dengan email yang sesuai
-            'role'     => 'dosen'
+            'username'     => 'admin02',
+            'password' => password_hash('admin02', PASSWORD_DEFAULT), // Hash password
+            'email'    => 'admin02@gmail.com', // Ganti dengan email yang sesuai
+            'role'     => 'admin'
         ];
 
         // Insert data ke tabel user
