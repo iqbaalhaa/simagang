@@ -168,15 +168,15 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a data-toggle="collapse" href="#charts">
+                            <a data-toggle="collapse" href="#lapro">
                                 <i class="fas fa-folder-open"></i>
                                 <p>Laporan dan Project</p>
                                 <span class="caret"></span>
                             </a>
-                            <div class="collapse" id="charts">
+                            <div class="collapse" id="lapro">
                                 <ul class="nav nav-collapse">
                                     <li>
-                                        <a href="<?= base_url('Admin/LogBook') ?>">
+                                        <a href="<?= base_url('Admin/Logbook') ?>">
                                             <span class="sub-item">Logbook</span>
                                         </a>
                                     </li>

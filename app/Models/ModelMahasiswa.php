@@ -25,45 +25,22 @@ class ModelMahasiswa extends Model
     // Tambahkan property untuk tabel absensi
     protected $tableAbsensi = 'absensi';
 
-    public function getMahasiswaByUserId($userId)
+    public function getMahasiswaByUserId($id_user)
     {
         try {
-            $result = $this->select('mahasiswa.*, user.username, user.email')
-                        ->join('user', 'user.id_user = mahasiswa.id_user')
-                        ->where('mahasiswa.id_user', $userId)
-                        ->first();
-
-            // Jika tidak ada data, kembalikan array kosong dengan struktur yang sama
-            if (empty($result)) {
-                return [
-                    'id_mahasiswa' => null,
-                    'id_user' => $userId,
-                    'nim' =>'',
-                    'nama' => '',
-                    'angkatan' => '',
-                    'instansi' => '',
-                    'foto' => '',
-                    'username' => '',
-                    'email' => ''
-                ];
-            }
-
-            // Pastikan result adalah array
-            return is_array($result) ? $result : (array)$result;
+            log_message('info', 'Getting mahasiswa data for user ID: ' . $id_user);
             
+            $result = $this->db->table('mahasiswa')
+                ->where('id_user', $id_user)
+                ->get()
+                ->getRowArray();
+                
+            log_message('info', 'Query result: ' . json_encode($result));
+            
+            return $result;
         } catch (\Exception $e) {
-            log_message('error', 'Error di getMahasiswaByUserId: ' . $e->getMessage());
-            return [
-                'id_mahasiswa' => null,
-                'id_user' => $userId,
-                'nim' =>'',
-                'nama' => '',
-                'angkatan' => '',
-                'instansi' => '',
-                'foto' => '',
-                'username' => '',
-                'email' => ''
-            ];
+            log_message('error', 'Error in getMahasiswaByUserId: ' . $e->getMessage());
+            return null;
         }
     }
 

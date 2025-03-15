@@ -46,7 +46,7 @@
                             <td><?= $no++; ?></td>
                             <td><?= $mhs['nim']; ?></td>
                             <td><?= $mhs['nama']; ?></td>
-                            <td><?= $mhs['user_email'] ?? '-'; ?></td>
+                            <td><?= $mhs['email'] ?? '-'; ?></td>
                             <td><?= $mhs['angkatan']; ?></td>
                             <td><?= $mhs['instansi'] ?? '-'; ?></td>
                             <td>

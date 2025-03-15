@@ -224,17 +224,16 @@ class ModelAdmin extends Model
         try {
             $db = \Config\Database::connect();
             
-            // Perbaiki query sesuai struktur tabel yang ada
             $builder = $db->table('mahasiswa m')
-                ->select('m.*, u.username, u.email as user_email')
-                ->join('user u', 'u.id_user = m.id_user', 'left')
+                ->select('m.*, u.username, u.email as email') // Tambahkan alias untuk email
+                ->join('user u', 'u.id_user = m.id_user')     // Ubah LEFT JOIN menjadi INNER JOIN
                 ->where('m.nim IS NOT NULL')
                 ->where('m.nim !=', '');
 
-            // Debug query
-            log_message('info', 'Query getAllMahasiswa: ' . $builder->getCompiledSelect());
-            
             $result = $builder->get()->getResultArray();
+            
+            // Debug hasil query
+            log_message('info', 'Hasil query mahasiswa dengan email: ' . json_encode($result));
             
             return $result;
         } catch (\Exception $e) {

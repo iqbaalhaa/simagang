@@ -170,7 +170,7 @@
                             <div class="collapse" id="charts">
                                 <ul class="nav nav-collapse">
                                     <li>
-                                        <a href="<?= base_url('Mahasiswa/LogBook') ?>">
+                                        <a href="<?= base_url('Mahasiswa/Logbook') ?>">
                                             <span class="sub-item">Logbook</span>
                                         </a>
                                     </li>

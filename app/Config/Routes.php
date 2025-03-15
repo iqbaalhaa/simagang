@@ -46,6 +46,7 @@ $routes->get('Admin/tambahDosen', 'Admin::tambahDosen');
 $routes->post('Admin/simpanDosen', 'Admin::simpanDosen');
 $routes->get('Admin/tambahMahasiswa', 'Admin::tambahMahasiswa');
 $routes->post('Admin/simpanMahasiswa', 'Admin::simpanMahasiswa');
+$routes->get('Admin/deleteMahasiswa/(:num)', 'Admin::deleteMahasiswa/$1');
 $routes->get('Admin/getDetailPengajuan/(:num)', 'Admin::getDetailPengajuan/$1');
 $routes->post('Admin/updateStatusPengajuan', 'Admin::updateStatusPengajuan');
 $routes->post('Admin/deletePengajuan', 'Admin::deletePengajuan');
@@ -54,6 +55,8 @@ $routes->post('Admin/tambahDokumen', 'Admin::tambahDokumen');
 $routes->get('Admin/hapusDokumen/(:num)', 'Admin::hapusDokumen/$1');
 $routes->get('Admin/Absensi', 'Admin::Absensi');
 $routes->get('Admin/getAbsensiKelompok/(:num)', 'Admin::getAbsensiKelompok/$1');
+$routes->get('Admin/Logbook', 'Admin::Logbook');
+$routes->post('Admin/updateParafLogbook', 'Admin::updateParafLogbook');
 
 
 
@@ -70,6 +73,12 @@ $routes->get('Mahasiswa/downloadFile/(:num)', 'Mahasiswa::downloadFile/$1');
 $routes->get('Mahasiswa/Absensi', 'Mahasiswa::Absensi');
 $routes->get('Mahasiswa/absenPulang/(:num)', 'Mahasiswa::absenPulang/$1');
 $routes->post('Mahasiswa/tambahAbsensi', 'Mahasiswa::tambahAbsensi');
+$routes->get('Mahasiswa/Logbook', 'Mahasiswa::Logbook');
+$routes->post('Mahasiswa/tambahLogbook', 'Mahasiswa::tambahLogbook');
+$routes->post('Mahasiswa/editLogbook/(:num)', 'Mahasiswa::editLogbook/$1');
+$routes->get('Mahasiswa/hapusLogbook/(:num)', 'Mahasiswa::hapusLogbook/$1');
+$routes->get('Mahasiswa/LoA', 'Mahasiswa::LoA');
+$routes->post('Mahasiswa/tambahLoA', 'Mahasiswa::tambahLoA');
 
 // Dosen Route
 $routes->get('Dosen', 'Dosen::index');

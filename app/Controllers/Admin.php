@@ -971,4 +971,56 @@ class Admin extends BaseController
             ])->setStatusCode(500);
         }
     }
+
+    public function Logbook()
+    {
+        $modelAdmin = new \App\Models\ModelAdmin();
+        $modelLogbook = new \App\Models\ModelLogbook();
+        
+        try {
+            $adminData = $modelAdmin->getAdminByUserId(session()->get('id_user'));
+            $logbookData = $modelLogbook->getAllLogbook();
+            
+            $data = [
+                'judul' => 'Data Logbook Mahasiswa',
+                'page' => 'admin/v_logbook',
+                'admin' => $adminData,
+                'logbook' => $logbookData
+            ];
+
+            return view('v_template_backend', $data);
+        } catch (\Exception $e) {
+            log_message('error', 'Error di Logbook: ' . $e->getMessage());
+            session()->setFlashdata('error', 'Terjadi kesalahan saat memuat data');
+            return redirect()->back();
+        }
+    }
+
+    public function updateParafLogbook()
+    {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setStatusCode(404);
+        }
+
+        $modelLogbook = new \App\Models\ModelLogbook();
+        
+        try {
+            $id = $this->request->getPost('id_logbook');
+            $status = $this->request->getPost('status');
+            
+            if (!$modelLogbook->updateParaf($id, $status)) {
+                throw new \Exception('Gagal mengupdate status paraf');
+            }
+
+            return $this->response->setJSON([
+                'status' => true,
+                'message' => 'Status paraf berhasil diupdate'
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status' => false,
+                'message' => $e->getMessage()
+            ])->setStatusCode(500);
+        }
+    }
 }

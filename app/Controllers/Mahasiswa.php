@@ -7,20 +7,77 @@ use App\Models\ModelMahasiswa;
 class Mahasiswa extends BaseController
 {
     protected $ModelMahasiswa;
+    protected $mahasiswa;
 
     public function __construct()
     {
         // Inisialisasi model
         $this->ModelMahasiswa = new ModelMahasiswa();
         
+        // Debug session
+        log_message('info', 'Session level: ' . session()->get('level'));
+        log_message('info', 'Session role: ' . session()->get('role'));
+        
         // Cek session login
         if (!session()->get('logged_in')) {
+            log_message('error', 'User tidak login');
             return redirect()->to(base_url('auth'));
         }
         
-        // Cek role
-        if (session()->get('level') !== 'mahasiswa') {
+        // Cek role - perbaiki pengecekan untuk menerima 'role' atau 'level'
+        if (session()->get('role') !== 'mahasiswa' && session()->get('level') !== 'mahasiswa') {
+            log_message('error', 'User bukan mahasiswa');
             return redirect()->to(base_url('auth'));
+        }
+
+        // Inisialisasi data mahasiswa
+        try {
+            // Debug user ID
+            $userId = session()->get('id_user');
+            log_message('info', 'Getting mahasiswa data for user ID: ' . $userId);
+            
+            $mahasiswaData = $this->ModelMahasiswa->getMahasiswaByUserId($userId);
+            log_message('info', 'Mahasiswa data: ' . json_encode($mahasiswaData));
+            
+            // Jika data mahasiswa belum ada, buat data baru
+            if (empty($mahasiswaData)) {
+                log_message('info', 'Creating new mahasiswa data');
+                $session = session();
+                $data = [
+                    'id_user' => $userId,
+                    'nama' => $session->get('username') ?? '',
+                    'nim' => null,
+                    'angkatan' => date('Y'),
+                    'instansi' => '',
+                    'foto' => ''
+                ];
+                
+                $id_mahasiswa = $this->ModelMahasiswa->insert($data);
+                if (!$id_mahasiswa) {
+                    throw new \Exception('Gagal membuat data mahasiswa baru');
+                }
+                
+                $mahasiswaData = $this->ModelMahasiswa->getMahasiswaByUserId($userId);
+                log_message('info', 'New mahasiswa data: ' . json_encode($mahasiswaData));
+            }
+
+            if (empty($mahasiswaData)) {
+                throw new \Exception('Data mahasiswa tidak ditemukan setelah insert');
+            }
+
+            $this->mahasiswa = $mahasiswaData;
+            
+            // Jika belum ada NIM, redirect ke profil
+            if (empty($this->mahasiswa['nim'])) {
+                session()->setFlashdata('warning', 'Silakan lengkapi data profil Anda termasuk NIM untuk dapat menggunakan semua fitur.');
+                if (current_url() !== base_url('Mahasiswa/Profil')) {
+                    return redirect()->to('Mahasiswa/Profil')->with('error', 'Silakan lengkapi profil Anda terlebih dahulu');
+                }
+            }
+
+        } catch (\Exception $e) {
+            log_message('error', 'Error in constructor: ' . $e->getMessage());
+            session()->setFlashdata('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 
@@ -566,5 +623,204 @@ class Mahasiswa extends BaseController
         }
 
         return redirect()->to('Mahasiswa/Absensi');
+    }
+
+    public function Logbook()
+    {
+        $modelMahasiswa = new \App\Models\ModelMahasiswa();
+        $modelLogbook = new \App\Models\ModelLogbook();
+        
+        try {
+            $mahasiswaData = $modelMahasiswa->getMahasiswaByUserId(session()->get('id_user'));
+            $logbookData = $modelLogbook->where('id_mahasiswa', $mahasiswaData['id_mahasiswa'])
+                                       ->orderBy('hari_ke', 'ASC')
+                                       ->findAll();
+            
+            $data = [
+                'judul' => 'Logbook Kegiatan',
+                'page' => 'mahasiswa/v_logbook',
+                'mahasiswa' => $mahasiswaData,
+                'logbook' => $logbookData
+            ];
+
+            return view('v_template_backend_mhs', $data);
+        } catch (\Exception $e) {
+            log_message('error', 'Error di Logbook: ' . $e->getMessage());
+            session()->setFlashdata('error', 'Terjadi kesalahan saat memuat data');
+            return redirect()->back();
+        }
+    }
+
+    public function tambahLogbook()
+    {
+        $modelMahasiswa = new \App\Models\ModelMahasiswa();
+        $modelLogbook = new \App\Models\ModelLogbook();
+        
+        try {
+            $mahasiswaData = $modelMahasiswa->getMahasiswaByUserId(session()->get('id_user'));
+            
+            $data = [
+                'id_mahasiswa' => $mahasiswaData['id_mahasiswa'],
+                'hari_ke' => $this->request->getPost('hari_ke'),
+                'tanggal' => $this->request->getPost('tanggal'),
+                'uraian_kegiatan' => $this->request->getPost('uraian_kegiatan')
+            ];
+
+            if (!$modelLogbook->insert($data)) {
+                throw new \Exception('Gagal menambahkan logbook');
+            }
+
+            session()->setFlashdata('pesan', 'Logbook berhasil ditambahkan');
+            return redirect()->to('Mahasiswa/Logbook');
+
+        } catch (\Exception $e) {
+            session()->setFlashdata('error', 'Gagal menambahkan logbook: ' . $e->getMessage());
+            return redirect()->to('Mahasiswa/Logbook');
+        }
+    }
+
+    public function editLogbook($id)
+    {
+        $modelLogbook = new \App\Models\ModelLogbook();
+        
+        try {
+            $logbook = $modelLogbook->find($id);
+            
+            if (!$logbook) {
+                throw new \Exception('Data logbook tidak ditemukan');
+            }
+            
+            if ($logbook['paraf_pembimbing'] === 'disetujui') {
+                throw new \Exception('Logbook yang sudah disetujui tidak dapat diedit');
+            }
+
+            $data = [
+                'hari_ke' => $this->request->getPost('hari_ke'),
+                'tanggal' => $this->request->getPost('tanggal'),
+                'uraian_kegiatan' => $this->request->getPost('uraian_kegiatan')
+            ];
+
+            if (!$modelLogbook->update($id, $data)) {
+                throw new \Exception('Gagal mengupdate logbook');
+            }
+
+            session()->setFlashdata('pesan', 'Logbook berhasil diupdate');
+            return redirect()->to('Mahasiswa/Logbook');
+
+        } catch (\Exception $e) {
+            session()->setFlashdata('error', 'Gagal mengupdate logbook: ' . $e->getMessage());
+            return redirect()->to('Mahasiswa/Logbook');
+        }
+    }
+
+    public function hapusLogbook($id)
+    {
+        $modelLogbook = new \App\Models\ModelLogbook();
+        
+        try {
+            $logbook = $modelLogbook->find($id);
+            
+            if (!$logbook) {
+                throw new \Exception('Data logbook tidak ditemukan');
+            }
+            
+            if ($logbook['paraf_pembimbing'] === 'disetujui') {
+                throw new \Exception('Logbook yang sudah disetujui tidak dapat dihapus');
+            }
+
+            if (!$modelLogbook->delete($id)) {
+                throw new \Exception('Gagal menghapus logbook');
+            }
+
+            session()->setFlashdata('pesan', 'Logbook berhasil dihapus');
+            return redirect()->to('Mahasiswa/Logbook');
+
+        } catch (\Exception $e) {
+            session()->setFlashdata('error', 'Gagal menghapus logbook: ' . $e->getMessage());
+            return redirect()->to('Mahasiswa/Logbook');
+        }
+    }
+
+    public function LoA()
+    {
+        try {
+            // Debug data mahasiswa
+            log_message('info', 'LoA method - mahasiswa data: ' . json_encode($this->mahasiswa));
+            
+            // Pastikan data mahasiswa ada
+            if (empty($this->mahasiswa)) {
+                throw new \Exception('Data mahasiswa tidak ditemukan');
+            }
+
+            $modelLoA = new \App\Models\ModelLoA();
+            
+            $data = [
+                'judul' => 'LoA Journal',
+                'page' => 'mahasiswa/v_loa',
+                'mahasiswa' => $this->mahasiswa,
+                'loa' => $modelLoA->getLoAByMahasiswa($this->mahasiswa['id_mahasiswa'])
+            ];
+
+            return view('v_template_backend_mhs', $data);
+        } catch (\Exception $e) {
+            log_message('error', 'Error in LoA method: ' . $e->getMessage());
+            session()->setFlashdata('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            return redirect()->to('Mahasiswa/Profil');
+        }
+    }
+
+    public function tambahLoA()
+    {
+        try {
+            // Pastikan data mahasiswa ada
+            if (empty($this->mahasiswa)) {
+                throw new \Exception('Data mahasiswa tidak ditemukan');
+            }
+
+            $validation = \Config\Services::validation();
+            
+            $rules = [
+                'judul' => 'required',
+                'deskripsi' => 'required',
+                'file_loa' => [
+                    'uploaded[file_loa]',
+                    'mime_in[file_loa,application/pdf]',
+                    'max_size[file_loa,2048]'
+                ]
+            ];
+
+            if (!$validation->setRules($rules)->withRequest($this->request)->run()) {
+                return redirect()->back()->withInput()->with('errors', $validation->getErrors());
+            }
+
+            $file = $this->request->getFile('file_loa');
+            $fileName = $file->getRandomName();
+
+            $modelLoA = new \App\Models\ModelLoA();
+            $data = [
+                'id_mahasiswa' => $this->mahasiswa['id_mahasiswa'],
+                'judul' => $this->request->getPost('judul'),
+                'deskripsi' => $this->request->getPost('deskripsi'),
+                'file_loa' => $fileName,
+                'status' => 'pending'
+            ];
+
+            if (!is_dir('uploads/loa')) {
+                mkdir('uploads/loa', 0777, true);
+            }
+
+            if ($file->move('uploads/loa', $fileName)) {
+                $modelLoA->insert($data);
+                session()->setFlashdata('pesan', 'LoA berhasil ditambahkan');
+            } else {
+                throw new \Exception('Gagal mengupload file');
+            }
+
+            return redirect()->to('Mahasiswa/LoA');
+
+        } catch (\Exception $e) {
+            session()->setFlashdata('error', 'Gagal menambahkan LoA: ' . $e->getMessage());
+            return redirect()->back()->withInput();
+        }
     }
 }
