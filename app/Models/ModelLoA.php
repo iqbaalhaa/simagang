@@ -27,4 +27,14 @@ class ModelLoA extends Model
                     ->orderBy('loa_journal.created_at', 'DESC')
                     ->findAll();
     }
+
+    public function updateStatus($id, $status)
+    {
+        return $this->update($id, ['status' => $status]);
+    }
+
+    public function updateCatatan($id, $catatan)
+    {
+        return $this->update($id, ['catatan' => $catatan]);
+    }
 } 

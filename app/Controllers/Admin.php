@@ -1023,4 +1023,75 @@ class Admin extends BaseController
             ])->setStatusCode(500);
         }
     }
+
+    public function LoA()
+    {
+        $modelAdmin = new \App\Models\ModelAdmin();
+        $modelLoA = new \App\Models\ModelLoA();
+        
+        try {
+            $adminData = $modelAdmin->getAdminByUserId(session()->get('id_user'));
+            $loaData = $modelLoA->getAllLoA();
+            
+            $data = [
+                'judul' => 'Data LoA Journal',
+                'page' => 'admin/v_loa',
+                'admin' => $adminData,
+                'loa' => $loaData
+            ];
+
+            return view('v_template_backend', $data);
+        } catch (\Exception $e) {
+            log_message('error', 'Error di LoA: ' . $e->getMessage());
+            session()->setFlashdata('error', 'Terjadi kesalahan saat memuat data');
+            return redirect()->back();
+        }
+    }
+
+    public function updateStatusLoA()
+    {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setStatusCode(404);
+        }
+
+        $modelLoA = new \App\Models\ModelLoA();
+        
+        try {
+            $id = $this->request->getPost('id_loa');
+            $status = $this->request->getPost('status');
+            
+            if (!$modelLoA->update($id, ['status' => $status])) {
+                throw new \Exception('Gagal mengupdate status LoA');
+            }
+
+            return $this->response->setJSON([
+                'status' => true,
+                'message' => 'Status LoA berhasil diupdate'
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status' => false,
+                'message' => $e->getMessage()
+            ])->setStatusCode(500);
+        }
+    }
+
+    public function updateCatatanLoA($id)
+    {
+        try {
+            $modelLoA = new \App\Models\ModelLoA();
+            $catatan = $this->request->getPost('catatan');
+            
+            if (!$modelLoA->update($id, ['catatan' => $catatan])) {
+                throw new \Exception('Gagal mengupdate catatan LoA');
+            }
+            
+            session()->setFlashdata('pesan', 'Catatan berhasil diupdate');
+            return redirect()->to('Admin/LoA');
+            
+        } catch (\Exception $e) {
+            session()->setFlashdata('error', 'Gagal mengupdate catatan: ' . $e->getMessage());
+            return redirect()->back();
+        }
+    }
 }

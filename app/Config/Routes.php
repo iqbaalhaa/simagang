@@ -57,6 +57,9 @@ $routes->get('Admin/Absensi', 'Admin::Absensi');
 $routes->get('Admin/getAbsensiKelompok/(:num)', 'Admin::getAbsensiKelompok/$1');
 $routes->get('Admin/Logbook', 'Admin::Logbook');
 $routes->post('Admin/updateParafLogbook', 'Admin::updateParafLogbook');
+$routes->get('Admin/LoA', 'Admin::LoA');
+$routes->post('Admin/updateStatusLoA', 'Admin::updateStatusLoA');
+$routes->post('Admin/updateCatatanLoA/(:num)', 'Admin::updateCatatanLoA/$1');
 
 
 
