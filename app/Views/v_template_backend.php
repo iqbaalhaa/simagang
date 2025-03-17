@@ -315,18 +315,6 @@
 <!-- Azzara JS -->
 <script src="<?= base_url('backend') ?>/assets/js/ready.min.js"></script>
 
-<!-- Initialize DataTables -->
-<script>
-    // Hapus atau komentari kode ini di v_template_backend.php
-    /*
-    $(document).ready(function() {
-        $('#add-row').DataTable({
-            "pageLength": 10,
-        });
-    });
-    */
-</script>
-
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
 

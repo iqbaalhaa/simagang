@@ -92,7 +92,8 @@ class Mahasiswa extends BaseController
             'bimbingan_selesai' => $this->ModelMahasiswa->getBimbinganSelesai($id_mahasiswa),
             'bimbingan_pending' => $this->ModelMahasiswa->getBimbinganPending($id_mahasiswa),
             'nama_dosen' => $this->ModelMahasiswa->getDosenPembimbing($id_mahasiswa),
-            'riwayat_bimbingan' => $this->ModelMahasiswa->getRiwayatBimbingan($id_mahasiswa, 5), // Ambil 5 data terakhir
+            'riwayat_bimbingan' => $this->ModelMahasiswa->getRiwayatBimbingan($id_mahasiswa, 5),
+            'is_ketua' => $this->ModelMahasiswa->isKetuaKelompok($id_mahasiswa),
             'page' => 'mahasiswa/v_dashboard'
         ];
         
@@ -744,12 +745,14 @@ class Mahasiswa extends BaseController
     public function LoA()
     {
         try {
-            // Debug data mahasiswa
-            log_message('info', 'LoA method - mahasiswa data: ' . json_encode($this->mahasiswa));
-            
-            // Pastikan data mahasiswa ada
             if (empty($this->mahasiswa)) {
                 throw new \Exception('Data mahasiswa tidak ditemukan');
+            }
+
+            // Cek apakah mahasiswa adalah ketua kelompok
+            if (!$this->ModelMahasiswa->isKetuaKelompok($this->mahasiswa['id_mahasiswa'])) {
+                session()->setFlashdata('error', 'Hanya ketua kelompok yang dapat mengakses menu LoA');
+                return redirect()->to('Mahasiswa');
             }
 
             $modelLoA = new \App\Models\ModelLoA();
@@ -758,6 +761,7 @@ class Mahasiswa extends BaseController
                 'judul' => 'LoA Journal',
                 'page' => 'mahasiswa/v_loa',
                 'mahasiswa' => $this->mahasiswa,
+                'is_ketua' => true,
                 'loa' => $modelLoA->getLoAByMahasiswa($this->mahasiswa['id_mahasiswa'])
             ];
 
@@ -765,7 +769,7 @@ class Mahasiswa extends BaseController
         } catch (\Exception $e) {
             log_message('error', 'Error in LoA method: ' . $e->getMessage());
             session()->setFlashdata('error', 'Terjadi kesalahan: ' . $e->getMessage());
-            return redirect()->to('Mahasiswa/Profil');
+            return redirect()->to('Mahasiswa');
         }
     }
 

@@ -85,10 +85,27 @@ $routes->post('Mahasiswa/uploadSuratBalasan', 'Mahasiswa::uploadSuratBalasan');
 
 
 // Dosen Route
-$routes->get('Dosen', 'Dosen::index');
-$routes->get('Dosen/Profil', 'Dosen::Profil');
-$routes->post('Dosen/updateProfil', 'Dosen::updateProfil');
+$routes->group('Dosen', ['filter' => 'auth'], function($routes) {
+    // Route yang sudah ada
+    $routes->get('/', 'Dosen::index');
+    $routes->get('Profil', 'Dosen::Profil');
+    $routes->post('updateProfil', 'Dosen::updateProfil');
+    $routes->get('KelompokBimbingan', 'Dosen::KelompokBimbingan');
+    $routes->get('getDetailKelompok/(:num)', 'Dosen::getDetailKelompok/$1');
+    
+    // Route baru untuk Logbook
+    $routes->get('Logbook', 'Dosen::Logbook');
+    $routes->post('updateParafLogbook', 'Dosen::updateParafLogbook');
+    
+    // Route untuk Absensi
+    $routes->get('Absensi', 'Dosen::Absensi');
+    $routes->get('getAbsensiKelompok/(:num)', 'Dosen::getAbsensiKelompok/$1');
+    
+    // Route untuk LoA
+    $routes->get('LoA', 'Dosen::LoA');
+});
 
+$routes->get('Dosen/getLogbookKelompok/(:num)', 'Dosen::getLogbookKelompok/$1');
 
 $routes->get('/admin', 'Admin::index');
 $routes->get('/dosen', 'Dosen::index');

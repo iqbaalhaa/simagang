@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Mar 15, 2025 at 07:07 PM
+-- Generation Time: Mar 17, 2025 at 06:23 AM
 -- Server version: 8.3.0
 -- PHP Version: 8.2.18
 
@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS `anggota_kelompok` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_anggota` (`pengajuan_id`,`mahasiswa_id`),
   KEY `mahasiswa_id` (`mahasiswa_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `anggota_kelompok`
@@ -98,8 +98,9 @@ CREATE TABLE IF NOT EXISTS `anggota_kelompok` (
 INSERT INTO `anggota_kelompok` (`id`, `pengajuan_id`, `mahasiswa_id`, `created_at`) VALUES
 (10, 5, 2, '2025-03-03 21:13:18'),
 (9, 5, 1, '2025-03-03 21:13:18'),
-(12, 8, 4, '2025-03-14 14:22:49'),
-(13, 9, 7, '2025-03-14 19:55:09');
+(16, 11, 5, '2025-03-17 05:28:46'),
+(17, 11, 7, '2025-03-17 05:28:46'),
+(18, 12, 8, '2025-03-17 05:57:26');
 
 -- --------------------------------------------------------
 
@@ -160,7 +161,7 @@ CREATE TABLE IF NOT EXISTS `dosen_pembimbing` (
   `foto` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id_dosen`),
   UNIQUE KEY `user_id` (`id_user`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `dosen_pembimbing`
@@ -168,7 +169,7 @@ CREATE TABLE IF NOT EXISTS `dosen_pembimbing` (
 
 INSERT INTO `dosen_pembimbing` (`id_dosen`, `id_user`, `nama`, `nidn`, `foto`) VALUES
 (1, 17, 'albet, S.Kom', 12414141, NULL),
-(2, 3, 'dosen pembimbing', 1221112, '1741202380_f6fe32f605bab4e490a2.jpg');
+(3, 25, 'M. Yusuf', 70120, '1742082800_be6430cf7c714a67ccba.jpeg');
 
 -- --------------------------------------------------------
 
@@ -250,7 +251,7 @@ CREATE TABLE IF NOT EXISTS `loa_journal` (
 --
 
 INSERT INTO `loa_journal` (`id_loa`, `id_mahasiswa`, `judul`, `deskripsi`, `file_loa`, `status`, `catatan`, `created_at`, `updated_at`) VALUES
-(1, 4, 'zz', 'zaz', '1742065427_f8c68c45ca56c41fc8e5.pdf', 'pending', NULL, '2025-03-15 19:03:47', '2025-03-15 19:03:47');
+(1, 4, 'zz', 'zaz', '1742065427_f8c68c45ca56c41fc8e5.pdf', 'disetujui', 'nn', '2025-03-15 19:03:47', '2025-03-15 22:02:26');
 
 -- --------------------------------------------------------
 
@@ -300,7 +301,7 @@ CREATE TABLE IF NOT EXISTS `mahasiswa` (
   UNIQUE KEY `user_id` (`id_user`),
   UNIQUE KEY `nim` (`nim`),
   KEY `instansi_id` (`instansi_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `mahasiswa`
@@ -311,7 +312,8 @@ INSERT INTO `mahasiswa` (`id_mahasiswa`, `id_user`, `nim`, `nama`, `angkatan`, `
 (2, 21, '00120001', 'Ayek Muhammadd', '2021', '-', '1740975744_ab08f5a0e39ffb4d159d.jpg', NULL),
 (4, 23, '123123', 'jawo baru', '2022', 'Bank 9 Jambi', '1741078759_e292dae1cdd0379c0afd.jpeg', NULL),
 (5, 22, '70121011', 'lubis batak', '2023', 'institut pertanian bogor', '1741079518_ceacaa4e153bc5d42a9d.png', NULL),
-(7, 24, '70121012', 'Maydinda Amelia Putri', '2024', 'pln', '1741956800_cd9054cb1f9a35d1fdc1.jpg', NULL);
+(7, 24, '70121012', 'Maydinda Amelia Putri', '2024', 'pln', '1741956800_cd9054cb1f9a35d1fdc1.jpg', NULL),
+(8, 26, '09090909', 'Budi Siregar', '2023', '-', '1742165790_6a8564cad2e66d0560ac.jpg', NULL);
 
 -- --------------------------------------------------------
 
@@ -343,23 +345,25 @@ CREATE TABLE IF NOT EXISTS `pengajuan_magang` (
   `nama_kelompok` varchar(100) NOT NULL,
   `ketua_id` int NOT NULL,
   `instansi_id` int NOT NULL,
+  `id_dosen` int DEFAULT NULL,
   `status` enum('pending','disetujui','ditolak') DEFAULT 'pending',
   `surat_permohonan` varchar(255) DEFAULT NULL,
   `surat_pengantar` varchar(255) DEFAULT NULL,
+  `surat_balasan` varchar(255) DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `ketua_id` (`ketua_id`),
   KEY `instansi_id` (`instansi_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `pengajuan_magang`
 --
 
-INSERT INTO `pengajuan_magang` (`id`, `nama_kelompok`, `ketua_id`, `instansi_id`, `status`, `surat_permohonan`, `surat_pengantar`, `created_at`, `updated_at`) VALUES
-(8, 'Kelompok 1', 4, 6, 'disetujui', '1741936969_bb3c4c9eebf2a76c915e.pdf', '1741937025_6782ffab2fe75b43c44c.pdf', '2025-03-14 07:22:49', '2025-03-14 14:23:45'),
-(9, 'bank 9', 7, 6, 'disetujui', '1741956909_f4478a0dec99359d99db.pdf', '1741957215_0dc96ed4fdd90ba41ee8.pdf', '2025-03-14 12:55:09', '2025-03-14 20:00:15');
+INSERT INTO `pengajuan_magang` (`id`, `nama_kelompok`, `ketua_id`, `instansi_id`, `id_dosen`, `status`, `surat_permohonan`, `surat_pengantar`, `surat_balasan`, `created_at`, `updated_at`) VALUES
+(11, 'jjj', 4, 3, 3, 'disetujui', '1742164126_c9eceb54c217d5e07dc6.pdf', '1742164533_b4e0c4573125ba31729c.pdf', '1742165365_95cfb78e958f63a68d5f.pdf', '2025-03-16 22:28:46', '2025-03-17 05:49:25'),
+(12, 'gg', 8, 1, 1, 'disetujui', '1742165846_76201402b66dab2fe836.pdf', '1742166094_8ca1e98e6b4f08608de8.pdf', NULL, '2025-03-16 22:57:26', '2025-03-17 06:01:34');
 
 -- --------------------------------------------------------
 
@@ -379,7 +383,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   PRIMARY KEY (`id_user`),
   UNIQUE KEY `username` (`username`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=MyISAM AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `user`
@@ -388,14 +392,15 @@ CREATE TABLE IF NOT EXISTS `user` (
 INSERT INTO `user` (`id_user`, `username`, `password`, `email`, `role`, `created_at`, `updated_at`) VALUES
 (1, 'admin', '$2y$10$osatC57vXNvpvcpcL0Aa6.8mGFwLqwiTeL1RK8mUtZ7QpMEiy3Sza', 'admin@gmail.com', 'admin', '2025-02-24 04:44:15', '2025-02-28 06:48:44'),
 (22, 'lubis', '$2y$10$RGy9DXHW6oUMUnHErJ.OauRnEkagJWkbMLtQoRg.yu5msm2oc2tmC', 'lubis@gmail.com', 'mahasiswa', '2025-03-04 01:17:13', '2025-03-04 01:17:13'),
-(3, 'dosen', '$2y$10$BCFDyuXYPU3HQnNprJzCp.VSKX8Q/tjejlJyk2lfyUPwOtwLdv7d2', 'dosen@gmail.com', 'dosen', '2025-02-24 19:11:09', '2025-02-28 06:48:44'),
+(26, 'budi', '$2y$10$AkWK1ZSSAGin/KS6cNUcIeGojQClPxqqeG.lTK54qXiFmUjvhehXC', 'budi@gmail.com', 'mahasiswa', '2025-03-16 15:55:53', '2025-03-16 15:55:53'),
 (13, 'iqbaalhaa', '$2y$10$LAuj85MLKGSn0N8wv1Nh4e0k2Yn3vNsOfWPeWo2eo6K/PqgARJ5Fm', 'iqbalhaanafi@gmail.com', 'mahasiswa', '2025-02-28 01:34:00', '2025-02-28 01:34:00'),
 (14, 'admin02', '$2y$10$tfI.fuj3vr2QxFRAybQoiOwmDke291tHvPvoWR72AdDZ9qZO3YsCm', 'admin02@gmail.com', 'admin', '2025-02-28 22:21:01', '2025-02-28 22:21:01'),
 (19, 'andi11', '$2y$10$FJMy7taidJ80DlXao5cLouLNGoCY4e4z3ymBYNq2vE8balZbpafN.', 'andi@gmail.com', 'mahasiswa', '2025-03-01 04:30:06', '2025-03-01 04:30:06'),
 (17, 'albet12', '$2y$10$dPOfTow3NVSHd4u2Bwsh3.fZtiVRDU23DXtKKfRDwBS0cxpHSEdn.', 'albet@gmail.com', 'dosen', '2025-02-28 22:47:32', '2025-02-28 22:47:32'),
 (21, 'ayek', '$2y$10$WUkbjiqffAcZhkkurDY9j.FrVgLsAqVGWn7zFZOlEJDnubCJCK04u', 'ayek@gmail.com', 'mahasiswa', '2025-03-02 11:08:22', '2025-03-02 11:08:22'),
 (23, 'jawo', '$2y$10$r6knezem4UNfYMswPhi89Of0sfksAFHZhLtBXhQ05apVmFnoQ6Q/W', 'jawo@gmail.com', 'mahasiswa', '2025-03-04 01:24:41', '2025-03-04 01:24:41'),
-(24, 'dinda', '$2y$10$3B1zuzo5avkxbOsCyASKne2zAxyJVEfLfojKGld6IUXkJuL20m58i', 'dinda@email.com', 'mahasiswa', '2025-03-14 05:48:59', '2025-03-14 05:48:59');
+(24, 'dinda', '$2y$10$3B1zuzo5avkxbOsCyASKne2zAxyJVEfLfojKGld6IUXkJuL20m58i', 'dinda@email.com', 'mahasiswa', '2025-03-14 05:48:59', '2025-03-14 05:48:59'),
+(25, 'yusuf', '$2y$10$F7PxMcmqaeeCK88/hAXUsO65HP8fKyc2PRRkELobduqo2QFedvWTm', 'yusuf@gmail.com', 'dosen', '2025-03-15 23:45:17', '2025-03-15 23:45:17');
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

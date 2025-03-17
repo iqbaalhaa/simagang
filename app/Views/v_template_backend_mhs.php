@@ -179,11 +179,13 @@
                                             <span class="sub-item">Absensi</span>
                                         </a>
                                     </li>
-                                    <li>
-                                        <a href="<?= base_url('Mahasiswa/LoA') ?>">
-                                            <span class="sub-item">LoA Journal</span>
-                                        </a>
-                                    </li>
+                                    <?php if(isset($is_ketua) && $is_ketua): ?>
+                                        <li>
+                                            <a href="<?= base_url('Mahasiswa/LoA') ?>">
+                                                <span class="sub-item">LoA Journal</span>
+                                            </a>
+                                        </li>
+                                    <?php endif; ?>
                                 </ul>
                             </div>
                         </li>

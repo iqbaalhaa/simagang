@@ -31,6 +31,13 @@
 
     <!-- CSS Just for demo purpose, don't include it in your project -->
     <link rel="stylesheet" href="<?= base_url('backend') ?>/assets/css/demo.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.css">
 </head>
 
 <body>
@@ -151,38 +158,44 @@
                             <span class="sidebar-mini-icon">
                                 <i class="fa fa-ellipsis-h"></i>
                             </span>
-                            <h4 class="text-section">Components</h4>
+                            <h4 class="text-section">Menu</h4>
                         </li>
                         <li class="nav-item">
-                            <a data-toggle="collapse" href="#charts">
-                                <i class="fa fa-users"></i>
-                                <p>Users</p>
+                            <a href="<?= base_url('Dosen/KelompokBimbingan') ?>">
+                                <i class="fas fa-users"></i>
+                                <p>Kelompok Bimbingan</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a data-toggle="collapse" href="#laporan">
+                                <i class="fas fa-folder-open"></i>
+                                <p>Laporan Mahasiswa</p>
                                 <span class="caret"></span>
                             </a>
-                            <div class="collapse" id="charts">
+                            <div class="collapse" id="laporan">
                                 <ul class="nav nav-collapse">
                                     <li>
-                                        <a href="<?= base_url('Admin/DataAdmin') ?>">
-                                            <span class="sub-item">Admin</span>
+                                        <a href="<?= base_url('Dosen/Logbook') ?>">
+                                            <span class="sub-item">Logbook</span>
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="<?= base_url('Admin/DataDosen') ?>">
-                                            <span class="sub-item">Dosen</span>
+                                        <a href="<?= base_url('Dosen/Absensi') ?>">
+                                            <span class="sub-item">Absensi</span>
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="charts/sparkline.html">
-                                            <span class="sub-item">Mahasiswa</span>
+                                        <a href="<?= base_url('Dosen/LoA') ?>">
+                                            <span class="sub-item">LoA Journal</span>
                                         </a>
                                     </li>
                                 </ul>
                             </div>
                         </li>
                         <li class="nav-item">
-                            <a href="<?= base_url('Dosen/Bimbingan') ?>">
-                                <i class="fas fa-comments"></i>
-                                <p>Bimbingan Mahasiswa</p>
+                            <a href="<?= base_url('Dosen/Penilaian') ?>">
+                                <i class="fas fa-star"></i>
+                                <p>Penilaian Magang</p>
                             </a>
                         </li>
                     </ul>

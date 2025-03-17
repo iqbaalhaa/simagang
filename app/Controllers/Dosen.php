@@ -144,4 +144,154 @@ class Dosen extends BaseController
 
         return redirect()->to('Dosen/Profil');
     }
+
+    public function Logbook()
+    {
+        $modelDosen = new \App\Models\ModelDosen();
+        $dosenData = $modelDosen->getDosenByUserId(session()->get('id_user'));
+        
+        $data = [
+            'judul' => 'Logbook Mahasiswa',
+            'page' => 'dosen/v_logbook',
+            'dosen' => $dosenData,
+            'kelompok' => $modelDosen->getKelompokBimbinganLogbook($dosenData['id_dosen'])
+        ];
+
+        return view('v_template_backend_dosen', $data);
+    }
+
+    public function getLogbookKelompok($id_pengajuan)
+    {
+        if (!$this->request->isAJAX()) {
+            return redirect()->back();
+        }
+
+        $modelDosen = new \App\Models\ModelDosen();
+        $logbook = $modelDosen->getLogbookByKelompok($id_pengajuan);
+        
+        $data = [
+            'logbook' => $logbook
+        ];
+
+        return view('dosen/v_logbook_detail', $data);
+    }
+
+    public function Absensi()
+    {
+        $modelDosen = new \App\Models\ModelDosen();
+        $dosenData = $modelDosen->getDosenByUserId(session()->get('id_user'));
+        
+        $data = [
+            'judul' => 'Absensi Mahasiswa',
+            'page' => 'dosen/v_absensi',
+            'dosen' => $dosenData,
+            'kelompok' => $modelDosen->getAbsensiMahasiswaBimbingan($dosenData['id_dosen'])
+        ];
+
+        return view('v_template_backend_dosen', $data);
+    }
+
+    public function getAbsensiKelompok($id_pengajuan)
+    {
+        $result = $this->ModelDosen->getAbsensiKelompok($id_pengajuan);
+        return $this->response->setJSON($result);
+    }
+
+    public function LoA()
+    {
+        $id_dosen = $this->ModelDosen->getDosenByUserId(session()->get('id_user'))['id_dosen'];
+        
+        // Ambil data dosen
+        $dosenData = $this->ModelDosen->getDosenByUserId(session()->get('id_user'));
+
+        $data = [
+            'judul' => 'LoA Journal',
+            'page' => 'dosen/v_loa',
+            'loa' => $this->ModelDosen->getLoAKelompok($id_dosen),
+            'dosen' => $dosenData // Pastikan data dosen dikirim ke view
+        ];
+
+        return view('v_template_backend_dosen', $data);
+    }
+
+    public function updateParafLogbook()
+    {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setStatusCode(404);
+        }
+
+        $modelLogbook = new \App\Models\ModelLogbook();
+        
+        try {
+            $id = $this->request->getPost('id_logbook');
+            $status = $this->request->getPost('status');
+            
+            if (!$modelLogbook->updateParaf($id, $status)) {
+                throw new \Exception('Gagal mengupdate status paraf');
+            }
+
+            return $this->response->setJSON([
+                'status' => true,
+                'message' => 'Status paraf berhasil diupdate'
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status' => false,
+                'message' => $e->getMessage()
+            ])->setStatusCode(500);
+        }
+    }
+
+    public function Penilaian()
+    {
+        $modelDosen = new \App\Models\ModelDosen();
+        $dosenData = $modelDosen->getDosenByUserId(session()->get('id_user'));
+        
+        // Ambil data mahasiswa bimbingan yang perlu dinilai
+        $mahasiswa = $modelDosen->getMahasiswaBimbinganForNilai($dosenData['id_dosen']);
+        
+        $data = [
+            'judul' => 'Penilaian Magang',
+            'page' => 'dosen/v_penilaian',
+            'dosen' => $dosenData,
+            'mahasiswa' => $mahasiswa
+        ];
+
+        return view('v_template_backend_dosen', $data);
+    }
+
+    public function KelompokBimbingan()
+    {
+        $modelDosen = new \App\Models\ModelDosen();
+        $dosenData = $modelDosen->getDosenByUserId(session()->get('id_user'));
+        
+        // Ambil daftar kelompok bimbingan
+        $kelompokBimbingan = $modelDosen->getKelompokBimbingan($dosenData['id_dosen']);
+        
+        $data = [
+            'judul' => 'Kelompok Bimbingan',
+            'page' => 'dosen/v_kelompok_bimbingan',
+            'dosen' => $dosenData,
+            'kelompok' => $kelompokBimbingan
+        ];
+
+        return view('v_template_backend_dosen', $data);
+    }
+
+    public function getDetailKelompok($id_pengajuan)
+    {
+        if (!$this->request->isAJAX()) {
+            return redirect()->back();
+        }
+
+        $modelDosen = new \App\Models\ModelDosen();
+        $anggota = $modelDosen->getAnggotaKelompok($id_pengajuan);
+        
+        $data = [
+            'anggota' => $anggota
+        ];
+
+        // Render view dan return sebagai string
+        return view('dosen/v_detail_kelompok', $data);
+    }
 }

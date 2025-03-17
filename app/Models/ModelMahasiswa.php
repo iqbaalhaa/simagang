@@ -383,4 +383,19 @@ class ModelMahasiswa extends Model
             return 0;
         }
     }
+
+    public function isKetuaKelompok($id_mahasiswa)
+{
+    try {
+        $result = $this->db->table('pengajuan_magang')
+            ->where('ketua_id', $id_mahasiswa)
+            ->where('status', 'disetujui')
+            ->countAllResults();
+        
+        return $result > 0;
+    } catch (\Exception $e) {
+        log_message('error', 'Error di isKetuaKelompok: ' . $e->getMessage());
+        return false;
+    }
+}
 } 
