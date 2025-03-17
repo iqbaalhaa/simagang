@@ -113,9 +113,10 @@ class ModelMahasiswa extends Model
     {
         try {
             $builder = $this->db->table($this->tablePengajuan . ' pm')
-                ->select('pm.*, pm.surat_permohonan, i.nama_instansi, m.nama as nama_ketua')
+                ->select('pm.*, pm.surat_permohonan, i.nama_instansi, m.nama as nama_ketua, dp.nama as nama_dosen')
                 ->join('instansi i', 'i.id_instansi = pm.instansi_id')
-                ->join('mahasiswa m', 'm.id_mahasiswa = pm.ketua_id');
+                ->join('mahasiswa m', 'm.id_mahasiswa = pm.ketua_id')
+                ->join('dosen_pembimbing dp', 'dp.id_dosen = pm.id_dosen', 'left');
 
             // Cek apakah mahasiswa adalah ketua atau anggota
             $builder->groupStart()
@@ -216,18 +217,19 @@ class ModelMahasiswa extends Model
 
     public function updateStatusPengajuan($id, $data)
     {
-        return $this->db->table($this->tablePengajuan)
-            ->where('id', $id)
-            ->update($data);
+        return $this->db->table('pengajuan_magang')
+                    ->where('id', $id)
+                    ->update($data);
     }
 
     public function getAllPengajuan()
     {
         return $this->db->table('pengajuan_magang pm')
-            ->select('pm.*, m.nama as nama_ketua, m.nim as nim_ketua, i.nama_instansi')
+            ->select('pm.*, m.nama as nama_ketua, m.nim as nim_ketua, 
+                     i.nama_instansi, dp.nama as nama_dosen')
             ->join('mahasiswa m', 'm.id_mahasiswa = pm.ketua_id')
             ->join('instansi i', 'i.id_instansi = pm.instansi_id')
-            ->orderBy('pm.id', 'DESC')
+            ->join('dosen_pembimbing dp', 'dp.id_dosen = pm.id_dosen', 'left')
             ->get()
             ->getResultArray();
     }
@@ -361,5 +363,24 @@ class ModelMahasiswa extends Model
             ->where('pm.status', 'disetujui')
             ->get()
             ->getResultArray();
+    }
+
+    public function updatePengajuan($id, $data)
+    {
+        return $this->db->table($this->tablePengajuan)
+                    ->where('id', $id)
+                    ->update($data);
+    }
+
+    public function countPengajuanPending()
+    {
+        try {
+            return $this->db->table($this->tablePengajuan)
+                        ->where('status', 'pending')
+                        ->countAllResults();
+        } catch (\Exception $e) {
+            log_message('error', 'Error di countPengajuanPending: ' . $e->getMessage());
+            return 0;
+        }
     }
 } 

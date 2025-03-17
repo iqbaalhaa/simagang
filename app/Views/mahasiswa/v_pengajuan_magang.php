@@ -22,8 +22,10 @@
                         <th>Nama Kelompok</th>
                         <th>Ketua</th>
                         <th>Instansi</th>
+                        <th>Dosen Pembimbing</th>
                         <th>Status</th>
                         <th>Surat Permohonan</th>
+                        <th>Surat Balasan</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -34,6 +36,13 @@
                         <td><?= $k['nama_kelompok'] ?></td>
                         <td><?= $k['ketua_id'] == $mahasiswa['id_mahasiswa'] ? 'Anda' : $k['nama_ketua'] ?></td>
                         <td><?= $k['nama_instansi'] ?></td>
+                        <td>
+                            <?php if (!empty($k['nama_dosen'])) : ?>
+                                <?= $k['nama_dosen'] ?>
+                            <?php else : ?>
+                                <span class="badge badge-secondary">Belum ditentukan</span>
+                            <?php endif; ?>
+                        </td>
                         <td>
                             <span class="badge badge-<?= $k['status'] == 'pending' ? 'warning' : ($k['status'] == 'disetujui' ? 'success' : 'danger') ?>">
                                 <?= ucfirst($k['status']) ?>
@@ -47,6 +56,23 @@
                                 </a>
                             <?php else : ?>
                                 <span class="badge badge-secondary">Belum Upload</span>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php if (!empty($k['surat_balasan'])) : ?>
+                                <a href="<?= base_url('uploads/surat_balasan/' . $k['surat_balasan']) ?>"
+                                    class="btn btn-info btn-sm" target="_blank">
+                                    <i class="fas fa-file"></i> Lihat
+                                </a>
+                            <?php else : ?>
+                                <?php if($k['status'] == 'disetujui'): ?>
+                                    <button type="button" class="btn btn-primary btn-sm"
+                                            onclick="uploadSuratBalasan(<?= $k['id'] ?>)">
+                                        <i class="fas fa-upload"></i> Upload
+                                    </button>
+                                <?php else: ?>
+                                    <span class="badge badge-secondary">Belum Upload</span>
+                                <?php endif; ?>
                             <?php endif; ?>
                         </td>
                         <td>
@@ -186,6 +212,38 @@
     </div>
 </div>
 
+<!-- Tambahkan Modal Upload Surat Balasan -->
+<div class="modal fade" id="uploadSuratBalasanModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Upload Surat Balasan</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="<?= base_url('Mahasiswa/uploadSuratBalasan') ?>" method="POST" enctype="multipart/form-data">
+                <?= csrf_field() ?>
+                <div class="modal-body">
+                    <input type="hidden" name="id_pengajuan" id="upload-pengajuan-id">
+                    <div class="form-group">
+                        <label>Upload Surat Balasan dari Instansi</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="surat_balasan" name="surat_balasan" accept=".pdf" required>
+                            <label class="custom-file-label" for="surat_balasan">Pilih file PDF</label>
+                        </div>
+                        <small class="form-text text-muted">Upload file dalam format PDF (Maks. 2MB)</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Upload</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- Datatables -->
 <script src="<?= base_url('backend') ?>/assets/js/plugin/datatables/datatables.min.js"></script>
 <script>
@@ -253,6 +311,11 @@
         $('#delete-id').val(id);
         $('#delete-nama-kelompok').text(namaKelompok);
         $('#deleteModal').modal('show');
+    }
+
+    function uploadSuratBalasan(id) {
+        $('#upload-pengajuan-id').val(id);
+        $('#uploadSuratBalasanModal').modal('show');
     }
 
     // Script untuk menampilkan nama file yang dipilih

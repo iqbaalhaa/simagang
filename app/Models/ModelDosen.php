@@ -88,12 +88,13 @@ class ModelDosen extends Model
         }
     }
 
-    public function getDosenWithUser($id_dosen)
+    public function getDosenWithUser($orderBy = 'id_dosen')
     {
-        return $this->select('dosen_pembimbing.*, user.username, user.email as user_email')
-                    ->join('user', 'user.id_user = dosen_pembimbing.id_user')
-                    ->where('dosen_pembimbing.id_dosen', $id_dosen)
-                    ->first();
+        $builder = $this->db->table('dosen_pembimbing');
+        $builder->select('dosen_pembimbing.*, user.username, user.email');
+        $builder->join('user', 'user.id_user = dosen_pembimbing.id_user', 'left');
+        $builder->orderBy($orderBy);
+        return $builder->get()->getResultArray();
     }
 
     public function getBimbingan($id_dosen)

@@ -180,7 +180,7 @@
                             </div>
                         </li>
                         <li class="nav-item">
-                            <a href="<?= base_url('dosen/bimbingan') ?>">
+                            <a href="<?= base_url('Dosen/Bimbingan') ?>">
                                 <i class="fas fa-comments"></i>
                                 <p>Bimbingan Mahasiswa</p>
                             </a>

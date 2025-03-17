@@ -17,8 +17,10 @@
                         <th>NIM Ketua</th>
                         <th>Nama Kelompok</th>
                         <th>Instansi</th>
+                        <th>Dosen Pembimbing</th>
                         <th>Surat Permohonan</th>
                         <th>Surat Pengantar</th>
+                        <th>Surat Balasan</th>
                         <th>Status</th>
                         <th style="width: 10%">Aksi</th>
                     </tr>
@@ -32,6 +34,13 @@
                         <td><?= $p['nama_kelompok'] ?></td>
                         <td><?= $p['nama_instansi'] ?></td>
                         <td>
+                            <?php if (!empty($p['nama_dosen'])) : ?>
+                                <?= $p['nama_dosen'] ?>
+                            <?php else : ?>
+                                <span class="badge badge-secondary">Belum ditentukan</span>
+                            <?php endif; ?>
+                        </td>
+                        <td>
                             <?php if (!empty($p['surat_permohonan'])) : ?>
                                 <a href="<?= base_url('uploads/surat_permohonan/' . $p['surat_permohonan']) ?>"
                                     class="btn btn-info btn-sm" target="_blank">
@@ -44,6 +53,16 @@
                         <td>
                             <?php if (!empty($p['surat_pengantar'])) : ?>
                                 <a href="<?= base_url('uploads/surat_pengantar/' . $p['surat_pengantar']) ?>"
+                                    class="btn btn-info btn-sm" target="_blank">
+                                    <i class="fas fa-file"></i> Lihat
+                                </a>
+                            <?php else : ?>
+                                <span class="badge badge-secondary">Belum Upload</span>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php if (!empty($p['surat_balasan'])) : ?>
+                                <a href="<?= base_url('uploads/surat_balasan/' . $p['surat_balasan']) ?>"
                                     class="btn btn-info btn-sm" target="_blank">
                                     <i class="fas fa-file"></i> Lihat
                                 </a>
@@ -151,6 +170,19 @@
                     <input type="hidden" name="status" id="status-value">
                     <p>Apakah Anda yakin ingin <span id="status-action"></span> pengajuan magang ini?</p>
                     
+                    <!-- Form pilih dosen pembimbing -->
+                    <div id="dosen-pembimbing-form">
+                        <div class="form-group">
+                            <label>Pilih Dosen Pembimbing</label>
+                            <select class="form-control" name="id_dosen_pembimbing" id="id_dosen_pembimbing">
+                                <option value="">-- Pilih Dosen Pembimbing --</option>
+                                <?php foreach ($dosen_list as $d): ?>
+                                    <option value="<?= $d['id_dosen'] ?>"><?= $d['nama'] ?> (<?= $d['nidn'] ?>)</option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+
                     <!-- Form upload surat pengantar -->
                     <div id="surat-pengantar-form" style="display: none;">
                         <div class="form-group">
@@ -243,13 +275,17 @@ function updateStatus(id, status) {
     $('#status-value').val(status);
     $('#status-action').text(status === 'disetujui' ? 'menyetujui' : 'menolak');
     
-    // Tampilkan form upload surat pengantar hanya jika status disetujui
+    // Tampilkan/sembunyikan form sesuai status
     if (status === 'disetujui') {
+        $('#dosen-pembimbing-form').show();
         $('#surat-pengantar-form').show();
         $('#surat_pengantar').prop('required', true);
+        $('#id_dosen_pembimbing').prop('required', true);
     } else {
+        $('#dosen-pembimbing-form').hide();
         $('#surat-pengantar-form').hide();
         $('#surat_pengantar').prop('required', false);
+        $('#id_dosen_pembimbing').prop('required', false);
     }
     
     $('#statusModal').modal('show');

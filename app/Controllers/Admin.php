@@ -4,6 +4,13 @@ namespace App\Controllers;
 
 class Admin extends BaseController
 {
+    public function __construct()
+    {
+        // Tambahkan di constructor Admin
+        $modelMahasiswa = new \App\Models\ModelMahasiswa();
+        $this->totalPengajuan = $modelMahasiswa->countPengajuanPending();
+    }
+
     public function index(): string
     {
         $modelAdmin = new \App\Models\ModelAdmin();
@@ -17,6 +24,7 @@ class Admin extends BaseController
             'judul' => 'Dashboard Admin',
             'page' => 'admin/v_dashboard',
             'admin' => $adminData,
+            'total_pengajuan' => $this->totalPengajuan,
             'total_mahasiswa' => $db->table('mahasiswa')->countAllResults(),
             'total_instansi' => $db->table('instansi')->countAllResults(),
             'total_dosen' => $db->table('dosen_pembimbing')->countAllResults(),
@@ -25,14 +33,12 @@ class Admin extends BaseController
         // Cek struktur tabel pengajuan_magang
         try {
             // Ambil pengajuan aktif
-            $data['total_pengajuan_aktif'] = $db->table('pengajuan')
-                                               ->where('status', 'Menunggu')
-                                               ->countAllResults();
+            $data['total_pengajuan_aktif'] = $db->table('pengajuan_magang')->where('status', 'Menunggu')->countAllResults();
 
             // Ambil pengajuan terbaru
-            $data['pengajuan_terbaru'] = $db->table('pengajuan')
-                                           ->select('pengajuan.*, mahasiswa.nama as nama_mahasiswa')
-                                           ->join('mahasiswa', 'mahasiswa.nim = pengajuan.nim')
+            $data['pengajuan_terbaru'] = $db->table('pengajuan_magang')
+                                           ->select('pengajuan_magang.*, mahasiswa.nama as nama_mahasiswa')
+                                           ->join('mahasiswa', 'mahasiswa.nim = pengajuan_magang.nim')
                                            ->orderBy('tgl_pengajuan', 'DESC')
                                            ->limit(5)
                                            ->get()
@@ -40,9 +46,9 @@ class Admin extends BaseController
 
             // Data untuk pie chart status pengajuan
             $data['status_pengajuan'] = [
-                'Menunggu' => $db->table('pengajuan')->where('status', 'Menunggu')->countAllResults(),
-                'Diterima' => $db->table('pengajuan')->where('status', 'Diterima')->countAllResults(),
-                'Ditolak' => $db->table('pengajuan')->where('status', 'Ditolak')->countAllResults()
+                'Menunggu' => $db->table('pengajuan_magang')->where('status', 'Menunggu')->countAllResults(),
+                'Diterima' => $db->table('pengajuan_magang')->where('status', 'Diterima')->countAllResults(),
+                'Ditolak' => $db->table('pengajuan_magang')->where('status', 'Ditolak')->countAllResults()
             ];
 
             // Data untuk grafik statistik 6 bulan terakhir
@@ -55,16 +61,16 @@ class Admin extends BaseController
                 $bulan_ini = date('Y-m', strtotime("-$i month"));
                 $bulan[] = date('M', strtotime("-$i month"));
 
-                $pengajuan[] = $db->table('pengajuan')
+                $pengajuan[] = $db->table('pengajuan_magang')
                                  ->where('DATE_FORMAT(tgl_pengajuan, "%Y-%m")', $bulan_ini)
                                  ->countAllResults();
 
-                $diterima[] = $db->table('pengajuan')
+                $diterima[] = $db->table('pengajuan_magang')
                                 ->where('DATE_FORMAT(tgl_pengajuan, "%Y-%m")', $bulan_ini)
                                 ->where('status', 'Diterima')
                                 ->countAllResults();
 
-                $ditolak[] = $db->table('pengajuan')
+                $ditolak[] = $db->table('pengajuan_magang')
                                ->where('DATE_FORMAT(tgl_pengajuan, "%Y-%m")', $bulan_ini)
                                ->where('status', 'Ditolak')
                                ->countAllResults();
@@ -98,14 +104,18 @@ class Admin extends BaseController
     public function PengajuanMahasiswa()
     {
         $modelAdmin = new \App\Models\ModelAdmin();
-        $adminData = $modelAdmin->getAdminByUserId(session()->get('id_user'));
+        $modelDosen = new \App\Models\ModelDosen();
         $modelMahasiswa = new \App\Models\ModelMahasiswa();
+        
+        $adminData = $modelAdmin->getAdminByUserId(session()->get('id_user'));
         
         $data = [
             'judul'     => 'Data Pengajuan Magang',
             'page'      => 'admin/v_pengajuan_mahasiswa',
             'pengajuan' => $modelMahasiswa->getAllPengajuan(),
             'admin'     => $adminData,
+            'dosen_list' => $modelDosen->findAll(),
+            'total_pengajuan' => $this->totalPengajuan
         ];
 
         return view('v_template_backend', $data);
@@ -346,6 +356,53 @@ class Admin extends BaseController
             log_message('error', 'Error di deleteMahasiswa: ' . $e->getMessage());
             session()->setFlashdata('error', 'Gagal menghapus data');
             return redirect()->back();
+        }
+    }
+
+    public function deleteDosen($id_dosen)
+    {
+        try {
+            $modelDosen = new \App\Models\ModelDosen();
+            $db = \Config\Database::connect();
+            
+            // Mulai transaksi
+            $db->transStart();
+            
+            // Ambil id_user dari dosen yang akan dihapus
+            $dosen = $modelDosen->find($id_dosen);
+            if (!$dosen) {
+                throw new \Exception('Data dosen tidak ditemukan');
+            }
+            
+            // Hapus foto dosen jika ada
+            if (!empty($dosen['foto']) && file_exists('foto/dosen/' . $dosen['foto'])) {
+                unlink('foto/dosen/' . $dosen['foto']);
+            }
+            
+            // Hapus data dosen
+            if (!$modelDosen->delete($id_dosen)) {
+                throw new \Exception('Gagal menghapus data dosen');
+            }
+            
+            // Hapus data user
+            if (!empty($dosen['id_user'])) {
+                $db->table('user')->where('id_user', $dosen['id_user'])->delete();
+            }
+            
+            // Commit transaksi
+            $db->transComplete();
+            
+            if ($db->transStatus() === false) {
+                throw new \Exception('Gagal menghapus data dosen');
+            }
+            
+            session()->setFlashdata('pesan', 'Data dosen berhasil dihapus');
+            return redirect()->to('Admin/DataDosen');
+            
+        } catch (\Exception $e) {
+            log_message('error', 'Error di deleteDosen: ' . $e->getMessage());
+            session()->setFlashdata('error', 'Gagal menghapus data dosen: ' . $e->getMessage());
+            return redirect()->to('Admin/DataDosen');
         }
     }
 
@@ -731,50 +788,63 @@ class Admin extends BaseController
     {
         $id = $this->request->getPost('id');
         $status = $this->request->getPost('status');
+        $id_dosen = $this->request->getPost('id_dosen_pembimbing');
         
         $modelMahasiswa = new \App\Models\ModelMahasiswa();
         
         try {
+            $db = \Config\Database::connect();
+            $db->transStart();
+
             $data = ['status' => $status];
 
-            // Jika status disetujui, proses upload surat pengantar
+            // Jika status disetujui
             if ($status === 'disetujui') {
+                // Validasi dosen pembimbing harus dipilih
+                if (empty($id_dosen)) {
+                    throw new \Exception('Dosen pembimbing harus dipilih');
+                }
+
+                // Update dosen pembimbing - menggunakan id_dosen sesuai nama kolom di database
+                $db->table('pengajuan_magang')->where('id', $id)->update([
+                    'id_dosen' => $id_dosen
+                ]);
+
+                // Proses upload surat pengantar
                 $fileSurat = $this->request->getFile('surat_pengantar');
-                
                 if ($fileSurat->isValid() && !$fileSurat->hasMoved()) {
-                    // Validasi tipe file
                     if ($fileSurat->getClientMimeType() !== 'application/pdf') {
                         throw new \Exception('File harus dalam format PDF');
                     }
-                    
-                    // Validasi ukuran file (2MB)
                     if ($fileSurat->getSize() > 2097152) {
                         throw new \Exception('Ukuran file maksimal 2MB');
                     }
                     
-                    // Generate nama unik untuk file
                     $namaSurat = $fileSurat->getRandomName();
-                    
-                    // Buat direktori jika belum ada
                     if (!is_dir('uploads/surat_pengantar')) {
                         mkdir('uploads/surat_pengantar', 0777, true);
                     }
-                    
-                    // Pindahkan file
                     $fileSurat->move('uploads/surat_pengantar', $namaSurat);
-                    
-                    // Tambahkan nama file ke data yang akan diupdate
                     $data['surat_pengantar'] = $namaSurat;
                 } else {
                     throw new \Exception('Surat pengantar wajib diupload');
                 }
             }
 
-            $modelMahasiswa->updateStatusPengajuan($id, $data);
+            if (!$modelMahasiswa->updateStatusPengajuan($id, $data)) {
+                throw new \Exception('Gagal mengupdate status pengajuan');
+            }
+            
+            $db->transComplete();
+
+            if ($db->transStatus() === false) {
+                throw new \Exception('Gagal mengupdate status pengajuan');
+            }
+
             session()->setFlashdata('pesan', 'Status pengajuan berhasil diupdate');
             
         } catch (\Exception $e) {
-            session()->setFlashdata('error', 'Gagal mengupdate status pengajuan: ' . $e->getMessage());
+            session()->setFlashdata('error', $e->getMessage());
         }
         
         return redirect()->to('Admin/PengajuanMahasiswa');

@@ -165,7 +165,9 @@
                             <a href="<?= base_url('Admin/PengajuanMahasiswa') ?>">
                                 <i class="fas fa-server"></i>
                                 <p>Pengajuan Mahasiswa</p>
-                                <span class="badge badge-count badge-success">4</span>
+                                <?php if(isset($total_pengajuan) && $total_pengajuan > 0): ?>
+                                    <span class="badge badge-count badge-success"><?= $total_pengajuan ?></span>
+                                <?php endif; ?>
                             </a>
                         </li>
                         <li class="nav-item">
@@ -315,25 +317,14 @@
 
 <!-- Initialize DataTables -->
 <script>
+    // Hapus atau komentari kode ini di v_template_backend.php
+    /*
     $(document).ready(function() {
         $('#add-row').DataTable({
             "pageLength": 10,
-            "language": {
-                "search": "Cari:",
-                "lengthMenu": "Tampilkan _MENU_ data per halaman",
-                "zeroRecords": "Data tidak ditemukan",
-                "info": "Menampilkan halaman _PAGE_ dari _PAGES_",
-                "infoEmpty": "Tidak ada data yang tersedia",
-                "infoFiltered": "(difilter dari _MAX_ total data)",
-                "paginate": {
-                    "first": "Pertama",
-                    "last": "Terakhir",
-                    "next": "Selanjutnya",
-                    "previous": "Sebelumnya"
-                },
-            }
         });
     });
+    */
 </script>
 
 <!-- SweetAlert2 -->

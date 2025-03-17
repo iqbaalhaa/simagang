@@ -44,6 +44,7 @@ $routes->get('Admin/tambahAdmin', 'Admin::tambahAdmin');
 $routes->post('Admin/simpanAdmin', 'Admin::simpanAdmin');
 $routes->get('Admin/tambahDosen', 'Admin::tambahDosen');
 $routes->post('Admin/simpanDosen', 'Admin::simpanDosen');
+$routes->get('Admin/deleteDosen/(:num)', 'Admin::deleteDosen/$1');
 $routes->get('Admin/tambahMahasiswa', 'Admin::tambahMahasiswa');
 $routes->post('Admin/simpanMahasiswa', 'Admin::simpanMahasiswa');
 $routes->get('Admin/deleteMahasiswa/(:num)', 'Admin::deleteMahasiswa/$1');
@@ -60,8 +61,6 @@ $routes->post('Admin/updateParafLogbook', 'Admin::updateParafLogbook');
 $routes->get('Admin/LoA', 'Admin::LoA');
 $routes->post('Admin/updateStatusLoA', 'Admin::updateStatusLoA');
 $routes->post('Admin/updateCatatanLoA/(:num)', 'Admin::updateCatatanLoA/$1');
-
-
 
 
 //Mahasiswa Route
@@ -82,16 +81,13 @@ $routes->post('Mahasiswa/editLogbook/(:num)', 'Mahasiswa::editLogbook/$1');
 $routes->get('Mahasiswa/hapusLogbook/(:num)', 'Mahasiswa::hapusLogbook/$1');
 $routes->get('Mahasiswa/LoA', 'Mahasiswa::LoA');
 $routes->post('Mahasiswa/tambahLoA', 'Mahasiswa::tambahLoA');
+$routes->post('Mahasiswa/uploadSuratBalasan', 'Mahasiswa::uploadSuratBalasan');
+
 
 // Dosen Route
 $routes->get('Dosen', 'Dosen::index');
 $routes->get('Dosen/Profil', 'Dosen::Profil');
 $routes->post('Dosen/updateProfil', 'Dosen::updateProfil');
-$routes->get('Dosen/bimbingan', 'Dosen::bimbingan');
-$routes->post('Dosen/TambahBimbingan', 'Dosen::TambahBimbingan');
-$routes->get('Dosen/getBimbingan/(:num)', 'Dosen::getBimbingan/$1');
-$routes->post('Dosen/updateBimbingan', 'Dosen::updateBimbingan');
-$routes->get('/Dosen/deleteBimbingan/(:num)', 'Dosen::deleteBimbingan/$1');
 
 
 $routes->get('/admin', 'Admin::index');

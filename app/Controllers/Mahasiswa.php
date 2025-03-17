@@ -823,4 +823,49 @@ class Mahasiswa extends BaseController
             return redirect()->back()->withInput();
         }
     }
+
+    public function uploadSuratBalasan()
+    {
+        try {
+            $id_pengajuan = $this->request->getPost('id_pengajuan');
+            $file = $this->request->getFile('surat_balasan');
+
+            // Validasi file
+            if (!$file->isValid() || $file->getSize() > 2097152) { // 2MB
+                throw new \Exception('File tidak valid atau melebihi ukuran maksimal 2MB');
+            }
+
+            if ($file->getClientMimeType() !== 'application/pdf') {
+                throw new \Exception('File harus dalam format PDF');
+            }
+
+            // Generate nama file unik
+            $fileName = $file->getRandomName();
+
+            // Buat direktori jika belum ada
+            if (!is_dir('uploads/surat_balasan')) {
+                mkdir('uploads/surat_balasan', 0777, true);
+            }
+
+            // Pindahkan file
+            if ($file->move('uploads/surat_balasan', $fileName)) {
+                // Update database
+                $modelMahasiswa = new \App\Models\ModelMahasiswa();
+                $data = ['surat_balasan' => $fileName];
+                
+                if (!$modelMahasiswa->updatePengajuan($id_pengajuan, $data)) {
+                    throw new \Exception('Gagal menyimpan data surat balasan');
+                }
+
+                session()->setFlashdata('pesan', 'Surat balasan berhasil diupload');
+            } else {
+                throw new \Exception('Gagal mengupload file');
+            }
+
+        } catch (\Exception $e) {
+            session()->setFlashdata('error', $e->getMessage());
+        }
+
+        return redirect()->to('Mahasiswa/PengajuanMagang');
+    }
 }
