@@ -4,52 +4,22 @@
             <div class="card-body">
                 <div class="row align-items-center">
                     <div class="col-icon">
-                        <div class="icon-big text-center icon-primary bubble-shadow-small">
-                            <i class="fas fa-calendar-check"></i>
+                        <div class="icon-big text-center icon-info bubble-shadow-small">
+                            <i class="fas fa-clipboard-check"></i>
                         </div>
                     </div>
                     <div class="col col-stats ml-3 ml-sm-0">
                         <div class="numbers">
-                            <p class="card-category">Total Bimbingan</p>
-                            <h4 class="card-title"><?= $total_bimbingan ?? 0 ?></h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-6 col-md-3">
-        <div class="card card-stats card-round">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col-icon">
-                        <div class="icon-big text-center icon-success bubble-shadow-small">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                    </div>
-                    <div class="col col-stats ml-3 ml-sm-0">
-                        <div class="numbers">
-                            <p class="card-category">Bimbingan Selesai</p>
-                            <h4 class="card-title"><?= $bimbingan_selesai ?? 0 ?></h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-6 col-md-3">
-        <div class="card card-stats card-round">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col-icon">
-                        <div class="icon-big text-center icon-warning bubble-shadow-small">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                    </div>
-                    <div class="col col-stats ml-3 ml-sm-0">
-                        <div class="numbers">
-                            <p class="card-category">Bimbingan Pending</p>
-                            <h4 class="card-title"><?= $bimbingan_pending ?? 0 ?></h4>
+                            <p class="card-category">Nilai</p>
+                            <h4 class="card-title">
+                                <?php if (!empty($nilai)): ?>
+                                    <?php foreach ($nilai as $n): ?>
+                                        <?= $n['nilai'] ?><br>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    -
+                                <?php endif; ?>
+                            </h4>
                         </div>
                     </div>
                 </div>
@@ -75,6 +45,44 @@
             </div>
         </div>
     </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="card card-stats card-round">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-icon">
+                        <div class="icon-big text-center icon-warning bubble-shadow-small">
+                            <i class="fas fa-book"></i>
+                        </div>
+                    </div>
+                    <div class="col col-stats ml-3 ml-sm-0">
+                        <div class="numbers">
+                            <p class="card-category">Logbook</p>
+                            <h4 class="card-title"><?= $total_logbook ?? 0 ?></h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="card card-stats card-round">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-icon">
+                        <div class="icon-big text-center icon-info bubble-shadow-small">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                    </div>
+                    <div class="col col-stats ml-3 ml-sm-0">
+                        <div class="numbers">
+                            <p class="card-category">Absensi</p>
+                            <h4 class="card-title"><?= $total_absensi ?? 0 ?></h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="row">
@@ -82,7 +90,7 @@
         <div class="card">
             <div class="card-header">
                 <div class="card-head-row">
-                    <div class="card-title">Riwayat Bimbingan Terakhir</div>
+                    <div class="card-title">Riwayat Absensi</div>
                 </div>
             </div>
             <div class="card-body">
@@ -91,26 +99,26 @@
                         <thead>
                             <tr>
                                 <th>Tanggal</th>
-                                <th>Catatan</th>
+                                <th>Kegiatan</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php if (isset($riwayat_bimbingan) && !empty($riwayat_bimbingan)) : ?>
-                                <?php foreach ($riwayat_bimbingan as $bimbingan) : ?>
+                            <?php if (isset($riwayat_absensi) && !empty($riwayat_absensi)) : ?>
+                                <?php foreach ($riwayat_absensi as $absensi) : ?>
                                     <tr>
-                                        <td><?= date('d/m/Y', strtotime($bimbingan['tanggal'])) ?></td>
-                                        <td><?= $bimbingan['catatan'] ?></td>
+                                        <td><?= date('d/m/Y', strtotime($absensi['tanggal'])) ?></td>
+                                        <td><?= $absensi['kegiatan'] ?></td>
                                         <td>
-                                            <span class="badge badge-<?= $bimbingan['status'] == 'selesai' ? 'success' : 'warning' ?>">
-                                                <?= ucfirst($bimbingan['status']) ?>
+                                            <span class="badge badge-<?= $absensi['status'] == 'hadir' ? 'success' : 'danger' ?>">
+                                                <?= ucfirst($absensi['status']) ?>
                                             </span>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
                             <?php else : ?>
                                 <tr>
-                                    <td colspan="3" class="text-center">Belum ada data bimbingan</td>
+                                    <td colspan="3" class="text-center">Belum ada data absensi</td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>
@@ -122,13 +130,7 @@
     <div class="col-md-4">
         <div class="card card-info bg-info-gradient">
             <div class="card-body">
-                <h4 class="mb-1 fw-bold">Progress Bimbingan</h4>
-                <div id="task-complete" class="chart-circle mt-4 mb-3"></div>
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-body">
-                <div class="card-title fw-mediumbold">Informasi Profil</div>
+                <h4 class="mb-1 fw-bold">Informasi Profil</h4>
                 <div class="card-list">
                     <div class="item-list">
                         <div class="info-user ml-3">
@@ -153,18 +155,3 @@
         </div>
     </div>
 </div>
-
-<script>
-$(document).ready(function() {
-    // Inisialisasi chart progress bimbingan
-    var progressPercentage = <?= isset($total_bimbingan) && $total_bimbingan > 0 
-        ? ($bimbingan_selesai / $total_bimbingan) * 100 
-        : 0 ?>;
-
-    $('#task-complete').sparkline([progressPercentage, 100 - progressPercentage], {
-        type: 'pie',
-        height: '150px',
-        sliceColors: ['#2BB930', '#e9ecef']
-    });
-});
-</script>

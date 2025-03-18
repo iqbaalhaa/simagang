@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Mar 17, 2025 at 06:23 AM
+-- Generation Time: Mar 18, 2025 at 12:57 AM
 -- Server version: 8.3.0
 -- PHP Version: 8.2.18
 
@@ -101,26 +101,6 @@ INSERT INTO `anggota_kelompok` (`id`, `pengajuan_id`, `mahasiswa_id`, `created_a
 (16, 11, 5, '2025-03-17 05:28:46'),
 (17, 11, 7, '2025-03-17 05:28:46'),
 (18, 12, 8, '2025-03-17 05:57:26');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `bimbingan`
---
-
-DROP TABLE IF EXISTS `bimbingan`;
-CREATE TABLE IF NOT EXISTS `bimbingan` (
-  `id_bimbingan` int NOT NULL AUTO_INCREMENT,
-  `id_dosen` int NOT NULL,
-  `id_mahasiswa` int NOT NULL,
-  `tanggal` date NOT NULL,
-  `catatan` text,
-  `status` enum('pending','selesai') DEFAULT 'pending',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id_bimbingan`),
-  KEY `id_dosen` (`id_dosen`),
-  KEY `id_mahasiswa` (`id_mahasiswa`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -235,6 +215,7 @@ DROP TABLE IF EXISTS `loa_journal`;
 CREATE TABLE IF NOT EXISTS `loa_journal` (
   `id_loa` int UNSIGNED NOT NULL AUTO_INCREMENT,
   `id_mahasiswa` int UNSIGNED NOT NULL,
+  `pengajuan_id` int UNSIGNED DEFAULT NULL,
   `judul` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `deskripsi` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
   `file_loa` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
@@ -243,15 +224,16 @@ CREATE TABLE IF NOT EXISTS `loa_journal` (
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_loa`),
-  KEY `id_mahasiswa` (`id_mahasiswa`)
+  KEY `id_mahasiswa` (`id_mahasiswa`),
+  KEY `pengajuan_id` (`pengajuan_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `loa_journal`
 --
 
-INSERT INTO `loa_journal` (`id_loa`, `id_mahasiswa`, `judul`, `deskripsi`, `file_loa`, `status`, `catatan`, `created_at`, `updated_at`) VALUES
-(1, 4, 'zz', 'zaz', '1742065427_f8c68c45ca56c41fc8e5.pdf', 'disetujui', 'nn', '2025-03-15 19:03:47', '2025-03-15 22:02:26');
+INSERT INTO `loa_journal` (`id_loa`, `id_mahasiswa`, `pengajuan_id`, `judul`, `deskripsi`, `file_loa`, `status`, `catatan`, `created_at`, `updated_at`) VALUES
+(1, 4, 11, 'zz', 'zaz', '1742065427_f8c68c45ca56c41fc8e5.pdf', 'disetujui', 'nn', '2025-03-15 19:03:47', '2025-03-17 16:47:44');
 
 -- --------------------------------------------------------
 
@@ -279,7 +261,7 @@ CREATE TABLE IF NOT EXISTS `logbook` (
 
 INSERT INTO `logbook` (`id_logbook`, `id_mahasiswa`, `hari_ke`, `tanggal`, `uraian_kegiatan`, `paraf_pembimbing`, `created_at`, `updated_at`) VALUES
 (1, 4, 1, '0025-01-12', 'membuat', 'belum', '2025-03-14 21:53:50', '2025-03-14 21:53:50'),
-(2, 7, 1, '2025-03-15', 'nn', 'belum', '2025-03-15 06:26:35', '2025-03-15 06:26:35');
+(2, 7, 1, '2025-03-15', 'nn', 'disetujui', '2025-03-15 06:26:35', '2025-03-17 08:21:10');
 
 -- --------------------------------------------------------
 
@@ -332,6 +314,32 @@ CREATE TABLE IF NOT EXISTS `migrations` (
   `batch` int UNSIGNED NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `nilai`
+--
+
+DROP TABLE IF EXISTS `nilai`;
+CREATE TABLE IF NOT EXISTS `nilai` (
+  `id_nilai` int NOT NULL AUTO_INCREMENT,
+  `id_mahasiswa` int NOT NULL,
+  `id_dosen` int NOT NULL,
+  `nilai` decimal(5,2) NOT NULL,
+  `keterangan` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_nilai`),
+  KEY `id_mahasiswa` (`id_mahasiswa`),
+  KEY `id_dosen` (`id_dosen`)
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `nilai`
+--
+
+INSERT INTO `nilai` (`id_nilai`, `id_mahasiswa`, `id_dosen`, `nilai`, `keterangan`, `created_at`) VALUES
+(3, 4, 25, 9.50, NULL, '2025-03-18 07:51:34');
 
 -- --------------------------------------------------------
 

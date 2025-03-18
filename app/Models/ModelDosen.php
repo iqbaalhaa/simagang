@@ -316,4 +316,111 @@ class ModelDosen extends Model
             return [];
         }
     }
+
+    public function getTotalMahasiswa()
+    {
+        return $this->db->table('mahasiswa')->countAllResults();
+    }
+
+    public function getTotalInstansi()
+    {
+        return $this->db->table('instansi')->countAllResults();
+    }
+
+    public function getTotalPengajuanAktif()
+    {
+        return $this->db->table('pengajuan_magang')->where('status', 'pending')->countAllResults();
+    }
+
+    public function getTotalDosen()
+    {
+        return $this->db->table('dosen_pembimbing')->countAllResults();
+    }
+
+    public function getPengajuanTerbaru()
+    {
+        return $this->db->table('pengajuan_magang')
+            ->select('m.nama as nama_mahasiswa')
+            ->join('mahasiswa m', 'm.id_mahasiswa = pengajuan_magang.ketua_id')
+            ->orderBy('created_at', 'DESC')
+            ->limit(5)
+            ->get()
+            ->getResultArray();
+    }
+
+    public function getStatistikPengajuan()
+    {
+        // Ambil data statistik pengajuan
+        $labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        $pengajuan = [];
+        $diterima = [];
+        $ditolak = [];
+
+        foreach ($labels as $month) {
+            $pengajuan[] = $this->db->table('pengajuan_magang')->where('MONTH(created_at)', date('n', strtotime($month . ' 1')))->countAllResults();
+            $diterima[] = $this->db->table('pengajuan_magang')->where('status', 'disetujui')->where('MONTH(created_at)', date('n', strtotime($month . ' 1')))->countAllResults();
+            $ditolak[] = $this->db->table('pengajuan_magang')->where('status', 'ditolak')->where('MONTH(created_at)', date('n', strtotime($month . ' 1')))->countAllResults();
+        }
+
+        return [
+            'labels' => $labels,
+            'pengajuan' => $pengajuan,
+            'diterima' => $diterima,
+            'ditolak' => $ditolak
+        ];
+    }
+
+    public function getMahasiswaBimbinganForNilai($id_dosen, $search = null, $currentPage = 1, $perPage = 10) {
+        $builder = $this->db->table('pengajuan_magang p')
+            ->select('m.id_mahasiswa, m.nim, m.nama, n.nilai')
+            ->join('mahasiswa m', 'm.id_mahasiswa = p.ketua_id OR m.id_mahasiswa IN (SELECT ak.mahasiswa_id FROM anggota_kelompok ak WHERE ak.pengajuan_id = p.id)', 'left')
+            ->join('nilai n', 'n.id_mahasiswa = m.id_mahasiswa', 'left')
+            ->where('p.id_dosen', $id_dosen)
+            ->where('p.status', 'disetujui');
+
+        // Tambahkan pencarian
+        if ($search) {
+            $builder->groupStart()
+                ->like('m.nim', $search)
+                ->orLike('m.nama', $search)
+                ->groupEnd();
+        }
+
+        // Pagination
+        $builder->limit($perPage, ($currentPage - 1) * $perPage);
+        
+        return $builder->get()->getResultArray();
+    }
+
+    public function countMahasiswaByDosen($id_dosen, $search = null) {
+        $builder = $this->db->table('pengajuan_magang p')
+            ->join('mahasiswa m', 'm.id_mahasiswa = p.ketua_id OR m.id_mahasiswa IN (SELECT ak.mahasiswa_id FROM anggota_kelompok ak WHERE ak.pengajuan_id = p.id)', 'left')
+            ->where('p.id_dosen', $id_dosen)
+            ->where('p.status', 'disetujui');
+
+        // Tambahkan pencarian
+        if ($search) {
+            $builder->groupStart()
+                ->like('m.nim', $search)
+                ->orLike('m.nama', $search)
+                ->groupEnd();
+        }
+
+        return $builder->countAllResults();
+    }
+
+    public function insertNilai($data)
+    {
+        return $this->db->table('nilai')->insert($data);
+    }
+
+    public function getMahasiswaByDosen($id_dosen) {
+        return $this->db->table('pengajuan_magang p')
+            ->select('m.id_mahasiswa, m.nim, m.nama')
+            ->join('mahasiswa m', 'm.id_mahasiswa = p.ketua_id OR m.id_mahasiswa IN (SELECT ak.mahasiswa_id FROM anggota_kelompok ak WHERE ak.pengajuan_id = p.id)', 'left')
+            ->where('p.id_dosen', $id_dosen)
+            ->where('p.status', 'disetujui')
+            ->get()
+            ->getResultArray();
+    }
 } 

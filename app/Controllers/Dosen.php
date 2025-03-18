@@ -29,10 +29,24 @@ class Dosen extends BaseController
         $modelDosen = new \App\Models\ModelDosen();
         $dosenData = $modelDosen->getDosenByUserId(session()->get('id_user'));
 
+        // Ambil data statistik
+        $total_mahasiswa = $modelDosen->getTotalMahasiswa();
+        $total_instansi = $modelDosen->getTotalInstansi();
+        $total_pengajuan_aktif = $modelDosen->getTotalPengajuanAktif();
+        $total_dosen = $modelDosen->getTotalDosen();
+        $pengajuan_terbaru = $modelDosen->getPengajuanTerbaru();
+        $statistik = $modelDosen->getStatistikPengajuan();
+
         $data = [
             'judul' => 'Dashboard Dosen',
             'page' => 'dosen/v_dashboard',
-            'dosen' => $dosenData
+            'dosen' => $dosenData,
+            'total_mahasiswa' => $total_mahasiswa,
+            'total_instansi' => $total_instansi,
+            'total_pengajuan_aktif' => $total_pengajuan_aktif,
+            'total_dosen' => $total_dosen,
+            'pengajuan_terbaru' => $pengajuan_terbaru,
+            'statistik' => $statistik
         ];
 
         return view('v_template_backend_dosen', $data);
@@ -246,15 +260,26 @@ class Dosen extends BaseController
     {
         $modelDosen = new \App\Models\ModelDosen();
         $dosenData = $modelDosen->getDosenByUserId(session()->get('id_user'));
+
+        // Ambil parameter pencarian
+        $search = $this->request->getGet('search');
+        $currentPage = $this->request->getGet('page') ? (int)$this->request->getGet('page') : 1;
+        $perPage = 10; // Jumlah mahasiswa per halaman
+
+        // Ambil data mahasiswa berdasarkan dosen dan pencarian
+        $mahasiswa = $modelDosen->getMahasiswaBimbinganForNilai($dosenData['id_dosen'], $search, $currentPage, $perPage);
         
-        // Ambil data mahasiswa bimbingan yang perlu dinilai
-        $mahasiswa = $modelDosen->getMahasiswaBimbinganForNilai($dosenData['id_dosen']);
-        
+        // Hitung total mahasiswa untuk pagination
+        $totalMahasiswa = $modelDosen->countMahasiswaByDosen($dosenData['id_dosen'], $search);
+        $totalPages = ceil($totalMahasiswa / $perPage);
+
         $data = [
-            'judul' => 'Penilaian Magang',
+            'judul' => 'Penilaian Mahasiswa',
             'page' => 'dosen/v_penilaian',
             'dosen' => $dosenData,
-            'mahasiswa' => $mahasiswa
+            'mahasiswa' => $mahasiswa,
+            'currentPage' => $currentPage,
+            'totalPages' => $totalPages
         ];
 
         return view('v_template_backend_dosen', $data);
@@ -293,5 +318,36 @@ class Dosen extends BaseController
 
         // Render view dan return sebagai string
         return view('dosen/v_detail_kelompok', $data);
+    }
+
+    public function getPengajuanTerbaru()
+    {
+        return $this->db->table('pengajuan_magang')
+            ->select('m.nama as nama_mahasiswa')
+            ->join('mahasiswa m', 'm.id_mahasiswa = pengajuan_magang.ketua_id')
+            ->orderBy('created_at', 'DESC')
+            ->limit(5)
+            ->get()
+            ->getResultArray();
+    }
+
+    public function simpanNilai()
+    {
+        $modelDosen = new \App\Models\ModelDosen();
+        $data = $this->request->getJSON();
+
+        // Validasi data
+        if (empty($data->id_mahasiswa) || empty($data->nilai)) {
+            return $this->response->setJSON(['status' => false, 'message' => 'Data tidak valid']);
+        }
+
+        // Simpan nilai ke database
+        $modelDosen->insertNilai([
+            'id_mahasiswa' => $data->id_mahasiswa,
+            'nilai' => $data->nilai,
+            'id_dosen' => session()->get('id_user') // Ambil ID dosen dari session
+        ]);
+
+        return $this->response->setJSON(['status' => true, 'message' => 'Nilai berhasil disimpan']);
     }
 }

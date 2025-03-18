@@ -284,19 +284,13 @@ class ModelMahasiswa extends Model
 
     public function getDosenPembimbing($id_mahasiswa)
     {
-        try {
-            $result = $this->db->table('bimbingan b')
-                        ->select('d.nama as nama_dosen')
-                        ->join('dosen_pembimbing d', 'd.id_dosen = b.id_dosen')
-                        ->where('b.id_mahasiswa', $id_mahasiswa)
-                        ->get()
-                        ->getRowArray();
-            
-            return $result ? $result['nama_dosen'] : '-';
-        } catch (\Exception $e) {
-            log_message('error', 'Error di getDosenPembimbing: ' . $e->getMessage());
-            return '-';
-        }
+        return $this->db->table('pengajuan_magang pm')
+            ->select('dp.nama')
+            ->join('dosen_pembimbing dp', 'dp.id_dosen = pm.id_dosen')
+            ->join('mahasiswa m', 'm.id_mahasiswa = pm.ketua_id')
+            ->where('m.id_mahasiswa', $id_mahasiswa)
+            ->get()
+            ->getRowArray()['nama'] ?? '-';
     }
 
     public function getRiwayatBimbingan($id_mahasiswa, $limit = 5)
@@ -337,7 +331,6 @@ class ModelMahasiswa extends Model
         return $this->db->table('absensi')
             ->where('id_mahasiswa', $id_mahasiswa)
             ->orderBy('tanggal', 'DESC')
-            ->orderBy('jam_masuk', 'DESC')
             ->get()
             ->getResultArray();
     }
@@ -385,17 +378,36 @@ class ModelMahasiswa extends Model
     }
 
     public function isKetuaKelompok($id_mahasiswa)
-{
-    try {
-        $result = $this->db->table('pengajuan_magang')
-            ->where('ketua_id', $id_mahasiswa)
-            ->where('status', 'disetujui')
-            ->countAllResults();
-        
-        return $result > 0;
-    } catch (\Exception $e) {
-        log_message('error', 'Error di isKetuaKelompok: ' . $e->getMessage());
-        return false;
+    {
+        try {
+            $result = $this->db->table('pengajuan_magang')
+                ->where('ketua_id', $id_mahasiswa)
+                ->where('status', 'disetujui')
+                ->countAllResults();
+            
+            return $result > 0;
+        } catch (\Exception $e) {
+            log_message('error', 'Error di isKetuaKelompok: ' . $e->getMessage());
+            return false;
+        }
     }
-}
+    
+    public function getTotalLogbook($id_mahasiswa)
+    {
+        return $this->db->table('logbook')->where('id_mahasiswa', $id_mahasiswa)->countAllResults();
+    }
+
+    public function getTotalAbsensi($id_mahasiswa)
+    {
+        return $this->db->table('absensi')->where('id_mahasiswa', $id_mahasiswa)->countAllResults();
+    }
+
+    public function getNilaiMahasiswa($id_mahasiswa)
+    {
+        return $this->db->table('nilai')
+            ->select('nilai, keterangan')
+            ->where('id_mahasiswa', $id_mahasiswa)
+            ->get()
+            ->getResultArray();
+    }
 } 

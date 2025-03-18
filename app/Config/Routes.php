@@ -107,7 +107,11 @@ $routes->group('Dosen', ['filter' => 'auth'], function($routes) {
 
 $routes->get('Dosen/getLogbookKelompok/(:num)', 'Dosen::getLogbookKelompok/$1');
 
+$routes->get('Dosen/Penilaian', 'Dosen::Penilaian');
+
 $routes->get('/admin', 'Admin::index');
 $routes->get('/dosen', 'Dosen::index');
 $routes->get('/mahasiswa', 'Mahasiswa::index');
+
+$routes->post('Dosen/simpanNilai', 'Dosen::simpanNilai');
 

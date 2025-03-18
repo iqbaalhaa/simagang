@@ -88,15 +88,14 @@ class Mahasiswa extends BaseController
         $data = [
             'judul' => 'Dashboard Mahasiswa',
             'mahasiswa' => $this->ModelMahasiswa->getMahasiswaByUserId(session()->get('id_user')),
-            'total_bimbingan' => $this->ModelMahasiswa->getTotalBimbingan($id_mahasiswa),
-            'bimbingan_selesai' => $this->ModelMahasiswa->getBimbinganSelesai($id_mahasiswa),
-            'bimbingan_pending' => $this->ModelMahasiswa->getBimbinganPending($id_mahasiswa),
             'nama_dosen' => $this->ModelMahasiswa->getDosenPembimbing($id_mahasiswa),
-            'riwayat_bimbingan' => $this->ModelMahasiswa->getRiwayatBimbingan($id_mahasiswa, 5),
+            'riwayat_absensi' => $this->ModelMahasiswa->getAbsensiMahasiswa($id_mahasiswa),
+            'nilai' => $this->ModelMahasiswa->getNilaiMahasiswa($id_mahasiswa),
             'is_ketua' => $this->ModelMahasiswa->isKetuaKelompok($id_mahasiswa),
+            'total_logbook' => $this->ModelMahasiswa->getTotalLogbook($id_mahasiswa),
+            'total_absensi' => $this->ModelMahasiswa->getTotalAbsensi($id_mahasiswa),
             'page' => 'mahasiswa/v_dashboard'
         ];
-        
         return view('v_template_backend_mhs', $data);
     }
 
