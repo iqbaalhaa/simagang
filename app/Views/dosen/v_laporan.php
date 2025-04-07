@@ -69,7 +69,7 @@
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
-                                <form action="<?= base_url('Dosens/reviewLaporan/' . $l['id_laporan']) ?>" method="POST">
+                                <form action="<?= base_url('Dosen/reviewLaporan/' . $l['id_laporan']) ?>" method="POST">
                                     <div class="modal-body">
                                         <div class="form-group">
                                             <label>Status</label>

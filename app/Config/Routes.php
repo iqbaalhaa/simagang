@@ -110,6 +110,7 @@ $routes->group('Dosen', ['filter' => 'auth'], function($routes) {
 
     // Route untuk Laporan
     $routes->get('Laporan', 'Dosen::Laporan');
+    $routes->post('reviewLaporan/(:num)', 'Dosen::reviewLaporan/$1');
 });
 
 $routes->get('Dosen/getLogbookKelompok/(:num)', 'Dosen::getLogbookKelompok/$1');

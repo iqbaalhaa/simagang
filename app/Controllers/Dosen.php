@@ -360,14 +360,17 @@ class Dosen extends BaseController
     public function Laporan()
     {
         try {
+            // Ambil data dosen
+            $dosenData = $this->ModelDosen->getDosenByUserId(session()->get('id_user'));
+            
             // Ambil semua laporan yang perlu direview
             $laporan = $this->ModelLaporan->getAllLaporanWithMahasiswa();
             
             $data = [
                 'judul' => 'Laporan Magang',
                 'page' => 'dosen/v_laporan',
-                'laporan' => $laporan,
-                'dosen' => $dosenData
+                'dosen' => $dosenData,
+                'laporan' => $laporan
             ];
 
             return view('v_template_backend_dosen', $data);
