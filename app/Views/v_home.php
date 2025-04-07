@@ -46,23 +46,23 @@
             <div class="row counters">
 
                 <div class="col-lg-3 col-6 text-center">
-                    <span data-purecounter-start="0" data-purecounter-end="1232" data-purecounter-duration="1" class="purecounter"></span>
-                    <p>Students</p>
+                    <span data-purecounter-start="0" data-purecounter-end="<?= $total_mahasiswa ?>" data-purecounter-duration="2" class="purecounter"></span>
+                    <p>Mahasiswa</p>
                 </div>
 
                 <div class="col-lg-3 col-6 text-center">
-                    <span data-purecounter-start="0" data-purecounter-end="64" data-purecounter-duration="1" class="purecounter"></span>
-                    <p>Courses</p>
+                    <span data-purecounter-start="0" data-purecounter-end="<?= $total_dosen ?>" data-purecounter-duration="2" class="purecounter"></span>
+                    <p>Dosen</p>
                 </div>
 
                 <div class="col-lg-3 col-6 text-center">
-                    <span data-purecounter-start="0" data-purecounter-end="42" data-purecounter-duration="1" class="purecounter"></span>
-                    <p>Events</p>
+                    <span data-purecounter-start="0" data-purecounter-end="<?= $total_instansi ?>" data-purecounter-duration="2" class="purecounter"></span>
+                    <p>Instansi</p>
                 </div>
 
                 <div class="col-lg-3 col-6 text-center">
-                    <span data-purecounter-start="0" data-purecounter-end="15" data-purecounter-duration="1" class="purecounter"></span>
-                    <p>Trainers</p>
+                    <span data-purecounter-start="0" data-purecounter-end="<?= $total_pengajuan ?>" data-purecounter-duration="2" class="purecounter"></span>
+                    <p>Pengajuan Magang</p>
                 </div>
 
             </div>
