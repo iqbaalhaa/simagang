@@ -84,6 +84,8 @@ $routes->get('Mahasiswa/hapusLogbook/(:num)', 'Mahasiswa::hapusLogbook/$1');
 $routes->get('Mahasiswa/LoA', 'Mahasiswa::LoA');
 $routes->post('Mahasiswa/tambahLoA', 'Mahasiswa::tambahLoA');
 $routes->post('Mahasiswa/uploadSuratBalasan', 'Mahasiswa::uploadSuratBalasan');
+$routes->get('Mahasiswa/Laporan', 'Mahasiswa::Laporan');
+$routes->post('Mahasiswa/tambahLaporan', 'Mahasiswa::tambahLaporan');
 
 
 // Dosen Route
@@ -105,6 +107,9 @@ $routes->group('Dosen', ['filter' => 'auth'], function($routes) {
     
     // Route untuk LoA
     $routes->get('LoA', 'Dosen::LoA');
+
+    // Route untuk Laporan
+    $routes->get('Laporan', 'Dosen::Laporan');
 });
 
 $routes->get('Dosen/getLogbookKelompok/(:num)', 'Dosen::getLogbookKelompok/$1');

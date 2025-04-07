@@ -907,4 +907,90 @@ class Mahasiswa extends BaseController
 
         return redirect()->to('Mahasiswa/PengajuanMagang');
     }
+
+    public function Laporan()
+    {
+        try {
+            if (empty($this->mahasiswa)) {
+                throw new \Exception('Data mahasiswa tidak ditemukan');
+            }
+
+            // Cek apakah mahasiswa adalah ketua kelompok
+            if (!$this->ModelMahasiswa->isKetuaKelompok($this->mahasiswa['id_mahasiswa'])) {
+                session()->setFlashdata('error', 'Hanya ketua kelompok yang dapat mengakses menu Laporan');
+                return redirect()->to('Mahasiswa');
+            }
+
+            $modelLaporan = new \App\Models\ModelLaporan();
+            
+            $data = [
+                'judul' => 'Laporan Magang',
+                'page' => 'mahasiswa/v_laporan',
+                'mahasiswa' => $this->mahasiswa,
+                'is_ketua' => true,
+                'laporan' => $modelLaporan->getLaporanByMahasiswa($this->mahasiswa['id_mahasiswa'])
+            ];
+
+            return view('v_template_backend_mhs', $data);
+        } catch (\Exception $e) {
+            log_message('error', 'Error in Laporan method: ' . $e->getMessage());
+            session()->setFlashdata('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            return redirect()->to('Mahasiswa');
+        }
+    }
+
+    public function tambahLaporan()
+    {
+        try {
+            // Pastikan data mahasiswa ada
+            if (empty($this->mahasiswa)) {
+                throw new \Exception('Data mahasiswa tidak ditemukan');
+            }
+
+            $validation = \Config\Services::validation();
+            
+            $rules = [
+                'judul' => 'required',
+                'deskripsi' => 'required',
+                'file_laporan' => [
+                    'uploaded[file_laporan]',
+                    'mime_in[file_laporan,application/pdf]',
+                    'max_size[file_laporan,2048]'
+                ]
+            ];
+
+            if (!$validation->setRules($rules)->withRequest($this->request)->run()) {
+                return redirect()->back()->withInput()->with('errors', $validation->getErrors());
+            }
+
+            $file = $this->request->getFile('file_laporan');
+            $fileName = $file->getRandomName();
+
+            $modelLaporan = new \App\Models\ModelLaporan();
+            $data = [
+                'id_mahasiswa' => $this->mahasiswa['id_mahasiswa'],
+                'judul' => $this->request->getPost('judul'),
+                'deskripsi' => $this->request->getPost('deskripsi'),
+                'file_laporan' => $fileName,
+                'status' => 'pending'
+            ];
+
+            if (!is_dir('uploads/laporan')) {
+                mkdir('uploads/laporan', 0777, true);
+            }
+
+            if ($file->move('uploads/laporan', $fileName)) {
+                $modelLaporan->insert($data);
+                session()->setFlashdata('pesan', 'Laporan berhasil ditambahkan');
+            } else {
+                throw new \Exception('Gagal mengupload file');
+            }
+
+            return redirect()->to('Mahasiswa/Laporan');
+
+        } catch (\Exception $e) {
+            session()->setFlashdata('error', 'Gagal menambahkan laporan: ' . $e->getMessage());
+            return redirect()->back()->withInput();
+        }
+    }
 }

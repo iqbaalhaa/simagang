@@ -225,6 +225,13 @@
                                             </a>
                                         </li>
                                     <?php endif; ?>
+                                    <?php if(isset($is_ketua) && $is_ketua): ?>
+                                        <li>
+                                            <a href="<?= base_url('Mahasiswa/Laporan') ?>">
+                                                <span class="sub-item">Laporan</span>
+                                            </a>
+                                        </li>
+                                    <?php endif; ?>
                                 </ul>
                             </div>
                         </li>

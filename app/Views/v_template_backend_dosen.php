@@ -189,6 +189,11 @@
                                             <span class="sub-item">LoA Journal</span>
                                         </a>
                                     </li>
+                                    <li>
+                                        <a href="<?= base_url('Dosen/Laporan') ?>">
+                                            <span class="sub-item">Laporan</span>
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
                         </li>

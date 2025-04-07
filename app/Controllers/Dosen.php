@@ -3,15 +3,21 @@
 namespace App\Controllers;
 
 use App\Models\ModelDosen;
+use App\Models\ModelLaporan;
+use App\Models\ModelMahasiswa;
 
 class Dosen extends BaseController
 {
     protected $ModelDosen;
+    protected $ModelLaporan;
+    protected $ModelMahasiswa;
 
     public function __construct()
     {
         // Inisialisasi model
         $this->ModelDosen = new ModelDosen();
+        $this->ModelLaporan = new ModelLaporan();
+        $this->ModelMahasiswa = new ModelMahasiswa();
         
         // Cek session login
         if (!session()->get('logged_in')) {
@@ -349,5 +355,44 @@ class Dosen extends BaseController
         ]);
 
         return $this->response->setJSON(['status' => true, 'message' => 'Nilai berhasil disimpan']);
+    }
+
+    public function Laporan()
+    {
+        try {
+            // Ambil semua laporan yang perlu direview
+            $laporan = $this->ModelLaporan->getAllLaporanWithMahasiswa();
+            
+            $data = [
+                'judul' => 'Laporan Magang',
+                'page' => 'dosen/v_laporan',
+                'laporan' => $laporan,
+                'dosen' => $dosenData
+            ];
+
+            return view('v_template_backend_dosen', $data);
+        } catch (\Exception $e) {
+            session()->setFlashdata('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            return redirect()->to('Dosen');
+        }
+    }
+
+    public function reviewLaporan($id_laporan)
+    {
+        try {
+            $status = $this->request->getPost('status');
+            $catatan = $this->request->getPost('catatan');
+
+            if ($this->ModelLaporan->updateStatus($id_laporan, $status, $catatan)) {
+                session()->setFlashdata('pesan', 'Laporan berhasil direview');
+            } else {
+                throw new \Exception('Gagal mengupdate status laporan');
+            }
+
+            return redirect()->to('Dosen/Laporan');
+        } catch (\Exception $e) {
+            session()->setFlashdata('error', 'Gagal mereview laporan: ' . $e->getMessage());
+            return redirect()->to('Dosen/Laporan');
+        }
     }
 }
