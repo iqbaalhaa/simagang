@@ -162,12 +162,44 @@
                             </span>
                             <h4 class="text-section">Components</h4>
                         </li>
+                        <?php
+                        // Debug: Tampilkan data untuk analisis
+                        // echo '<pre style="font-size: 11px; color: #666;">';
+                        // echo "ID Mahasiswa yang login: " . $mahasiswa['id_mahasiswa'] . "\n";
+                        // echo "Data Kelompok:\n";
+                        // print_r($kelompok);
+                        // echo '</pre>';
+                        
+                        $showMenu = true; // Default: tampilkan menu
+                        
+                        // Inisialisasi variabel kelompok jika belum ada
+                        if (!isset($kelompok)) {
+                            $kelompok = [];
+                        }
+                        
+                        if (!empty($kelompok)) {
+                            foreach ($kelompok as $k) {
+                                // Jika user adalah anggota kelompok, sembunyikan menu
+                                if (isset($k['anggota']) && is_array($k['anggota'])) {
+                                    foreach ($k['anggota'] as $anggota) {
+                                        if (isset($anggota['id_mahasiswa']) && $anggota['id_mahasiswa'] == $mahasiswa['id_mahasiswa']) {
+                                            $showMenu = false;
+                                            break 2;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if ($showMenu): 
+                        ?>
                         <li class="nav-item">
                             <a href="<?= base_url('Mahasiswa/PengajuanMagang') ?>">
                                 <i class="fas fa-briefcase"></i>
                                 <p>Pengajuan Magang</p>
                             </a>
                         </li>
+                        <?php endif; ?>
                         <li class="nav-item">
                             <a data-toggle="collapse" href="#charts">
                                 <i class="fas fa-folder-open"></i>

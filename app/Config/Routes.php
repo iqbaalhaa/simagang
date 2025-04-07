@@ -61,6 +61,8 @@ $routes->post('Admin/updateParafLogbook', 'Admin::updateParafLogbook');
 $routes->get('Admin/LoA', 'Admin::LoA');
 $routes->post('Admin/updateStatusLoA', 'Admin::updateStatusLoA');
 $routes->post('Admin/updateCatatanLoA/(:num)', 'Admin::updateCatatanLoA/$1');
+$routes->get('Admin/DataAngkatan', 'Admin::DataAngkatan');
+$routes->get('Admin/cetakPDFAngkatan', 'Admin::cetakPDFAngkatan');
 
 
 //Mahasiswa Route

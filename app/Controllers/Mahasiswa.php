@@ -8,6 +8,7 @@ class Mahasiswa extends BaseController
 {
     protected $ModelMahasiswa;
     protected $mahasiswa;
+    protected $viewData;
 
     public function __construct()
     {
@@ -66,7 +67,25 @@ class Mahasiswa extends BaseController
             }
 
             $this->mahasiswa = $mahasiswaData;
+
+            // Ambil data kelompok dan status ketua
+            $kelompok = $this->ModelMahasiswa->getKelompokMagang($this->mahasiswa['id_mahasiswa']);
+            $is_ketua = $this->ModelMahasiswa->isKetuaKelompok($this->mahasiswa['id_mahasiswa']);
             
+            // Tambahkan data anggota untuk setiap kelompok
+            if (!empty($kelompok)) {
+                foreach ($kelompok as &$k) {
+                    $k['anggota'] = $this->ModelMahasiswa->getAnggotaKelompokDetail($k['id']);
+                }
+            }
+            
+            // Set viewData yang akan digunakan di semua view
+            $this->viewData = [
+                'mahasiswa' => $this->mahasiswa,
+                'kelompok' => $kelompok ?? [],
+                'is_ketua' => $is_ketua
+            ];
+
             // Jika belum ada NIM, redirect ke profil
             if (empty($this->mahasiswa['nim'])) {
                 session()->setFlashdata('warning', 'Silakan lengkapi data profil Anda termasuk NIM untuk dapat menggunakan semua fitur.');
@@ -78,16 +97,33 @@ class Mahasiswa extends BaseController
         } catch (\Exception $e) {
             log_message('error', 'Error in constructor: ' . $e->getMessage());
             session()->setFlashdata('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            // Inisialisasi viewData dengan array kosong jika terjadi error
+            $this->viewData = [
+                'mahasiswa' => [],
+                'kelompok' => [],
+                'is_ketua' => false
+            ];
         }
     }
 
     public function index()
     {
-        $id_mahasiswa = $this->ModelMahasiswa->getMahasiswaByUserId(session()->get('id_user'))['id_mahasiswa'];
+        $id_mahasiswa = $this->mahasiswa['id_mahasiswa'];
+        
+        // Ambil data kelompok
+        $kelompok = $this->ModelMahasiswa->getKelompokMagang($id_mahasiswa);
+        
+        // Tambahkan data anggota untuk setiap kelompok
+        if (!empty($kelompok)) {
+            foreach ($kelompok as &$k) {
+                $k['anggota'] = $this->ModelMahasiswa->getAnggotaKelompokDetail($k['id']);
+            }
+        }
         
         $data = [
             'judul' => 'Dashboard Mahasiswa',
-            'mahasiswa' => $this->ModelMahasiswa->getMahasiswaByUserId(session()->get('id_user')),
+            'mahasiswa' => $this->mahasiswa,
+            'kelompok' => $kelompok ?? [],
             'nama_dosen' => $this->ModelMahasiswa->getDosenPembimbing($id_mahasiswa),
             'riwayat_absensi' => $this->ModelMahasiswa->getAbsensiMahasiswa($id_mahasiswa),
             'nilai' => $this->ModelMahasiswa->getNilaiMahasiswa($id_mahasiswa),

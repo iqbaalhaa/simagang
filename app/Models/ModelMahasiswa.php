@@ -284,13 +284,18 @@ class ModelMahasiswa extends Model
 
     public function getDosenPembimbing($id_mahasiswa)
     {
-        return $this->db->table('pengajuan_magang pm')
+        $builder = $this->db->table('pengajuan_magang pm')
             ->select('dp.nama')
             ->join('dosen_pembimbing dp', 'dp.id_dosen = pm.id_dosen')
-            ->join('mahasiswa m', 'm.id_mahasiswa = pm.ketua_id')
-            ->where('m.id_mahasiswa', $id_mahasiswa)
-            ->get()
-            ->getRowArray()['nama'] ?? '-';
+            ->join('anggota_kelompok ak', 'ak.pengajuan_id = pm.id', 'left')
+            ->where('pm.status', 'disetujui')
+            ->groupStart()
+                ->where('pm.ketua_id', $id_mahasiswa)
+                ->orWhere('ak.mahasiswa_id', $id_mahasiswa)
+            ->groupEnd();
+
+        $result = $builder->get()->getRowArray();
+        return $result['nama'] ?? '-';
     }
 
     public function getRiwayatBimbingan($id_mahasiswa, $limit = 5)

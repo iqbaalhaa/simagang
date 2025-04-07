@@ -50,7 +50,7 @@
             <div class="logo-header">
 
                 <a href="index.html" class="logo" style="font-size: 25px; font-weight:bold; color:white; margin-left: 20px;">
-                    SiMagang
+                    Si Magang
                 </a>
                 <button class="navbar-toggler sidenav-toggler ml-auto" type="button" data-toggle="collapse" data-target="collapse" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon">
@@ -233,6 +233,12 @@
                                     </li>
                                 </ul>
                             </div>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('Admin/DataAngkatan') ?>">
+                                <i class="fas fa-book"></i>
+                                <p>Data Angkatan</p>
+                            </a>
                         </li>
                     </ul>
                 </div>

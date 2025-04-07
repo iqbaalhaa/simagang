@@ -4,8 +4,25 @@ namespace App\Controllers;
 
 class Admin extends BaseController
 {
+    protected $session;
+    protected $admin;
+    protected $totalPengajuan;
+
     public function __construct()
     {
+        helper(['tcpdf']);
+        $this->session = \Config\Services::session();
+        if (!$this->session->get('id_user')) {
+            header('Location: ' . base_url('Auth'));
+            exit();
+        }
+        
+        // Initialize ModelAdmin
+        $modelAdmin = new \App\Models\ModelAdmin();
+        
+        // Get admin data
+        $this->admin = $modelAdmin->getAdminByUserId($this->session->get('id_user'));
+        
         // Tambahkan di constructor Admin
         $modelMahasiswa = new \App\Models\ModelMahasiswa();
         $this->totalPengajuan = $modelMahasiswa->countPengajuanPending();
@@ -1163,5 +1180,147 @@ class Admin extends BaseController
             session()->setFlashdata('error', 'Gagal mengupdate catatan: ' . $e->getMessage());
             return redirect()->back();
         }
+    }
+
+    public function DataAngkatan()
+    {
+        $modelAdmin = new \App\Models\ModelAdmin();
+        $db = \Config\Database::connect();
+
+        // Get all students with their data
+        $mahasiswa = $modelAdmin->getAllMahasiswa();
+
+        // Get unique angkatan years
+        $angkatan_list = array_unique(array_column($mahasiswa, 'angkatan'));
+        sort($angkatan_list); // Sort years in ascending order
+
+        // Get status magang for each student
+        $status_magang = [];
+        foreach ($mahasiswa as $mhs) {
+            $query = $db->table('pengajuan_magang pm')
+                       ->join('anggota_kelompok ak', 'ak.pengajuan_id = pm.id')
+                       ->where('ak.mahasiswa_id', $mhs['id_mahasiswa'])
+                       ->select('pm.status')
+                       ->get();
+            
+            $result = $query->getRowArray();
+            if ($result) {
+                $status_magang[$mhs['id_mahasiswa']] = $result['status'];
+            }
+        }
+
+        $data = [
+            'judul' => 'Data Mahasiswa per Angkatan',
+            'page' => 'admin/v_data_angkatan',
+            'mahasiswa' => $mahasiswa,
+            'angkatan_list' => $angkatan_list,
+            'status_magang' => $status_magang,
+            'admin' => $this->admin
+        ];
+
+        return view('v_template_backend', $data);
+    }
+
+    public function cetakPDFAngkatan()
+    {
+        $modelAdmin = new \App\Models\ModelAdmin();
+        $db = \Config\Database::connect();
+        
+        // Get filter parameter
+        $angkatan = $this->request->getGet('angkatan');
+        
+        // Get all students with their data
+        $mahasiswa = $modelAdmin->getAllMahasiswa();
+        
+        // Filter by angkatan if specified
+        if (!empty($angkatan)) {
+            $mahasiswa = array_filter($mahasiswa, function($mhs) use ($angkatan) {
+                return $mhs['angkatan'] == $angkatan;
+            });
+        }
+
+        // Get status magang for each student
+        $status_magang = [];
+        foreach ($mahasiswa as $mhs) {
+            $query = $db->table('pengajuan_magang pm')
+                       ->join('anggota_kelompok ak', 'ak.pengajuan_id = pm.id')
+                       ->where('ak.mahasiswa_id', $mhs['id_mahasiswa'])
+                       ->select('pm.status')
+                       ->get();
+            
+            $result = $query->getRowArray();
+            if ($result) {
+                $status_magang[$mhs['id_mahasiswa']] = $result['status'];
+            }
+        }
+
+        // Create new TCPDF object using helper
+        $pdf = tcpdf();
+        
+        // Set document information
+        $pdf->SetCreator('SiMagang');
+        $pdf->SetAuthor('Admin SiMagang');
+        $pdf->SetTitle('Data Mahasiswa per Angkatan');
+
+        // Remove header and footer
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
+        
+        // Add a page in landscape orientation
+        $pdf->AddPage('L', 'A4');
+        
+        // Set font
+        $pdf->SetFont('helvetica', 'B', 16);
+        
+        // Title
+        $title = 'Data Mahasiswa' . (!empty($angkatan) ? " Angkatan " . $angkatan : " Semua Angkatan");
+        $pdf->Cell(0, 15, $title, 0, 1, 'C');
+        
+        // Set font for table header
+        $pdf->SetFont('helvetica', 'B', 11);
+        
+        // Table header
+        $pdf->Cell(15, 10, 'No', 1, 0, 'C');
+        $pdf->Cell(30, 10, 'NIM', 1, 0, 'C');
+        $pdf->Cell(60, 10, 'Nama', 1, 0, 'C');
+        $pdf->Cell(30, 10, 'Angkatan', 1, 0, 'C');
+        $pdf->Cell(60, 10, 'Email', 1, 0, 'C');
+        $pdf->Cell(50, 10, 'Instansi', 1, 0, 'C');
+        $pdf->Cell(30, 10, 'Status', 1, 1, 'C');
+        
+        // Set font for table content
+        $pdf->SetFont('helvetica', '', 10);
+        
+        // Table content
+        $no = 1;
+        foreach ($mahasiswa as $mhs) {
+            $pdf->Cell(15, 10, $no++, 1, 0, 'C');
+            $pdf->Cell(30, 10, $mhs['nim'] ?? '-', 1, 0, 'C');
+            $pdf->Cell(60, 10, $mhs['nama'], 1, 0, 'L');
+            $pdf->Cell(30, 10, $mhs['angkatan'] ?? '-', 1, 0, 'C');
+            $pdf->Cell(60, 10, $mhs['email'] ?? '-', 1, 0, 'L');
+            $pdf->Cell(50, 10, $mhs['instansi'] ?? '-', 1, 0, 'L');
+            
+            // Status
+            $status = 'Belum Mendaftar';
+            if (isset($status_magang[$mhs['id_mahasiswa']])) {
+                switch ($status_magang[$mhs['id_mahasiswa']]) {
+                    case 'pending':
+                        $status = 'Menunggu';
+                        break;
+                    case 'disetujui':
+                        $status = 'Aktif Magang';
+                        break;
+                    case 'ditolak':
+                        $status = 'Ditolak';
+                        break;
+                }
+            }
+            $pdf->Cell(30, 10, $status, 1, 1, 'C');
+        }
+        
+        // Output PDF
+        $pdf->Output('Data_Mahasiswa_' . (!empty($angkatan) ? 'Angkatan_'.$angkatan : 'Semua_Angkatan') . '.pdf', 'I');
+        exit();
     }
 }

@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Mar 18, 2025 at 12:57 AM
--- Server version: 8.3.0
--- PHP Version: 8.2.18
+-- Waktu pembuatan: 19 Mar 2025 pada 16.09
+-- Versi server: 9.1.0
+-- Versi PHP: 8.3.14
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -24,7 +24,7 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `absensi`
+-- Struktur dari tabel `absensi`
 --
 
 DROP TABLE IF EXISTS `absensi`;
@@ -41,19 +41,20 @@ CREATE TABLE IF NOT EXISTS `absensi` (
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id_absensi`),
   KEY `id_mahasiswa` (`id_mahasiswa`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `absensi`
+-- Dumping data untuk tabel `absensi`
 --
 
 INSERT INTO `absensi` (`id_absensi`, `id_mahasiswa`, `tanggal`, `jam_masuk`, `jam_pulang`, `kegiatan`, `bukti_kehadiran`, `status`, `created_at`, `updated_at`) VALUES
-(1, 4, '2025-03-14', '09:52:15', '09:56:42', 'a', '1741945935_eeaf85de16be088cfc50.png', 'hadir', '2025-03-14 09:52:15', '2025-03-14 09:56:42');
+(1, 4, '2025-03-14', '09:52:15', '09:56:42', 'a', '1741945935_eeaf85de16be088cfc50.png', 'hadir', '2025-03-14 09:52:15', '2025-03-14 09:56:42'),
+(2, 7, '2025-03-18', '06:29:52', NULL, 'audit uang masuk', '', 'hadir', '2025-03-18 06:29:52', NULL);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `admin`
+-- Struktur dari tabel `admin`
 --
 
 DROP TABLE IF EXISTS `admin`;
@@ -67,7 +68,7 @@ CREATE TABLE IF NOT EXISTS `admin` (
 ) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Dumping data for table `admin`
+-- Dumping data untuk tabel `admin`
 --
 
 INSERT INTO `admin` (`id_admin`, `id_user`, `nama`, `foto`) VALUES
@@ -77,7 +78,7 @@ INSERT INTO `admin` (`id_admin`, `id_user`, `nama`, `foto`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `anggota_kelompok`
+-- Struktur dari tabel `anggota_kelompok`
 --
 
 DROP TABLE IF EXISTS `anggota_kelompok`;
@@ -89,10 +90,10 @@ CREATE TABLE IF NOT EXISTS `anggota_kelompok` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_anggota` (`pengajuan_id`,`mahasiswa_id`),
   KEY `mahasiswa_id` (`mahasiswa_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Dumping data for table `anggota_kelompok`
+-- Dumping data untuk tabel `anggota_kelompok`
 --
 
 INSERT INTO `anggota_kelompok` (`id`, `pengajuan_id`, `mahasiswa_id`, `created_at`) VALUES
@@ -100,12 +101,15 @@ INSERT INTO `anggota_kelompok` (`id`, `pengajuan_id`, `mahasiswa_id`, `created_a
 (9, 5, 1, '2025-03-03 21:13:18'),
 (16, 11, 5, '2025-03-17 05:28:46'),
 (17, 11, 7, '2025-03-17 05:28:46'),
-(18, 12, 8, '2025-03-17 05:57:26');
+(18, 12, 8, '2025-03-17 05:57:26'),
+(21, 15, 9, '2025-03-19 20:41:16'),
+(22, 15, 10, '2025-03-19 20:41:16'),
+(23, 15, 11, '2025-03-19 20:41:16');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `dokumen`
+-- Struktur dari tabel `dokumen`
 --
 
 DROP TABLE IF EXISTS `dokumen`;
@@ -117,19 +121,34 @@ CREATE TABLE IF NOT EXISTS `dokumen` (
   `status` enum('Aktif','Tidak Aktif') NOT NULL DEFAULT 'Aktif',
   `tgl_upload` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_dokumen`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Dumping data for table `dokumen`
+-- Dumping data untuk tabel `dokumen`
 --
 
 INSERT INTO `dokumen` (`id_dokumen`, `nama_dokumen`, `file_dokumen`, `keterangan`, `status`, `tgl_upload`) VALUES
-(1, 'ss', '1742065359_ad2638ff5cabd9c2af85.pdf', 'asa', 'Aktif', '2025-03-15 19:02:39');
+(3, 'permohonan Kerja Peraktek', '1742280855_1817372895dc0290d044.docx', '', 'Aktif', '2025-03-18 06:54:15'),
+(4, 'Penunjukan pembimbing KP', '1742280926_557f94821893aa423e34.docx', '', 'Aktif', '2025-03-18 06:55:26'),
+(5, 'Biodata Pembimbing Perusahaan', '1742280968_e15c078024d2f3293c2f.docx', '', 'Aktif', '2025-03-18 06:56:08'),
+(6, 'Surat Keterangan Selesai KP', '1742280996_8cf11ffeabc35d32cec2.docx', '', 'Aktif', '2025-03-18 06:56:36'),
+(7, 'Penilaian Pelaksanaan KP', '1742281029_e4d17716705842eeb6d3.docx', '', 'Aktif', '2025-03-18 06:57:09'),
+(8, 'Kartu Bimbingan KP', '1742281057_65663136b9835c8b5f4e.docx', '', 'Aktif', '2025-03-18 06:57:37'),
+(9, 'Kehadiran di Seminar KP Fakultas', '1742281178_9837766cbf214fdde445.docx', '', 'Aktif', '2025-03-18 06:59:38'),
+(10, 'Undangan Seminar KP', '1742281253_c838e1677f27937a1855.docx', '', 'Aktif', '2025-03-18 07:00:53'),
+(11, 'Daftar Hadir Seminar KP', '1742281282_5436917e56195d5e9666.docx', '', 'Aktif', '2025-03-18 07:01:22'),
+(12, 'Penilaian Seminar KP', '1742281306_f4d71419e627b36884c1.docx', '', 'Aktif', '2025-03-18 07:01:46'),
+(13, 'Berita Acara Seminar KP', '1742281327_a9389546e11243fec2f8.docx', '', 'Aktif', '2025-03-18 07:02:07'),
+(14, 'Rekapitulasi Nilai Akhir KP', '1742281351_0fc9d268209c11a03094.docx', '', 'Aktif', '2025-03-18 07:02:31'),
+(15, 'Bukti Penyerahan Laporan KP Kepada Prodi', '1742281381_7fc3c2f13946d8901cab.docx', '', 'Aktif', '2025-03-18 07:03:01'),
+(16, 'Pedoman Kerja Praktek Final', '1742281406_5989ac75ce345ecad6c1.docx', '', 'Aktif', '2025-03-18 07:03:26'),
+(17, 'Template Laporan KP', '1742281439_545b17bedceb0926ac1b.docx', '', 'Aktif', '2025-03-18 07:03:59'),
+(18, 'Template Log Book KP', '1742281463_d62a3f35a78ca55fab40.docx', '', 'Aktif', '2025-03-18 07:04:23');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `dosen_pembimbing`
+-- Struktur dari tabel `dosen_pembimbing`
 --
 
 DROP TABLE IF EXISTS `dosen_pembimbing`;
@@ -141,20 +160,22 @@ CREATE TABLE IF NOT EXISTS `dosen_pembimbing` (
   `foto` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id_dosen`),
   UNIQUE KEY `user_id` (`id_user`)
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Dumping data for table `dosen_pembimbing`
+-- Dumping data untuk tabel `dosen_pembimbing`
 --
 
 INSERT INTO `dosen_pembimbing` (`id_dosen`, `id_user`, `nama`, `nidn`, `foto`) VALUES
 (1, 17, 'albet, S.Kom', 12414141, NULL),
-(3, 25, 'M. Yusuf', 70120, '1742082800_be6430cf7c714a67ccba.jpeg');
+(3, 25, 'M. Yusuf', 70120, '1742082800_be6430cf7c714a67ccba.jpeg'),
+(4, 27, 'Yerix Ramadhani, M.Kom', 801210, NULL),
+(5, 29, 'Hery Afriyadi. S.E., S.Kom., M.Si', 2015047103, NULL);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `instansi`
+-- Struktur dari tabel `instansi`
 --
 
 DROP TABLE IF EXISTS `instansi`;
@@ -168,7 +189,7 @@ CREATE TABLE IF NOT EXISTS `instansi` (
 ) ENGINE=MyISAM AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Dumping data for table `instansi`
+-- Dumping data untuk tabel `instansi`
 --
 
 INSERT INTO `instansi` (`id_instansi`, `nama_instansi`, `alamat`, `created_at`, `updated_at`) VALUES
@@ -208,7 +229,7 @@ INSERT INTO `instansi` (`id_instansi`, `nama_instansi`, `alamat`, `created_at`, 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `loa_journal`
+-- Struktur dari tabel `loa_journal`
 --
 
 DROP TABLE IF EXISTS `loa_journal`;
@@ -229,7 +250,7 @@ CREATE TABLE IF NOT EXISTS `loa_journal` (
 ) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `loa_journal`
+-- Dumping data untuk tabel `loa_journal`
 --
 
 INSERT INTO `loa_journal` (`id_loa`, `id_mahasiswa`, `pengajuan_id`, `judul`, `deskripsi`, `file_loa`, `status`, `catatan`, `created_at`, `updated_at`) VALUES
@@ -238,7 +259,7 @@ INSERT INTO `loa_journal` (`id_loa`, `id_mahasiswa`, `pengajuan_id`, `judul`, `d
 -- --------------------------------------------------------
 
 --
--- Table structure for table `logbook`
+-- Struktur dari tabel `logbook`
 --
 
 DROP TABLE IF EXISTS `logbook`;
@@ -256,7 +277,7 @@ CREATE TABLE IF NOT EXISTS `logbook` (
 ) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `logbook`
+-- Dumping data untuk tabel `logbook`
 --
 
 INSERT INTO `logbook` (`id_logbook`, `id_mahasiswa`, `hari_ke`, `tanggal`, `uraian_kegiatan`, `paraf_pembimbing`, `created_at`, `updated_at`) VALUES
@@ -266,7 +287,7 @@ INSERT INTO `logbook` (`id_logbook`, `id_mahasiswa`, `hari_ke`, `tanggal`, `urai
 -- --------------------------------------------------------
 
 --
--- Table structure for table `mahasiswa`
+-- Struktur dari tabel `mahasiswa`
 --
 
 DROP TABLE IF EXISTS `mahasiswa`;
@@ -283,10 +304,10 @@ CREATE TABLE IF NOT EXISTS `mahasiswa` (
   UNIQUE KEY `user_id` (`id_user`),
   UNIQUE KEY `nim` (`nim`),
   KEY `instansi_id` (`instansi_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Dumping data for table `mahasiswa`
+-- Dumping data untuk tabel `mahasiswa`
 --
 
 INSERT INTO `mahasiswa` (`id_mahasiswa`, `id_user`, `nim`, `nama`, `angkatan`, `instansi`, `foto`, `instansi_id`) VALUES
@@ -295,12 +316,17 @@ INSERT INTO `mahasiswa` (`id_mahasiswa`, `id_user`, `nim`, `nama`, `angkatan`, `
 (4, 23, '123123', 'jawo baru', '2022', 'Bank 9 Jambi', '1741078759_e292dae1cdd0379c0afd.jpeg', NULL),
 (5, 22, '70121011', 'lubis batak', '2023', 'institut pertanian bogor', '1741079518_ceacaa4e153bc5d42a9d.png', NULL),
 (7, 24, '70121012', 'Maydinda Amelia Putri', '2024', 'pln', '1741956800_cd9054cb1f9a35d1fdc1.jpg', NULL),
-(8, 26, '09090909', 'Budi Siregar', '2023', '-', '1742165790_6a8564cad2e66d0560ac.jpg', NULL);
+(8, 26, '09090909', 'Budi Siregar', '2023', '-', '1742165790_6a8564cad2e66d0560ac.jpg', NULL),
+(9, 28, '701210207', 'Rezki Kurnia Sholehati Nala Putri', '2021', 'Disdukcapil', '1742281714_9ab9d5eac03263f4f9f9.png', NULL),
+(10, 30, '701210041', 'Suci Aryeni', '2021', 'Disdukcapil', '1742358482_82ec0543f2519386282d.jpg', NULL),
+(11, 31, '701210126', 'Melan Sari', '2021', 'Disdukcapil', '1742358940_9ed5b91e0b0a55662bb3.jpg', NULL),
+(12, 32, '701210009', 'Iqbal Hanafi', '2021', '-', '1742391564_d402d1a03556c303acc5.jpg', NULL),
+(13, 33, NULL, 'joni', '2025', '', '', NULL);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `migrations`
+-- Struktur dari tabel `migrations`
 --
 
 DROP TABLE IF EXISTS `migrations`;
@@ -318,7 +344,7 @@ CREATE TABLE IF NOT EXISTS `migrations` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `nilai`
+-- Struktur dari tabel `nilai`
 --
 
 DROP TABLE IF EXISTS `nilai`;
@@ -327,24 +353,25 @@ CREATE TABLE IF NOT EXISTS `nilai` (
   `id_mahasiswa` int NOT NULL,
   `id_dosen` int NOT NULL,
   `nilai` decimal(5,2) NOT NULL,
-  `keterangan` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `keterangan` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_nilai`),
   KEY `id_mahasiswa` (`id_mahasiswa`),
   KEY `id_dosen` (`id_dosen`)
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `nilai`
+-- Dumping data untuk tabel `nilai`
 --
 
 INSERT INTO `nilai` (`id_nilai`, `id_mahasiswa`, `id_dosen`, `nilai`, `keterangan`, `created_at`) VALUES
-(3, 4, 25, 9.50, NULL, '2025-03-18 07:51:34');
+(3, 4, 25, 9.50, NULL, '2025-03-18 07:51:34'),
+(4, 7, 25, 8.00, NULL, '2025-03-19 20:47:20');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `pengajuan_magang`
+-- Struktur dari tabel `pengajuan_magang`
 --
 
 DROP TABLE IF EXISTS `pengajuan_magang`;
@@ -363,20 +390,21 @@ CREATE TABLE IF NOT EXISTS `pengajuan_magang` (
   PRIMARY KEY (`id`),
   KEY `ketua_id` (`ketua_id`),
   KEY `instansi_id` (`instansi_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Dumping data for table `pengajuan_magang`
+-- Dumping data untuk tabel `pengajuan_magang`
 --
 
 INSERT INTO `pengajuan_magang` (`id`, `nama_kelompok`, `ketua_id`, `instansi_id`, `id_dosen`, `status`, `surat_permohonan`, `surat_pengantar`, `surat_balasan`, `created_at`, `updated_at`) VALUES
 (11, 'jjj', 4, 3, 3, 'disetujui', '1742164126_c9eceb54c217d5e07dc6.pdf', '1742164533_b4e0c4573125ba31729c.pdf', '1742165365_95cfb78e958f63a68d5f.pdf', '2025-03-16 22:28:46', '2025-03-17 05:49:25'),
-(12, 'gg', 8, 1, 1, 'disetujui', '1742165846_76201402b66dab2fe836.pdf', '1742166094_8ca1e98e6b4f08608de8.pdf', NULL, '2025-03-16 22:57:26', '2025-03-17 06:01:34');
+(12, 'gg', 8, 1, 1, 'disetujui', '1742165846_76201402b66dab2fe836.pdf', '1742166094_8ca1e98e6b4f08608de8.pdf', NULL, '2025-03-16 22:57:26', '2025-03-17 06:01:34'),
+(15, 'kelompok dukcapil', 12, 9, 5, 'disetujui', '1742391676_ba71ea665cf146b59099.pdf', '1742391748_5d6435d1dd2e572635d8.pdf', NULL, '2025-03-19 13:41:16', '2025-03-19 20:42:28');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `user`
+-- Struktur dari tabel `user`
 --
 
 DROP TABLE IF EXISTS `user`;
@@ -391,10 +419,10 @@ CREATE TABLE IF NOT EXISTS `user` (
   PRIMARY KEY (`id_user`),
   UNIQUE KEY `username` (`username`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=MyISAM AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Dumping data for table `user`
+-- Dumping data untuk tabel `user`
 --
 
 INSERT INTO `user` (`id_user`, `username`, `password`, `email`, `role`, `created_at`, `updated_at`) VALUES
@@ -408,7 +436,14 @@ INSERT INTO `user` (`id_user`, `username`, `password`, `email`, `role`, `created
 (21, 'ayek', '$2y$10$WUkbjiqffAcZhkkurDY9j.FrVgLsAqVGWn7zFZOlEJDnubCJCK04u', 'ayek@gmail.com', 'mahasiswa', '2025-03-02 11:08:22', '2025-03-02 11:08:22'),
 (23, 'jawo', '$2y$10$r6knezem4UNfYMswPhi89Of0sfksAFHZhLtBXhQ05apVmFnoQ6Q/W', 'jawo@gmail.com', 'mahasiswa', '2025-03-04 01:24:41', '2025-03-04 01:24:41'),
 (24, 'dinda', '$2y$10$3B1zuzo5avkxbOsCyASKne2zAxyJVEfLfojKGld6IUXkJuL20m58i', 'dinda@email.com', 'mahasiswa', '2025-03-14 05:48:59', '2025-03-14 05:48:59'),
-(25, 'yusuf', '$2y$10$F7PxMcmqaeeCK88/hAXUsO65HP8fKyc2PRRkELobduqo2QFedvWTm', 'yusuf@gmail.com', 'dosen', '2025-03-15 23:45:17', '2025-03-15 23:45:17');
+(25, 'yusuf', '$2y$10$F7PxMcmqaeeCK88/hAXUsO65HP8fKyc2PRRkELobduqo2QFedvWTm', 'yusuf@gmail.com', 'dosen', '2025-03-15 23:45:17', '2025-03-15 23:45:17'),
+(27, 'yerix', '$2y$10$v1TZCWvnPLWUrtgojhcMKejTL6aNQ2nWNFNoSYqqk2JFXO/RY/cue', 'yerix@gmail.com', 'dosen', '2025-03-18 06:32:19', '2025-03-18 06:32:19'),
+(28, 'puput', '$2y$10$CRgoIWQJRuW534TxPJULcuWYfcRohq4e3zQxUgIDWWqltrfJuqgnu', 'puput@gmail.com', 'mahasiswa', '2025-03-18 00:07:03', '2025-03-18 00:07:03'),
+(29, 'HeryAfriadi', '$2y$10$mB6t2Zs70g4etjSrMHdl8.5YbS47tkj8OqoGfMM6rJtl0X1dz6ptG', 'heryafriyadi@gmail.com', 'dosen', '2025-03-19 04:22:07', '2025-03-19 04:22:07'),
+(30, 'Suci', '$2y$10$e7oxoTZ7CTNUtbYn9yKz8u6nFmEKAUk8fj910Xzd7K/9RkjZXE6Lq', 'suci@gmail.com', 'mahasiswa', '2025-03-18 21:27:04', '2025-03-18 21:27:04'),
+(31, 'melan', '$2y$10$37Pi94SIdhTQs62OwXtmUuhfRp923nrs4QcrZbAlVqEhFvbeXVjCS', 'melan@gmail.com', 'mahasiswa', '2025-03-18 21:34:31', '2025-03-18 21:34:31'),
+(32, 'iqbal', '$2y$10$Gujl28EqsN/AE/eXNOWoY.2700JAvTT5FMJ2XJr8y/DXqK2.D1ELK', 'iqbal@gmail.com', 'mahasiswa', '2025-03-19 06:38:27', '2025-03-19 06:38:27'),
+(33, 'joni', '$2y$10$4Eu.U/J64k5I9C5j6IkHxOGGMX4JC73gF6HV.sIlHOgFDavEIxAXa', 'joni@gmail.com', 'mahasiswa', '2025-03-19 08:53:45', '2025-03-19 08:53:45');
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
