@@ -162,4 +162,181 @@ class Auth extends BaseController
         // Set flashdata untuk notifikasi sukses
         return redirect()->to('/Auth')->with('success', 'Registrasi berhasil! Silakan login.');
     }
+
+    public function lupaPassword()
+    {
+        return view('v_lupapassword');
+    }
+
+    public function prosesLupaPassword()
+    {
+        $email = $this->request->getPost('email');
+        $model = new \App\Models\ModelAuth();
+        
+        // Validasi email
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            session()->setFlashdata('error', 'Format email tidak valid');
+            return redirect()->back();
+        }
+        
+        // Cek apakah email ada di database
+        $user = $model->where('email', $email)->first();
+        
+        if (!$user) {
+            session()->setFlashdata('error', 'Email tidak terdaftar dalam sistem');
+            return redirect()->back();
+        }
+
+        try {
+            // Generate token reset password
+            $token = bin2hex(random_bytes(32));
+            $expired = date('Y-m-d H:i:s', strtotime('+1 hour'));
+            
+            // Simpan token ke database
+            $result = $model->update($user['id_user'], [
+                'reset_token' => $token,
+                'reset_expired' => $expired
+            ]);
+
+            if (!$result) {
+                log_message('error', 'Gagal update token reset password: ' . json_encode($model->errors()));
+                session()->setFlashdata('error', 'Gagal memproses permintaan reset password. Silakan coba lagi nanti.');
+                return redirect()->back();
+            }
+
+            // Konfigurasi email
+            $email = \Config\Services::email();
+            
+            $email->setFrom('rezkikurniasnp@gmail.com', 'SiMagang System');
+            $email->setTo($user['email']);
+            $email->setSubject('Reset Password SiMagang');
+            
+            $message = "
+                <html>
+                <head>
+                    <style>
+                        body { font-family: Arial, sans-serif; }
+                        .container { padding: 20px; }
+                        .btn { 
+                            background-color: #4CAF50;
+                            border: none;
+                            color: white;
+                            padding: 15px 32px;
+                            text-align: center;
+                            text-decoration: none;
+                            display: inline-block;
+                            font-size: 16px;
+                            margin: 4px 2px;
+                            cursor: pointer;
+                            border-radius: 4px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class='container'>
+                        <h2>Reset Password SiMagang</h2>
+                        <p>Kami menerima permintaan untuk mereset password akun SiMagang Anda.</p>
+                        <p>Silakan klik tombol di bawah ini untuk mereset password Anda:</p>
+                        <p>
+                            <a href='" . base_url("Auth/resetPassword/$token") . "' class='btn'>Reset Password</a>
+                        </p>
+                        <p>Link ini akan kadaluarsa dalam 1 jam.</p>
+                        <p>Jika Anda tidak merasa meminta reset password, abaikan email ini.</p>
+                        <br>
+                        <p>Hormat kami,<br>Tim SiMagang</p>
+                    </div>
+                </body>
+                </html>
+            ";
+            
+            $email->setMessage($message);
+            
+            if ($email->send()) {
+                session()->setFlashdata('success', 'Link reset password telah dikirim ke email Anda. Silakan cek inbox atau folder spam.');
+            } else {
+                // Log error untuk debugging
+                log_message('error', 'Error kirim email: ' . $email->printDebugger(['headers']));
+                session()->setFlashdata('error', 'Gagal mengirim email reset password. Silakan coba lagi nanti.');
+            }
+            
+        } catch (\Exception $e) {
+            log_message('error', 'Error dalam proses reset password: ' . $e->getMessage());
+            session()->setFlashdata('error', 'Terjadi kesalahan sistem. Silakan coba lagi nanti.');
+        }
+        
+        return redirect()->back();
+    }
+
+    public function resetPassword($token)
+    {
+        $model = new \App\Models\ModelAuth();
+        
+        // Cek token dan expired time
+        $user = $model->where('reset_token', $token)
+                     ->where('reset_expired >', date('Y-m-d H:i:s'))
+                     ->first();
+        
+        if (!$user) {
+            session()->setFlashdata('error', 'Link reset password tidak valid atau sudah kadaluarsa');
+            return redirect()->to('Auth/lupaPassword');
+        }
+
+        $data = [
+            'token' => $token,
+            'validation' => \Config\Services::validation()
+        ];
+
+        return view('v_reset_password', $data);
+    }
+
+    public function prosesResetPassword()
+    {
+        // Validasi input
+        $rules = [
+            'password' => 'required|min_length[6]',
+            'confirm_password' => 'required|matches[password]'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        $token = $this->request->getPost('token');
+        $password = $this->request->getPost('password');
+        
+        $model = new \App\Models\ModelAuth();
+        
+        // Cek token dan expired time
+        $user = $model->where('reset_token', $token)
+                     ->where('reset_expired >', date('Y-m-d H:i:s'))
+                     ->first();
+        
+        if (!$user) {
+            session()->setFlashdata('error', 'Link reset password tidak valid atau sudah kadaluarsa');
+            return redirect()->to('Auth/lupaPassword');
+        }
+
+        try {
+            // Update password
+            $result = $model->update($user['id_user'], [
+                'password' => password_hash($password, PASSWORD_DEFAULT),
+                'reset_token' => null,
+                'reset_expired' => null
+            ]);
+
+            if (!$result) {
+                log_message('error', 'Gagal update password: ' . json_encode($model->errors()));
+                session()->setFlashdata('error', 'Gagal mereset password. Silakan coba lagi nanti.');
+                return redirect()->back();
+            }
+
+            session()->setFlashdata('success', 'Password berhasil direset. Silakan login dengan password baru Anda.');
+            return redirect()->to('Auth');
+            
+        } catch (\Exception $e) {
+            log_message('error', 'Error dalam proses update password: ' . $e->getMessage());
+            session()->setFlashdata('error', 'Terjadi kesalahan sistem. Silakan coba lagi nanti.');
+            return redirect()->back();
+        }
+    }
 }

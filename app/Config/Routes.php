@@ -25,6 +25,14 @@ $routes->post('Auth/processLogin', 'Auth::processLogin');
 $routes->get('Auth/logout', 'Auth::logout');
 $routes->post('auth/login', 'Auth::login');
 
+// Route untuk fitur lupa password
+$routes->get('Auth/lupaPassword', 'Auth::lupaPassword');
+$routes->post('Auth/prosesLupaPassword', 'Auth::prosesLupaPassword');
+$routes->get('Auth/resetPassword/(:segment)', 'Auth::resetPassword/$1');
+$routes->post('Auth/prosesResetPassword', 'Auth::prosesResetPassword');
+
+
+
 //Admin Route
 $routes->get('Admin', 'Admin::index');
 $routes->get('Admin/PengajuanMahasiswa', 'Admin::PengajuanMahasiswa');
@@ -122,4 +130,5 @@ $routes->get('/dosen', 'Dosen::index');
 $routes->get('/mahasiswa', 'Mahasiswa::index');
 
 $routes->post('Dosen/simpanNilai', 'Dosen::simpanNilai');
+
 

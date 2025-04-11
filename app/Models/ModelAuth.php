@@ -5,10 +5,12 @@ namespace App\Models;
 use CodeIgniter\Model;
 
 class ModelAuth extends Model
-
 {
     protected $table = 'user';
-    protected $allowedFields = ['username', 'password', 'email', 'role'];
+    protected $primaryKey = 'id_user';
+    protected $useAutoIncrement = true;
+    protected $returnType = 'array';
+    protected $allowedFields = ['username', 'password', 'email', 'role', 'reset_token', 'reset_expired'];
     protected $useTimestamps = true;
 
     public function checkUser($username, $password)
