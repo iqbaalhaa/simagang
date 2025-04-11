@@ -211,14 +211,46 @@ class Auth extends BaseController
             $email->setTo($user['email']);
             $email->setSubject('Reset Password SiMagang');
             
+            // Tambahkan konfigurasi untuk format HTML
+            $email->setMailType('html');
+            $email->setProtocol('smtp');
+            $email->setNewline("\r\n");
+            
             $message = "
+                <!DOCTYPE html>
                 <html>
                 <head>
+                    <meta charset='UTF-8'>
+                    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
                     <style>
-                        body { font-family: Arial, sans-serif; }
-                        .container { padding: 20px; }
+                        body { 
+                            font-family: Arial, sans-serif;
+                            line-height: 1.6;
+                            color: #333;
+                            margin: 0;
+                            padding: 0;
+                        }
+                        .container { 
+                            max-width: 600px;
+                            margin: 0 auto;
+                            padding: 20px;
+                            background-color: #f9f9f9;
+                        }
+                        .header {
+                            text-align: center;
+                            padding: 20px 0;
+                            background-color: #1a2035;
+                            color: white;
+                            border-radius: 5px 5px 0 0;
+                        }
+                        .content {
+                            background-color: white;
+                            padding: 30px;
+                            border-radius: 0 0 5px 5px;
+                            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                        }
                         .btn { 
-                            background-color: #4CAF50;
+                            background-color: #1a2035;
                             border: none;
                             color: white;
                             padding: 15px 32px;
@@ -226,24 +258,61 @@ class Auth extends BaseController
                             text-decoration: none;
                             display: inline-block;
                             font-size: 16px;
-                            margin: 4px 2px;
+                            margin: 20px 0;
                             cursor: pointer;
                             border-radius: 4px;
+                            font-weight: bold;
+                        }
+                        .footer {
+                            text-align: center;
+                            padding: 20px;
+                            color: #666;
+                            font-size: 12px;
+                            border-top: 1px solid #eee;
+                            margin-top: 20px;
+                        }
+                        .logo {
+                            max-width: 100px;
+                            margin-bottom: 10px;
+                        }
+                        .warning {
+                            background-color: #fff3cd;
+                            color: #856404;
+                            padding: 15px;
+                            border-radius: 4px;
+                            margin: 20px 0;
+                            font-size: 14px;
                         }
                     </style>
                 </head>
                 <body>
                     <div class='container'>
-                        <h2>Reset Password SiMagang</h2>
-                        <p>Kami menerima permintaan untuk mereset password akun SiMagang Anda.</p>
-                        <p>Silakan klik tombol di bawah ini untuk mereset password Anda:</p>
-                        <p>
-                            <a href='" . base_url("Auth/resetPassword/$token") . "' class='btn'>Reset Password</a>
-                        </p>
-                        <p>Link ini akan kadaluarsa dalam 1 jam.</p>
-                        <p>Jika Anda tidak merasa meminta reset password, abaikan email ini.</p>
-                        <br>
-                        <p>Hormat kami,<br>Tim SiMagang</p>
+                        <div class='header'>
+                            <img src='" . base_url('backend/assets/img/logosi.png') . "' alt='SiMagang Logo' class='logo'>
+                            <h2 style='margin: 10px 0;'>Reset Password SiMagang</h2>
+                        </div>
+                        <div class='content'>
+                            <p>Halo,</p>
+                            <p>Kami menerima permintaan untuk mereset password akun SiMagang Anda.</p>
+                            <p>Silakan klik tombol di bawah ini untuk mereset password Anda:</p>
+                            <div style='text-align: center;'>
+                                <a href='" . base_url("Auth/resetPassword/$token") . "' class='btn'>Reset Password</a>
+                            </div>
+                            <div class='warning'>
+                                <strong>Penting:</strong>
+                                <ul style='margin: 10px 0; padding-left: 20px;'>
+                                    <li>Link ini akan kadaluarsa dalam 1 jam</li>
+                                    <li>Jangan bagikan link ini kepada siapapun</li>
+                                    <li>Jika Anda tidak merasa meminta reset password, abaikan email ini</li>
+                                </ul>
+                            </div>
+                            <p>Jika tombol di atas tidak berfungsi, Anda dapat menyalin dan menempelkan link berikut ke browser Anda:</p>
+                            <p style='word-break: break-all; font-size: 12px; color: #666;'>" . base_url("Auth/resetPassword/$token") . "</p>
+                        </div>
+                        <div class='footer'>
+                            <p>Email ini dikirim secara otomatis, mohon tidak membalas email ini</p>
+                            <p>&copy; " . date('Y') . " SiMagang. All rights reserved.</p>
+                        </div>
                     </div>
                 </body>
                 </html>
