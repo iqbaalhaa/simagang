@@ -1409,10 +1409,12 @@ class Admin extends BaseController
             }
 
             // Set font untuk nomor sertifikat
-            $pdf->SetFont('helvetica', '', 14);
+            $pdf->SetFont('helvetica', 'B', 14);
             $pdf->SetTextColor(0, 0, 0);
             $pdf->SetXY(0, 65);
-            $pdf->Cell(297, 0, 'No. ' . $noSertifikat, 0, 1, 'C');
+            $pdf->Cell(297, 0, 'No : ' . $noSertifikat, 0, 1, 'C');
+            $pdf->SetXY(0, 66);
+            $pdf->Cell(297, 0, '__________________', 0, 1, 'C');
 
             // Text "Diberikan Kepada"
             $pdf->SetFont('helvetica', '', 14);
