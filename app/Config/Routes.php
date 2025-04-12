@@ -71,6 +71,8 @@ $routes->post('Admin/updateStatusLoA', 'Admin::updateStatusLoA');
 $routes->post('Admin/updateCatatanLoA/(:num)', 'Admin::updateCatatanLoA/$1');
 $routes->get('Admin/DataAngkatan', 'Admin::DataAngkatan');
 $routes->get('Admin/cetakPDFAngkatan', 'Admin::cetakPDFAngkatan');
+$routes->get('Admin/ESertifikat', 'Admin::ESertifikat');
+$routes->get('Admin/generateSertifikat/(:num)', 'Admin::generateSertifikat/$1');
 
 
 //Mahasiswa Route

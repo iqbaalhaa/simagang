@@ -235,6 +235,12 @@
                             </div>
                         </li>
                         <li class="nav-item">
+                            <a href="<?= base_url('Admin/ESertifikat') ?>">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                                <p>E-Sertifikat</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="<?= base_url('Admin/DataAngkatan') ?>">
                                 <i class="fas fa-book"></i>
                                 <p>Data Angkatan</p>

@@ -2,6 +2,9 @@
 
 namespace App\Controllers;
 
+use CodeIgniter\Controller;
+use TCPDF;
+
 class Admin extends BaseController
 {
     protected $session;
@@ -1322,5 +1325,150 @@ class Admin extends BaseController
         // Output PDF
         $pdf->Output('Data_Mahasiswa_' . (!empty($angkatan) ? 'Angkatan_'.$angkatan : 'Semua_Angkatan') . '.pdf', 'I');
         exit();
+    }
+
+    public function ESertifikat()
+    {
+        $modelAdmin = new \App\Models\ModelAdmin();
+        $modelMahasiswa = new \App\Models\ModelMahasiswa();
+        
+        try {
+            $adminData = $modelAdmin->getAdminByUserId(session()->get('id_user'));
+            
+            // Ambil data mahasiswa yang sudah dinilai
+            $mahasiswaDinilai = $modelMahasiswa->getMahasiswaDinilai();
+            
+            $data = [
+                'judul' => 'E-Sertifikat',
+                'page' => 'admin/v_esertifikat',
+                'admin' => $adminData,
+                'mahasiswa' => $mahasiswaDinilai
+            ];
+
+            return view('v_template_backend', $data);
+        } catch (\Exception $e) {
+            log_message('error', 'Error di ESertifikat: ' . $e->getMessage());
+            session()->setFlashdata('error', 'Terjadi kesalahan saat memuat data');
+            return redirect()->back();
+        }
+    }
+
+    public function generateSertifikat($id_mahasiswa)
+    {
+        try {
+            $modelMahasiswa = new \App\Models\ModelMahasiswa();
+            $mahasiswa = $modelMahasiswa->getMahasiswaById($id_mahasiswa);
+            
+            if (!$mahasiswa) {
+                throw new \Exception('Data mahasiswa tidak ditemukan');
+            }
+            
+            // Ambil data nilai
+            $nilai = $modelMahasiswa->getNilaiMahasiswa($id_mahasiswa);
+            if (empty($nilai)) {
+                throw new \Exception('Nilai mahasiswa belum tersedia');
+            }
+
+            // Generate nomor sertifikat
+            $noSertifikat = 'CERT/' . date('Y') . '/' . str_pad($id_mahasiswa, 4, '0', STR_PAD_LEFT);
+            
+            // Load library TCPDF
+            $pdf = new TCPDF('L', 'mm', 'A4', true, 'UTF-8');
+            
+            // Set document information
+            $pdf->SetCreator('Sistem Informasi Magang');
+            $pdf->SetAuthor('Program Studi Sistem Informasi');
+            $pdf->SetTitle('E-Sertifikat Magang - ' . $mahasiswa['nama']);
+
+            // Remove header and footer
+            $pdf->setPrintHeader(false);
+            $pdf->setPrintFooter(false);
+            
+            // Set margins
+            $pdf->SetMargins(0, 0, 0);
+            $pdf->SetAutoPageBreak(false, 0);
+
+            // Add a page
+            $pdf->AddPage('L', 'A4');
+
+            // Set background image
+            $imagePath = FCPATH . 'img/Frame1.png';
+            if (file_exists($imagePath)) {
+                // Debug: Log file info
+                log_message('info', 'Loading image from: ' . $imagePath);
+                log_message('info', 'File size: ' . filesize($imagePath) . ' bytes');
+                
+                // Get page dimensions in mm
+                $pageWidth = 297;  // A4 landscape width in mm
+                $pageHeight = 210; // A4 landscape height in mm
+                
+                // Add image with exact dimensions
+                $pdf->Image($imagePath, 0, 0, $pageWidth, $pageHeight, 'PNG', '', '', true, 300, '', false, false, 0, false, false, false);
+            } else {
+                log_message('error', 'Certificate template not found at: ' . $imagePath);
+            }
+
+            // Set font untuk nomor sertifikat
+            $pdf->SetFont('helvetica', '', 14);
+            $pdf->SetTextColor(0, 0, 0);
+            $pdf->SetXY(0, 65);
+            $pdf->Cell(297, 0, 'No. ' . $noSertifikat, 0, 1, 'C');
+
+            // Text "Diberikan Kepada"
+            $pdf->SetFont('helvetica', '', 14);
+            $pdf->SetXY(0, 75);
+            $pdf->Cell(297, 0, 'Diberikan Kepada', 0, 1, 'C');
+
+            // Nama Mahasiswa
+            $pdf->SetFont('helvetica', 'B', 24);
+            $pdf->SetXY(0, 90);
+            $pdf->Cell(297, 0, $mahasiswa['nama'], 0, 1, 'C');
+
+            // Keterangan magang
+            $pdf->SetFont('helvetica', '', 14);
+            $pdf->SetXY(0, 110);
+            $pdf->writeHTML('<div style="text-align:center;">telah berhasil menyelesaikan <b>Magang</b><br>di ' . $mahasiswa['instansi'] . ' dengan nilai ' . $nilai[0]['nilai'] . '</div>', true, false, true, false, 'C');
+
+            // Informasi program studi
+            $pdf->SetFont('helvetica', '', 14);
+            $pdf->SetXY(0, 130);
+            $pdf->Cell(297, 0, 'yang diselenggarakan oleh', 0, 1, 'C');
+            
+            $pdf->SetFont('helvetica', 'B', 14);
+            $pdf->SetXY(0, 140);
+            $pdf->Cell(297, 0, 'Program Studi Sistem Informasi Fakultas Sains dan Teknologi', 0, 1, 'C');
+            $pdf->SetXY(0, 145);
+            $pdf->Cell(297, 0, 'UIN Sulthan Thaha Saifuddin Jambi', 0, 1, 'C');
+
+            // Tanda tangan
+            $pdf->SetFont('helvetica', 'B', 12);
+            $pdf->SetXY(50, 160);
+            $pdf->Cell(80, 0, 'Kepala Program Studi', 0, 0, 'C');
+            $pdf->SetXY(170, 160);
+            $pdf->Cell(80, 0, 'Sekretaris Program Studi', 0, 0, 'C');
+
+            $pdf->SetXY(50, 185);
+            $pdf->Cell(80, 0, '_____________________', 0, 0, 'C');
+            $pdf->SetXY(170, 185);
+            $pdf->Cell(80, 0, '_____________________', 0, 0, 'C');
+
+            $pdf->SetXY(50, 190);
+            $pdf->Cell(80, 0, 'Pol Metra', 0, 0, 'C');
+            $pdf->SetXY(170, 190);
+            $pdf->Cell(80, 0, 'Heri Afriadi', 0, 0, 'C');
+
+            // Set header untuk download PDF
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: inline; filename="Sertifikat_' . $mahasiswa['nim'] . '.pdf"');
+            
+            // Output PDF
+            $pdf->Output('Sertifikat_' . $mahasiswa['nim'] . '.pdf', 'I');
+            exit();
+            
+        } catch (\Exception $e) {
+            log_message('error', 'Error di generateSertifikat: ' . $e->getMessage());
+            session()->setFlashdata('error', 'Gagal generate sertifikat: ' . $e->getMessage());
+            return redirect()->to('Admin/ESertifikat');
+        }
     }
 }

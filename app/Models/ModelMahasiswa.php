@@ -415,4 +415,34 @@ class ModelMahasiswa extends Model
             ->get()
             ->getResultArray();
     }
+
+    public function getMahasiswaDinilai()
+    {
+        $db = \Config\Database::connect();
+        
+        return $db->table('mahasiswa m')
+                 ->select('m.id_mahasiswa, m.nim, m.nama, i.nama_instansi as instansi, n.nilai')
+                 ->join('nilai n', 'n.id_mahasiswa = m.id_mahasiswa')
+                 ->join('pengajuan_magang pm', 'pm.ketua_id = m.id_mahasiswa')
+                 ->join('instansi i', 'i.id_instansi = pm.instansi_id')
+                 ->where('n.nilai IS NOT NULL')
+                 ->get()
+                 ->getResultArray();
+    }
+
+    public function getMahasiswaById($id_mahasiswa)
+    {
+        try {
+            return $this->db->table('mahasiswa m')
+                ->select('m.*, i.nama_instansi as instansi')
+                ->join('pengajuan_magang pm', 'pm.ketua_id = m.id_mahasiswa')
+                ->join('instansi i', 'i.id_instansi = pm.instansi_id')
+                ->where('m.id_mahasiswa', $id_mahasiswa)
+                ->get()
+                ->getRowArray();
+        } catch (\Exception $e) {
+            log_message('error', 'Error di getMahasiswaById: ' . $e->getMessage());
+            return null;
+        }
+    }
 } 
