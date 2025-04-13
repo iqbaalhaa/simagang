@@ -993,4 +993,92 @@ class Mahasiswa extends BaseController
             return redirect()->back()->withInput();
         }
     }
+
+    public function downloadSertifikat()
+    {
+        try {
+            // Ambil ID mahasiswa dari session
+            $id_mahasiswa = $this->mahasiswa['id_mahasiswa'];
+
+            // Cek apakah mahasiswa sudah memiliki nilai
+            $nilai = $this->ModelMahasiswa->getNilaiMahasiswa($id_mahasiswa);
+            if (empty($nilai)) {
+                session()->setFlashdata('error', 'Nilai belum tersedia. Sertifikat tidak dapat didownload.');
+                return redirect()->to('Mahasiswa');
+            }
+
+            // Ambil data mahasiswa
+            $mahasiswa = $this->ModelMahasiswa->getMahasiswaById($id_mahasiswa);
+            if (!$mahasiswa) {
+                throw new \Exception('Data mahasiswa tidak ditemukan');
+            }
+
+            // Generate nomor sertifikat
+            $nomorSertifikat = 'CERT/' . date('Y') . '/' . str_pad($mahasiswa['id_mahasiswa'], 4, '0', STR_PAD_LEFT);
+
+            // Inisialisasi TCPDF
+            $pdf = new \TCPDF('L', 'mm', 'A4', true, 'UTF-8');
+
+            // Set document information
+            $pdf->SetCreator('Sistem Informasi Magang');
+            $pdf->SetAuthor('Program Studi Sistem Informasi');
+            $pdf->SetTitle('Sertifikat Magang - ' . $mahasiswa['nama']);
+
+            // Remove default header/footer
+            $pdf->setPrintHeader(false);
+            $pdf->setPrintFooter(false);
+
+            // Add a page
+            $pdf->AddPage();
+
+            // Set margins
+            $pdf->SetMargins(0, 0, 0);
+
+            // Get the current page dimensions
+            $pageWidth = $pdf->getPageWidth();
+            $pageHeight = $pdf->getPageHeight();
+
+            // Set background image
+            $imagePath = FCPATH . 'img/Frame1.png';
+            if (file_exists($imagePath)) {
+                $pdf->Image($imagePath, 0, 0, $pageWidth, $pageHeight, '', '', '', false, 300, '', false, false, 0);
+            }
+
+            // Set font
+            $pdf->SetFont('helvetica', '', 14);
+
+            // Add certificate number
+            $pdf->SetXY(15, 50);
+            $pdf->Cell(0, 0, 'No. ' . $nomorSertifikat, 0, 1, 'L');
+
+            // Add recipient name
+            $pdf->SetXY(0, 90);
+            $pdf->SetFont('helvetica', '', 14);
+            $pdf->Cell($pageWidth, 0, 'Diberikan Kepada:', 0, 1, 'C');
+
+            $pdf->SetXY(0, 100);
+            $pdf->SetFont('helvetica', 'B', 24);
+            $pdf->Cell($pageWidth, 0, $mahasiswa['nama'], 0, 1, 'C');
+
+            // Add internship description
+            $pdf->SetXY(0, 120);
+            $pdf->SetFont('helvetica', '', 14);
+            $html = 'telah berhasil menyelesaikan <b>Magang</b> di ' . $mahasiswa['instansi'] . 
+                   ' dengan nilai ' . $nilai[0]['nilai'];
+            $pdf->writeHTML($html, true, false, true, false, 'C');
+
+            // Add program study information
+            $pdf->SetXY(0, 140);
+            $pdf->Cell($pageWidth, 0, 'Program Studi Sistem Informasi', 0, 1, 'C');
+
+            // Output PDF
+            $filename = 'Sertifikat_' . $mahasiswa['nim'] . '.pdf';
+            $pdf->Output($filename, 'D');
+
+        } catch (\Exception $e) {
+            log_message('error', 'Error generating certificate: ' . $e->getMessage());
+            session()->setFlashdata('error', 'Gagal menggenerate sertifikat. Silakan coba lagi.');
+            return redirect()->to('Mahasiswa');
+        }
+    }
 }

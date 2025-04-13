@@ -96,7 +96,7 @@ $routes->post('Mahasiswa/tambahLoA', 'Mahasiswa::tambahLoA');
 $routes->post('Mahasiswa/uploadSuratBalasan', 'Mahasiswa::uploadSuratBalasan');
 $routes->get('Mahasiswa/Laporan', 'Mahasiswa::Laporan');
 $routes->post('Mahasiswa/tambahLaporan', 'Mahasiswa::tambahLaporan');
-
+$routes->get('Mahasiswa/downloadSertifikat', 'Mahasiswa::downloadSertifikat');
 
 // Dosen Route
 $routes->group('Dosen', ['filter' => 'auth'], function($routes) {

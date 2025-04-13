@@ -20,6 +20,15 @@
                                     -
                                 <?php endif; ?>
                             </h4>
+                            <?php if (isset($nilai) && !empty($nilai)): ?>
+                            <a href="<?= base_url('Mahasiswa/downloadSertifikat') ?>" class="btn btn-primary">
+                                <i class="fas fa-download"></i> Download E-Sertifikat
+                            </a>
+                            <?php else: ?>
+                            <button type="button" class="btn btn-secondary" disabled>
+                                <i class="fas fa-download"></i> E-Sertifikat Belum Tersedia
+                            </button>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -128,7 +137,7 @@
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card card-info bg-info-gradient">
+        <div class="card">
             <div class="card-body">
                 <h4 class="mb-1 fw-bold">Informasi Profil</h4>
                 <div class="card-list">
@@ -146,8 +155,8 @@
                     </div>
                     <div class="item-list">
                         <div class="info-user ml-3">
-                            <div class="username">Program Studi</div>
-                            <div class="status"><?= $mahasiswa['prodi'] ?? '-' ?></div>
+                            <div class="username">Download E Sertifikat</div>
+                            
                         </div>
                     </div>
                 </div>

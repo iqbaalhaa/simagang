@@ -347,7 +347,7 @@
     <script>
     $(document).ready(function() {
         $('.select2').select2({
-            maximumSelectionLength: 3
+            maximumSelectionLength: 8
         });
     });
     </script>

@@ -130,7 +130,7 @@
                                 <option value="<?= $m['id_mahasiswa'] ?>"><?= $m['nim'] . ' - ' . $m['nama'] ?></option>
                             <?php endforeach; ?>
                         </select>
-                        <small class="form-text text-muted">Pilih maksimal 5 anggota</small>
+                        <small class="form-text text-muted">Pilih maksimal 8 anggota</small>
                     </div>
                     <div class="form-group">
                         <label>Surat Permohonan Magang</label>
