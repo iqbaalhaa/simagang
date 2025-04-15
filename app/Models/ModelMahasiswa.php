@@ -416,18 +416,37 @@ class ModelMahasiswa extends Model
             ->getResultArray();
     }
 
-    public function getMahasiswaDinilai()
+    public function getMahasiswaDinilai($search = null, $kelompok = null, $angkatan = null)
     {
         $db = \Config\Database::connect();
-        
-        return $db->table('mahasiswa m')
+        $builder = $db->table('mahasiswa m')
                  ->select('m.id_mahasiswa, m.nim, m.nama, i.nama_instansi as instansi, n.nilai')
                  ->join('nilai n', 'n.id_mahasiswa = m.id_mahasiswa')
-                 ->join('pengajuan_magang pm', 'pm.ketua_id = m.id_mahasiswa')
+                 ->join('pengajuan_magang pm', 'pm.id IN (SELECT pengajuan_id FROM anggota_kelompok WHERE mahasiswa_id = m.id_mahasiswa) OR pm.ketua_id = m.id_mahasiswa')
                  ->join('instansi i', 'i.id_instansi = pm.instansi_id')
-                 ->where('n.nilai IS NOT NULL')
-                 ->get()
-                 ->getResultArray();
+                 ->where('n.nilai IS NOT NULL');
+        
+        // Filter pencarian
+        if (!empty($search)) {
+            $builder->groupStart()
+                    ->like('m.nim', $search)
+                    ->orLike('m.nama', $search)
+                    ->groupEnd();
+        }
+        
+        // Filter kelompok
+        if (!empty($kelompok)) {
+            $builder->where('pm.id', $kelompok);
+        }
+        
+        // Filter angkatan
+        if (!empty($angkatan)) {
+            $builder->where('YEAR(m.tanggal_daftar)', $angkatan);
+        }
+        
+        return $builder->groupBy('m.id_mahasiswa')
+                      ->get()
+                      ->getResultArray();
     }
 
     public function getMahasiswaById($id_mahasiswa)

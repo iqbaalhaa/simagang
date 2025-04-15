@@ -1329,28 +1329,29 @@ class Admin extends BaseController
 
     public function ESertifikat()
     {
-        $modelAdmin = new \App\Models\ModelAdmin();
         $modelMahasiswa = new \App\Models\ModelMahasiswa();
+        $modelPengajuan = new \App\Models\ModelPengajuan();
         
-        try {
-            $adminData = $modelAdmin->getAdminByUserId(session()->get('id_user'));
-            
-            // Ambil data mahasiswa yang sudah dinilai
-            $mahasiswaDinilai = $modelMahasiswa->getMahasiswaDinilai();
-            
-            $data = [
-                'judul' => 'E-Sertifikat',
-                'page' => 'admin/v_esertifikat',
-                'admin' => $adminData,
-                'mahasiswa' => $mahasiswaDinilai
-            ];
-
-            return view('v_template_backend', $data);
-        } catch (\Exception $e) {
-            log_message('error', 'Error di ESertifikat: ' . $e->getMessage());
-            session()->setFlashdata('error', 'Terjadi kesalahan saat memuat data');
-            return redirect()->back();
-        }
+        // Ambil data filter dari GET
+        $search = $this->request->getGet('search');
+        $kelompok = $this->request->getGet('kelompok');
+        $angkatan = $this->request->getGet('angkatan');
+        
+        // Ambil data mahasiswa yang sudah dinilai dengan filter
+        $mahasiswa = $modelMahasiswa->getMahasiswaDinilai($search, $kelompok, $angkatan);
+        
+        // Ambil data kelompok untuk dropdown
+        $kelompok = $modelPengajuan->getAllKelompok();
+        
+        $data = [
+            'judul' => 'E-Sertifikat',
+            'mahasiswa' => $mahasiswa,
+            'kelompok' => $kelompok,
+            'admin' => $this->admin,
+            'page' => 'admin/v_esertifikat'
+        ];
+        
+        return view('v_template_backend', $data);
     }
 
     public function generateSertifikat($id_mahasiswa)

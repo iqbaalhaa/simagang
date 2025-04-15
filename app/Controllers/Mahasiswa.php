@@ -997,20 +997,19 @@ class Mahasiswa extends BaseController
     public function downloadSertifikat()
     {
         try {
-            // Ambil ID mahasiswa dari session
-            $id_mahasiswa = $this->mahasiswa['id_mahasiswa'];
+            // Ambil data mahasiswa dari session
+            $id_user = session()->get('id_user');
+            $mahasiswa = $this->ModelMahasiswa->getMahasiswaByUserId($id_user);
+            
+            if (!$mahasiswa) {
+                throw new \Exception('Data mahasiswa tidak ditemukan');
+            }
 
             // Cek apakah mahasiswa sudah memiliki nilai
-            $nilai = $this->ModelMahasiswa->getNilaiMahasiswa($id_mahasiswa);
+            $nilai = $this->ModelMahasiswa->getNilaiMahasiswa($mahasiswa['id_mahasiswa']);
             if (empty($nilai)) {
                 session()->setFlashdata('error', 'Nilai belum tersedia. Sertifikat tidak dapat didownload.');
                 return redirect()->to('Mahasiswa');
-            }
-
-            // Ambil data mahasiswa
-            $mahasiswa = $this->ModelMahasiswa->getMahasiswaById($id_mahasiswa);
-            if (!$mahasiswa) {
-                throw new \Exception('Data mahasiswa tidak ditemukan');
             }
 
             // Generate nomor sertifikat
@@ -1024,52 +1023,84 @@ class Mahasiswa extends BaseController
             $pdf->SetAuthor('Program Studi Sistem Informasi');
             $pdf->SetTitle('Sertifikat Magang - ' . $mahasiswa['nama']);
 
-            // Remove default header/footer
+            // Remove header and footer
             $pdf->setPrintHeader(false);
             $pdf->setPrintFooter(false);
-
-            // Add a page
-            $pdf->AddPage();
-
+           
             // Set margins
             $pdf->SetMargins(0, 0, 0);
+            $pdf->SetAutoPageBreak(false, 0);
 
-            // Get the current page dimensions
-            $pageWidth = $pdf->getPageWidth();
-            $pageHeight = $pdf->getPageHeight();
+            // Add a page
+            $pdf->AddPage('L', 'A4');
 
             // Set background image
             $imagePath = FCPATH . 'img/Frame1.png';
             if (file_exists($imagePath)) {
-                $pdf->Image($imagePath, 0, 0, $pageWidth, $pageHeight, '', '', '', false, 300, '', false, false, 0);
+                // Debug: Log file info
+                log_message('info', 'Loading image from: ' . $imagePath);
+                log_message('info', 'File size: ' . filesize($imagePath) . ' bytes');
+                
+                // Get page dimensions in mm
+                $pageWidth = 297;  // A4 landscape width in mm
+                $pageHeight = 210; // A4 landscape height in mm
+                
+                // Add image with exact dimensions
+                $pdf->Image($imagePath, 0, 0, $pageWidth, $pageHeight, 'PNG', '', '', true, 300, '', false, false, 0, false, false, false);
+            } else {
+                log_message('error', 'Certificate template not found at: ' . $imagePath);
             }
 
-            // Set font
+            // Set font untuk nomor sertifikat
+            $pdf->SetFont('helvetica', 'B', 14);
+            $pdf->SetTextColor(0, 0, 0);
+            $pdf->SetXY(0, 65);
+            $pdf->Cell(297, 0, 'No : ' . $nomorSertifikat, 0, 1, 'C');
+            $pdf->SetXY(0, 66);
+            $pdf->Cell(297, 0, '__________________', 0, 1, 'C');
+
+            // Text "Diberikan Kepada"
             $pdf->SetFont('helvetica', '', 14);
+            $pdf->SetXY(0, 75);
+            $pdf->Cell(297, 0, 'Diberikan Kepada', 0, 1, 'C');
 
-            // Add certificate number
-            $pdf->SetXY(15, 50);
-            $pdf->Cell(0, 0, 'No. ' . $nomorSertifikat, 0, 1, 'L');
-
-            // Add recipient name
-            $pdf->SetXY(0, 90);
-            $pdf->SetFont('helvetica', '', 14);
-            $pdf->Cell($pageWidth, 0, 'Diberikan Kepada:', 0, 1, 'C');
-
-            $pdf->SetXY(0, 100);
+            // Nama Mahasiswa
             $pdf->SetFont('helvetica', 'B', 24);
-            $pdf->Cell($pageWidth, 0, $mahasiswa['nama'], 0, 1, 'C');
+            $pdf->SetXY(0, 90);
+            $pdf->Cell(297, 0, $mahasiswa['nama'], 0, 1, 'C');
 
-            // Add internship description
-            $pdf->SetXY(0, 120);
+            // Keterangan magang
             $pdf->SetFont('helvetica', '', 14);
-            $html = 'telah berhasil menyelesaikan <b>Magang</b> di ' . $mahasiswa['instansi'] . 
-                   ' dengan nilai ' . $nilai[0]['nilai'];
-            $pdf->writeHTML($html, true, false, true, false, 'C');
+            $pdf->SetXY(0, 110);
+            $pdf->writeHTML('<div style="text-align:center;">telah berhasil menyelesaikan <b>Magang</b><br>di ' . $mahasiswa['instansi'] . ' dengan nilai ' . $nilai[0]['nilai'] . '</div>', true, false, true, false, 'C');
 
-            // Add program study information
+            // Informasi program studi
+            $pdf->SetFont('helvetica', '', 14);
+            $pdf->SetXY(0, 130);
+            $pdf->Cell(297, 0, 'yang diselenggarakan oleh', 0, 1, 'C');
+            
+            $pdf->SetFont('helvetica', 'B', 14);
             $pdf->SetXY(0, 140);
-            $pdf->Cell($pageWidth, 0, 'Program Studi Sistem Informasi', 0, 1, 'C');
+            $pdf->Cell(297, 0, 'Program Studi Sistem Informasi Fakultas Sains dan Teknologi', 0, 1, 'C');
+            $pdf->SetXY(0, 145);
+            $pdf->Cell(297, 0, 'UIN Sulthan Thaha Saifuddin Jambi', 0, 1, 'C');
+
+            // Tanda tangan
+            $pdf->SetFont('helvetica', 'B', 12);
+            $pdf->SetXY(50, 160);
+            $pdf->Cell(80, 0, 'Kepala Program Studi', 0, 0, 'C');
+            $pdf->SetXY(170, 160);
+            $pdf->Cell(80, 0, 'Sekretaris Program Studi', 0, 0, 'C');
+
+            $pdf->SetXY(50, 185);
+            $pdf->Cell(80, 0, '_____________________', 0, 0, 'C');
+            $pdf->SetXY(170, 185);
+            $pdf->Cell(80, 0, '_____________________', 0, 0, 'C');
+
+            $pdf->SetXY(50, 190);
+            $pdf->Cell(80, 0, 'Pol Metra', 0, 0, 'C');
+            $pdf->SetXY(170, 190);
+            $pdf->Cell(80, 0, 'Heri Afriadi', 0, 0, 'C');
 
             // Output PDF
             $filename = 'Sertifikat_' . $mahasiswa['nim'] . '.pdf';

@@ -50,4 +50,14 @@ class ModelPengajuan extends Model
     {
         return $this->where(['status' => 'aktif'])->findAll();
     }
+
+    public function getAllKelompok()
+    {
+        return $this->db->table('pengajuan_magang pm')
+            ->select('pm.id, pm.nama_kelompok, i.nama_instansi')
+            ->join('instansi i', 'i.id_instansi = pm.instansi_id')
+            ->where('pm.status', 'disetujui')
+            ->get()
+            ->getResultArray();
+    }
 } 
