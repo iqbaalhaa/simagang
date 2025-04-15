@@ -441,7 +441,7 @@ class ModelMahasiswa extends Model
         
         // Filter angkatan
         if (!empty($angkatan)) {
-            $builder->where('YEAR(m.tanggal_daftar)', $angkatan);
+            $builder->where('m.angkatan', $angkatan);
         }
         
         return $builder->groupBy('m.id_mahasiswa')
