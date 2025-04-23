@@ -106,14 +106,19 @@
             </div>
         </div>
         
-        <div class="card card-info bg-info-gradient">
+        <div class="card">
             <div class="card-body">
                 <h4 class="mb-1 fw-bold">Pengajuan Terbaru</h4>
                 <div class="list-group">
                     <?php foreach (($pengajuan_terbaru ?? []) as $pengajuan): ?>
                     <div class="list-group-item border-0 p-2 mb-2 bg-opacity-25 rounded">
-                        <h6 class="mb-1"><?= $pengajuan['nama_mahasiswa'] ?></h6>
-                        <small><?= date('d/m/Y', strtotime($pengajuan['tgl_pengajuan'])) ?></small>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-1"><?= $pengajuan['nama_mahasiswa'] ?></h6>
+                            <span class="badge badge-<?= $pengajuan['status'] == 'pending' ? 'warning' : ($pengajuan['status'] == 'disetujui' ? 'success' : 'danger') ?>">
+                                <?= ucfirst($pengajuan['status']) ?>
+                            </span>
+                        </div>
+                        <small class="text-muted"><?= date('d/m/Y', strtotime($pengajuan['created_at'])) ?></small>
                     </div>
                     <?php endforeach; ?>
                 </div>

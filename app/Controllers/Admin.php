@@ -53,22 +53,22 @@ class Admin extends BaseController
         // Cek struktur tabel pengajuan_magang
         try {
             // Ambil pengajuan aktif
-            $data['total_pengajuan_aktif'] = $db->table('pengajuan_magang')->where('status', 'Menunggu')->countAllResults();
+            $data['total_pengajuan_aktif'] = $db->table('pengajuan_magang')->where('status', 'pending')->countAllResults();
 
             // Ambil pengajuan terbaru
-            $data['pengajuan_terbaru'] = $db->table('pengajuan_magang')
-                                           ->select('pengajuan_magang.*, mahasiswa.nama as nama_mahasiswa')
-                                           ->join('mahasiswa', 'mahasiswa.nim = pengajuan_magang.nim')
-                                           ->orderBy('tgl_pengajuan', 'DESC')
+            $data['pengajuan_terbaru'] = $db->table('pengajuan_magang pm')
+                                           ->select('pm.*, m.nama as nama_mahasiswa')
+                                           ->join('mahasiswa m', 'm.id_mahasiswa = pm.ketua_id')
+                                           ->orderBy('pm.created_at', 'DESC')
                                            ->limit(5)
                                            ->get()
                                            ->getResultArray();
 
             // Data untuk pie chart status pengajuan
             $data['status_pengajuan'] = [
-                'Menunggu' => $db->table('pengajuan_magang')->where('status', 'Menunggu')->countAllResults(),
-                'Diterima' => $db->table('pengajuan_magang')->where('status', 'Diterima')->countAllResults(),
-                'Ditolak' => $db->table('pengajuan_magang')->where('status', 'Ditolak')->countAllResults()
+                'Menunggu' => $db->table('pengajuan_magang')->where('status', 'pending')->countAllResults(),
+                'Diterima' => $db->table('pengajuan_magang')->where('status', 'disetujui')->countAllResults(),
+                'Ditolak' => $db->table('pengajuan_magang')->where('status', 'ditolak')->countAllResults()
             ];
 
             // Data untuk grafik statistik 6 bulan terakhir
@@ -82,17 +82,17 @@ class Admin extends BaseController
                 $bulan[] = date('M', strtotime("-$i month"));
 
                 $pengajuan[] = $db->table('pengajuan_magang')
-                                 ->where('DATE_FORMAT(tgl_pengajuan, "%Y-%m")', $bulan_ini)
+                                 ->where('DATE_FORMAT(created_at, "%Y-%m")', $bulan_ini)
                                  ->countAllResults();
 
                 $diterima[] = $db->table('pengajuan_magang')
-                                ->where('DATE_FORMAT(tgl_pengajuan, "%Y-%m")', $bulan_ini)
-                                ->where('status', 'Diterima')
+                                ->where('DATE_FORMAT(created_at, "%Y-%m")', $bulan_ini)
+                                ->where('status', 'disetujui')
                                 ->countAllResults();
 
                 $ditolak[] = $db->table('pengajuan_magang')
-                               ->where('DATE_FORMAT(tgl_pengajuan, "%Y-%m")', $bulan_ini)
-                               ->where('status', 'Ditolak')
+                               ->where('DATE_FORMAT(created_at, "%Y-%m")', $bulan_ini)
+                               ->where('status', 'ditolak')
                                ->countAllResults();
             }
 
