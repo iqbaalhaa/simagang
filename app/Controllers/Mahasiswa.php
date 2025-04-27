@@ -119,6 +119,9 @@ class Mahasiswa extends BaseController
                 $k['anggota'] = $this->ModelMahasiswa->getAnggotaKelompokDetail($k['id']);
             }
         }
+
+        // Cek status ketua
+        $is_ketua = $this->ModelMahasiswa->isKetuaKelompok($id_mahasiswa);
         
         $data = [
             'judul' => 'Dashboard Mahasiswa',
@@ -127,7 +130,7 @@ class Mahasiswa extends BaseController
             'nama_dosen' => $this->ModelMahasiswa->getDosenPembimbing($id_mahasiswa),
             'riwayat_absensi' => $this->ModelMahasiswa->getAbsensiMahasiswa($id_mahasiswa),
             'nilai' => $this->ModelMahasiswa->getNilaiMahasiswa($id_mahasiswa),
-            'is_ketua' => $this->ModelMahasiswa->isKetuaKelompok($id_mahasiswa),
+            'is_ketua' => $is_ketua,
             'total_logbook' => $this->ModelMahasiswa->getTotalLogbook($id_mahasiswa),
             'total_absensi' => $this->ModelMahasiswa->getTotalAbsensi($id_mahasiswa),
             'page' => 'mahasiswa/v_dashboard'
@@ -552,11 +555,24 @@ class Mahasiswa extends BaseController
         $modelMahasiswa = new \App\Models\ModelMahasiswa();
         $mahasiswaData = $modelMahasiswa->getMahasiswaByUserId(session()->get('id_user'));
 
+        // Ambil data kelompok dan status ketua
+        $kelompok = $this->ModelMahasiswa->getKelompokMagang($mahasiswaData['id_mahasiswa']);
+        $is_ketua = $this->ModelMahasiswa->isKetuaKelompok($mahasiswaData['id_mahasiswa']);
+        
+        // Tambahkan data anggota untuk setiap kelompok
+        if (!empty($kelompok)) {
+            foreach ($kelompok as &$k) {
+                $k['anggota'] = $this->ModelMahasiswa->getAnggotaKelompokDetail($k['id']);
+            }
+        }
+
         $data = [
             'judul' => 'Absensi Magang',
             'page' => 'mahasiswa/v_absensi',
             'mahasiswa' => $mahasiswaData,
-            'absensi' => $modelMahasiswa->getAbsensiMahasiswa($mahasiswaData['id_mahasiswa'])
+            'absensi' => $modelMahasiswa->getAbsensiMahasiswa($mahasiswaData['id_mahasiswa']),
+            'kelompok' => $kelompok,
+            'is_ketua' => $is_ketua
         ];
 
         return view('v_template_backend_mhs', $data);
@@ -672,11 +688,24 @@ class Mahasiswa extends BaseController
                                        ->orderBy('hari_ke', 'ASC')
                                        ->findAll();
             
+            // Ambil data kelompok dan status ketua
+            $kelompok = $this->ModelMahasiswa->getKelompokMagang($mahasiswaData['id_mahasiswa']);
+            $is_ketua = $this->ModelMahasiswa->isKetuaKelompok($mahasiswaData['id_mahasiswa']);
+            
+            // Tambahkan data anggota untuk setiap kelompok
+            if (!empty($kelompok)) {
+                foreach ($kelompok as &$k) {
+                    $k['anggota'] = $this->ModelMahasiswa->getAnggotaKelompokDetail($k['id']);
+                }
+            }
+            
             $data = [
                 'judul' => 'Logbook Kegiatan',
                 'page' => 'mahasiswa/v_logbook',
                 'mahasiswa' => $mahasiswaData,
-                'logbook' => $logbookData
+                'logbook' => $logbookData,
+                'kelompok' => $kelompok,
+                'is_ketua' => $is_ketua
             ];
 
             return view('v_template_backend_mhs', $data);
@@ -797,6 +826,7 @@ class Mahasiswa extends BaseController
                 'page' => 'mahasiswa/v_loa',
                 'mahasiswa' => $this->mahasiswa,
                 'is_ketua' => true,
+                'mahasiswa' => $mahasiswaData,
                 'loa' => $modelLoA->getLoAByMahasiswa($this->mahasiswa['id_mahasiswa'])
             ];
 
@@ -928,6 +958,7 @@ class Mahasiswa extends BaseController
                 'page' => 'mahasiswa/v_laporan',
                 'mahasiswa' => $this->mahasiswa,
                 'is_ketua' => true,
+                'mahasiswa' => $mahasiswaData,
                 'laporan' => $modelLaporan->getLaporanByMahasiswa($this->mahasiswa['id_mahasiswa'])
             ];
 

@@ -163,35 +163,28 @@
                             <h4 class="text-section">Components</h4>
                         </li>
                         <?php
-                        // Debug: Tampilkan data untuk analisis
-                        // echo '<pre style="font-size: 11px; color: #666;">';
-                        // echo "ID Mahasiswa yang login: " . $mahasiswa['id_mahasiswa'] . "\n";
-                        // echo "Data Kelompok:\n";
-                        // print_r($kelompok);
-                        // echo '</pre>';
-                        
-                        $showMenu = true; // Default: tampilkan menu
-                        
                         // Inisialisasi variabel kelompok jika belum ada
                         if (!isset($kelompok)) {
                             $kelompok = [];
                         }
                         
+                        // Cek apakah mahasiswa sudah memiliki kelompok
+                        $hasKelompok = false;
                         if (!empty($kelompok)) {
                             foreach ($kelompok as $k) {
-                                // Jika user adalah anggota kelompok, sembunyikan menu
-                                if (isset($k['anggota']) && is_array($k['anggota'])) {
+                                if (!empty($k['anggota'])) {
                                     foreach ($k['anggota'] as $anggota) {
-                                        if (isset($anggota['id_mahasiswa']) && $anggota['id_mahasiswa'] == $mahasiswa['id_mahasiswa']) {
-                                            $showMenu = false;
+                                        if ($anggota['id_mahasiswa'] == $mahasiswa['id_mahasiswa']) {
+                                            $hasKelompok = true;
                                             break 2;
                                         }
                                     }
                                 }
                             }
                         }
-
-                        if ($showMenu): 
+                        
+                        // Tampilkan menu pengajuan magang jika belum memiliki kelompok
+                        if (!$hasKelompok): 
                         ?>
                         <li class="nav-item">
                             <a href="<?= base_url('Mahasiswa/PengajuanMagang') ?>">
@@ -224,8 +217,6 @@
                                                 <span class="sub-item">LoA Journal</span>
                                             </a>
                                         </li>
-                                    <?php endif; ?>
-                                    <?php if(isset($is_ketua) && $is_ketua): ?>
                                         <li>
                                             <a href="<?= base_url('Mahasiswa/Laporan') ?>">
                                                 <span class="sub-item">Laporan</span>
