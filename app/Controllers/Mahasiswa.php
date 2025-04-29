@@ -332,6 +332,16 @@ class Mahasiswa extends BaseController
         // Ambil data kelompok magang jika ada
         $kelompokMagang = $modelMahasiswa->getKelompokMagang($mahasiswaData['id_mahasiswa']);
         
+        // Cek apakah mahasiswa sudah memiliki kelompok yang disetujui
+        if (!empty($kelompokMagang)) {
+            foreach ($kelompokMagang as $kelompok) {
+                if ($kelompok['status'] === 'disetujui') {
+                    session()->setFlashdata('error', 'Anda sudah memiliki kelompok magang yang aktif.');
+                    return redirect()->to('Mahasiswa');
+                }
+            }
+        }
+        
         // Ambil data instansi
         $instansi = $modelMahasiswa->getAllInstansi();
         
@@ -353,6 +363,17 @@ class Mahasiswa extends BaseController
     {
         $modelMahasiswa = new \App\Models\ModelMahasiswa();
         $mahasiswaData = $modelMahasiswa->getMahasiswaByUserId(session()->get('id_user'));
+
+        // Cek apakah mahasiswa sudah memiliki kelompok yang disetujui
+        $kelompokMagang = $modelMahasiswa->getKelompokMagang($mahasiswaData['id_mahasiswa']);
+        if (!empty($kelompokMagang)) {
+            foreach ($kelompokMagang as $kelompok) {
+                if ($kelompok['status'] === 'disetujui') {
+                    session()->setFlashdata('error', 'Anda sudah memiliki kelompok magang yang aktif.');
+                    return redirect()->to('Mahasiswa');
+                }
+            }
+        }
 
         // Validasi input
         $validation = \Config\Services::validation();
@@ -813,23 +834,30 @@ class Mahasiswa extends BaseController
                 throw new \Exception('Data mahasiswa tidak ditemukan');
             }
 
+            log_message('info', 'Mahasiswa data in LoA: ' . json_encode($this->mahasiswa));
+            
             // Cek apakah mahasiswa adalah ketua kelompok
-            if (!$this->ModelMahasiswa->isKetuaKelompok($this->mahasiswa['id_mahasiswa'])) {
+            $is_ketua = $this->ModelMahasiswa->isKetuaKelompok($this->mahasiswa['id_mahasiswa']);
+            log_message('info', 'Is ketua result: ' . ($is_ketua ? 'true' : 'false'));
+
+            if (!$is_ketua) {
                 session()->setFlashdata('error', 'Hanya ketua kelompok yang dapat mengakses menu LoA');
                 return redirect()->to('Mahasiswa');
             }
 
             $modelLoA = new \App\Models\ModelLoA();
+            $loa_data = $modelLoA->getLoAByMahasiswa($this->mahasiswa['id_mahasiswa']);
+            log_message('info', 'LoA data: ' . json_encode($loa_data));
             
             $data = [
                 'judul' => 'LoA Journal',
                 'page' => 'mahasiswa/v_loa',
                 'mahasiswa' => $this->mahasiswa,
                 'is_ketua' => true,
-                'mahasiswa' => $mahasiswaData,
-                'loa' => $modelLoA->getLoAByMahasiswa($this->mahasiswa['id_mahasiswa'])
+                'loa' => $loa_data
             ];
 
+            log_message('info', 'View data: ' . json_encode($data));
             return view('v_template_backend_mhs', $data);
         } catch (\Exception $e) {
             log_message('error', 'Error in LoA method: ' . $e->getMessage());
@@ -945,23 +973,30 @@ class Mahasiswa extends BaseController
                 throw new \Exception('Data mahasiswa tidak ditemukan');
             }
 
+            log_message('info', 'Mahasiswa data in Laporan: ' . json_encode($this->mahasiswa));
+            
             // Cek apakah mahasiswa adalah ketua kelompok
-            if (!$this->ModelMahasiswa->isKetuaKelompok($this->mahasiswa['id_mahasiswa'])) {
+            $is_ketua = $this->ModelMahasiswa->isKetuaKelompok($this->mahasiswa['id_mahasiswa']);
+            log_message('info', 'Is ketua result: ' . ($is_ketua ? 'true' : 'false'));
+
+            if (!$is_ketua) {
                 session()->setFlashdata('error', 'Hanya ketua kelompok yang dapat mengakses menu Laporan');
                 return redirect()->to('Mahasiswa');
             }
 
             $modelLaporan = new \App\Models\ModelLaporan();
+            $laporan_data = $modelLaporan->getLaporanByMahasiswa($this->mahasiswa['id_mahasiswa']);
+            log_message('info', 'Laporan data: ' . json_encode($laporan_data));
             
             $data = [
                 'judul' => 'Laporan Magang',
                 'page' => 'mahasiswa/v_laporan',
                 'mahasiswa' => $this->mahasiswa,
                 'is_ketua' => true,
-                'mahasiswa' => $mahasiswaData,
-                'laporan' => $modelLaporan->getLaporanByMahasiswa($this->mahasiswa['id_mahasiswa'])
+                'laporan' => $laporan_data
             ];
 
+            log_message('info', 'View data: ' . json_encode($data));
             return view('v_template_backend_mhs', $data);
         } catch (\Exception $e) {
             log_message('error', 'Error in Laporan method: ' . $e->getMessage());

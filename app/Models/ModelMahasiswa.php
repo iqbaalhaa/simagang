@@ -385,11 +385,14 @@ class ModelMahasiswa extends Model
     public function isKetuaKelompok($id_mahasiswa)
     {
         try {
+            log_message('info', 'Checking isKetuaKelompok for mahasiswa_id: ' . $id_mahasiswa);
+            
             $result = $this->db->table('pengajuan_magang')
                 ->where('ketua_id', $id_mahasiswa)
                 ->where('status', 'disetujui')
                 ->countAllResults();
             
+            log_message('info', 'isKetuaKelompok result: ' . $result);
             return $result > 0;
         } catch (\Exception $e) {
             log_message('error', 'Error di isKetuaKelompok: ' . $e->getMessage());

@@ -162,37 +162,12 @@
                             </span>
                             <h4 class="text-section">Components</h4>
                         </li>
-                        <?php
-                        // Inisialisasi variabel kelompok jika belum ada
-                        if (!isset($kelompok)) {
-                            $kelompok = [];
-                        }
-                        
-                        // Cek apakah mahasiswa sudah memiliki kelompok
-                        $hasKelompok = false;
-                        if (!empty($kelompok)) {
-                            foreach ($kelompok as $k) {
-                                if (!empty($k['anggota'])) {
-                                    foreach ($k['anggota'] as $anggota) {
-                                        if ($anggota['id_mahasiswa'] == $mahasiswa['id_mahasiswa']) {
-                                            $hasKelompok = true;
-                                            break 2;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        
-                        // Tampilkan menu pengajuan magang jika belum memiliki kelompok
-                        if (!$hasKelompok): 
-                        ?>
                         <li class="nav-item">
                             <a href="<?= base_url('Mahasiswa/PengajuanMagang') ?>">
                                 <i class="fas fa-briefcase"></i>
                                 <p>Pengajuan Magang</p>
                             </a>
                         </li>
-                        <?php endif; ?>
                         <li class="nav-item">
                             <a data-toggle="collapse" href="#charts">
                                 <i class="fas fa-folder-open"></i>
