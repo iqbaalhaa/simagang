@@ -1154,10 +1154,10 @@ class Mahasiswa extends BaseController
             // Tanda tangan
             $pdf->SetFont('helvetica', 'B', 12);
             $pdf->SetXY(50, 160);
-            $pdf->Cell(80, 0, 'Kepala Program Studi', 0, 0, 'C');
-            $pdf->SetXY(170, 160);
             $pdf->Cell(80, 0, 'Sekretaris Program Studi', 0, 0, 'C');
-
+            $pdf->SetXY(170, 160);
+            $pdf->Cell(80, 0, 'Kepala Program Studi', 0, 0, 'C');
+            
             $pdf->SetXY(50, 185);
             $pdf->Cell(80, 0, '_____________________', 0, 0, 'C');
             $pdf->SetXY(170, 185);
@@ -1167,6 +1167,7 @@ class Mahasiswa extends BaseController
             $pdf->Cell(80, 0, 'Pol Metra', 0, 0, 'C');
             $pdf->SetXY(170, 190);
             $pdf->Cell(80, 0, 'Heri Afriadi', 0, 0, 'C');
+
 
             // Output PDF
             $filename = 'Sertifikat_' . $mahasiswa['nim'] . '.pdf';

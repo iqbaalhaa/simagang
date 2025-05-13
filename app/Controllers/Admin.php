@@ -1446,9 +1446,9 @@ class Admin extends BaseController
             // Tanda tangan
             $pdf->SetFont('helvetica', 'B', 12);
             $pdf->SetXY(50, 160);
-            $pdf->Cell(80, 0, 'Kepala Program Studi', 0, 0, 'C');
-            $pdf->SetXY(170, 160);
             $pdf->Cell(80, 0, 'Sekretaris Program Studi', 0, 0, 'C');
+            $pdf->SetXY(170, 160);
+            $pdf->Cell(80, 0, 'Kepala Program Studi', 0, 0, 'C');
 
             $pdf->SetXY(50, 185);
             $pdf->Cell(80, 0, '_____________________', 0, 0, 'C');
